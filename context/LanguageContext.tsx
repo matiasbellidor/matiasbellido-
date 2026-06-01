@@ -94,6 +94,7 @@ type Dict = {
       title: string;
       desc: string;
     };
+    nexstock: ProjectItem;
     budgents: ProjectItem;
     nutriops: ProjectItem;
     imports: ProjectItem;
@@ -241,6 +242,13 @@ export const translations: Record<Lang, Dict> = {
         meta: "Abr 2026 - En desarrollo - Flagship",
         title: "Symbiosis AI",
         desc: "Tras encuestar a +80 estudiantes universitarios en CABA de entre 17-28 años, identifiqué una frustración constante: el miedo a quedar obsoletos frente a las herramientas que exige el mercado laboral actual. SymbiosisAI nace para cerrar esa brecha. No es solo una plataforma de estudio, es un ecosistema que enseña material de estudio universitario a través de la programación y el uso de tecnología real. Monitorea el progreso en tiempo real y ajusta el plan de aprendizaje para que el estudiante no solo apruebe sus materias, sino que domine las herramientas que lo harán competitivo el día de mañana.",
+      },
+
+      nexstock: {
+        date: "2026",
+        category: "BootCamp ITBA · Procesos y Operaciones",
+        title: "NexStock",
+        desc: "El problema\n• Las PyMEs que venden en múltiples canales —Mercado Libre, WhatsApp, Tienda Nube, mostrador— no logran sincronizar su dato de stock en tiempo real.\n• El resultado son sobreventas, cancelaciones y pérdidas silenciosas de hasta el 10% de la facturación anual.\n\nLa solución\n• Sincronización del dato de stock de los distintos canales de venta en tiempo real para PyMEs, con distribución inteligente por canal y reposición automática con proveedores.\n\nMi rol\n• Lideré el equipo en el BootCamp Emprendedores ITBA 2026, dentro de la categoría Procesos y Operaciones (Pan American Silver).\n• Estuve a cargo del análisis de datos de mercado, el diseño de los mockups del producto, la estructuración de la propuesta de negocio y la coordinación del equipo para optimizar tiempos y llegar con la idea lista para vender.\n• Presentamos la solución ante un jurado integrado por el CEO de Bianca, la Brand Experience Leader de Supervielle y el Chief Innovation & Transformation Officer de Teleperformance.",
       },
 
       budgents: {
@@ -414,6 +422,13 @@ export const translations: Record<Lang, Dict> = {
         meta: "Apr 2026 - In development - Flagship",
         title: "Symbiosis AI",
         desc: "After surveying 80+ university students in Buenos Aires aged 17-28, I identified a constant frustration: the fear of becoming obsolete against the tools demanded by today's job market. SymbiosisAI was born to close that gap. It's not just a study platform, it's an ecosystem that teaches university material through programming and the use of real technology. It monitors progress in real time and adjusts the learning plan so that students don't just pass their courses, but master the tools that will make them competitive tomorrow.",
+      },
+
+      nexstock: {
+        date: "2026",
+        category: "ITBA BootCamp · Operations",
+        title: "NexStock",
+        desc: "The problem\n• SMBs selling across multiple channels —Mercado Libre, WhatsApp, Tienda Nube, in-store— can't sync their stock data in real time.\n• The result is overselling, cancellations, and silent losses of up to 10% of annual revenue.\n\nThe solution\n• Real-time synchronization of stock data across every sales channel for SMBs, with smart per-channel distribution and automatic supplier restocking.\n\nMy role\n• I led the team at the ITBA Entrepreneurs BootCamp 2026, within the Processes & Operations category (Pan American Silver).\n• I was in charge of market data analysis, product mockup design, structuring the business proposal, and coordinating the team to optimize time and get the idea ready to pitch.\n• We presented the solution to a jury made up of the CEO of Bianca, the Brand Experience Leader at Supervielle, and the Chief Innovation & Transformation Officer at Teleperformance.",
       },
 
       budgents: {
