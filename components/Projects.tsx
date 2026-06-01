@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText } from "lucide-react";
+import { motion, AnimatePresence, useAnimation, type MotionProps } from "framer-motion";
+import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import Section from "./Section";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
@@ -18,8 +18,13 @@ const IMPORTS_PROPOSAL_URL = "/projects/Imagenes/Importaciones.pdf";
 const ASESORAMIENTOS_FITNESS_URL = "https://canva.link/yj6is9jfjf8y3j3";
 const ASESORAMIENTOS_EDUCATION_URL = "https://canva.link/mxh1ejfv32c2en1";
 
-// ORDEN: NutriOps PRIMERO (arriba), Budgents SEGUNDO (abajo)
+// NexStock (BootCamp ITBA) — el botón "Propuesta" abre un modal con estos dos archivos
+const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
+const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.ppt";
+
+// ORDEN del carrusel: NexStock PRIMERO, NutriOps SEGUNDO, Budgents TERCERO (se ven al desplazar)
 const digitalProjectsMeta = [
+  { id: "nexstock", image: "/projects/Imagenes/NexStock.png", tags: ["Product Strategy", "Data Analysis", "UX/UI", "Team Leadership"], proposalUrl: "" },
   { id: "nutriops", image: "/projects/Imagenes/solver.png", tags: ["Excel Solver", "Linear Programming", "Web Scraping", "Operations Research"], proposalUrl: NUTRIOPS_PROPOSAL_URL },
   { id: "budgents", image: "/projects/Imagenes/agents.png", tags: ["LLMs", "APIs", "Webhooks", "N8N"], proposalUrl: BUDGENTS_PROPOSAL_URL },
 ];
@@ -50,15 +55,17 @@ function RichDescription({ text }: { text: string }) {
   );
 }
 
-function ProposalButton({ projectId, url, lang, onAsesoramientosClick }: { projectId: string; url: string; lang: string; onAsesoramientosClick: () => void }) {
+function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstockClick }: { projectId: string; url: string; lang: string; onAsesoramientosClick: () => void; onNexstockClick?: () => void }) {
   const label = lang === "es" ? "Propuesta" : "Proposal";
   const isAsesoramientos = projectId === "asesoramientos";
-  const hasUrl = isAsesoramientos || url !== "";
+  const isNexstock = projectId === "nexstock";
+  const hasUrl = isAsesoramientos || isNexstock || url !== "";
   if (!hasUrl) return null;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isAsesoramientos) onAsesoramientosClick();
+    else if (isNexstock) onNexstockClick?.();
     else window.open(url, "_blank");
   };
 
@@ -77,35 +84,40 @@ export default function Projects() {
   const { setModalOpen: setGlobalModalOpen } = useModal();
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
+  const [nexstockModalOpen, setNexstockModalOpen] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const [clicked, setClicked] = useState(false);
   const [email, setEmail] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const lockControls = useAnimation();
 
   const digitalProjects = digitalProjectsMeta.map((meta) => {
-    const content = meta.id === "nutriops" ? t.projects.nutriops : t.projects.budgents;
+    const content =
+      meta.id === "nexstock" ? t.projects.nexstock :
+      meta.id === "nutriops" ? t.projects.nutriops :
+      t.projects.budgents;
     return { ...meta, ...content };
   });
   const businessProjects = businessProjectsMeta.map((meta) => ({ ...meta, ...(meta.id === "imports" ? t.projects.imports : t.projects.asesoramientos) }));
   const allProjects = [...digitalProjects, ...businessProjects];
 
   useEffect(() => {
-    setGlobalModalOpen(expandedId !== null || emailModalOpen || canvaModalOpen);
-  }, [expandedId, emailModalOpen, canvaModalOpen, setGlobalModalOpen]);
+    setGlobalModalOpen(expandedId !== null || emailModalOpen || canvaModalOpen || nexstockModalOpen);
+  }, [expandedId, emailModalOpen, canvaModalOpen, nexstockModalOpen, setGlobalModalOpen]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setExpandedId(null); setEmailModalOpen(false); setCanvaModalOpen(false); }
+      if (e.key === "Escape") { setExpandedId(null); setEmailModalOpen(false); setCanvaModalOpen(false); setNexstockModalOpen(false); }
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
   useEffect(() => {
-    if (expandedId || emailModalOpen || canvaModalOpen) document.body.style.overflow = "hidden";
+    if (expandedId || emailModalOpen || canvaModalOpen || nexstockModalOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
-  }, [expandedId, emailModalOpen, canvaModalOpen]);
+  }, [expandedId, emailModalOpen, canvaModalOpen, nexstockModalOpen]);
 
   useEffect(() => {
     if (!clicked) lockControls.start({ scale: [1, 1.08, 1], rotate: 0, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } });
@@ -127,6 +139,12 @@ export default function Projects() {
   };
 
   const handleModalLangToggle = () => setLang(lang === "es" ? "en" : "es");
+  const scrollCarousel = (dir: "left" | "right") => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.9;
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
   const expandedProject = allProjects.find((p) => p.id === expandedId);
 
   return (
@@ -177,10 +195,38 @@ export default function Projects() {
             </div>
           </motion.div>
 
-          <div className="flex flex-col gap-6">
-            {digitalProjects.map((project, i) => (
-              <ProjectCard key={project.id} project={project} index={i} onClick={() => setExpandedId(project.id)} lang={lang} onAsesoramientosClick={() => setCanvaModalOpen(true)} />
-            ))}
+          <div className="relative">
+            <div
+              ref={carouselRef}
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-2 lg:h-full lg:min-h-[600px]"
+            >
+              {digitalProjects.map((project, i) => (
+                <div key={project.id} className="shrink-0 snap-start flex w-[85%] sm:w-[60%] lg:w-[92%]">
+                  <ProjectCard project={project} index={i} onClick={() => setExpandedId(project.id)} lang={lang} onAsesoramientosClick={() => setCanvaModalOpen(true)} onNexstockClick={() => setNexstockModalOpen(true)} variant="carousel" />
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              aria-label={lang === "es" ? "Anterior" : "Previous"}
+              onClick={() => scrollCarousel("left")}
+              className="hidden lg:flex absolute left-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-cyan hover:bg-cyan/20 transition-all"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              aria-label={lang === "es" ? "Siguiente" : "Next"}
+              onClick={() => scrollCarousel("right")}
+              className="hidden lg:flex absolute right-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-cyan hover:bg-cyan/20 transition-all"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <p className="lg:hidden text-center text-[10px] uppercase tracking-wider text-cyan/60 mt-3">
+              {lang === "es" ? "Deslizá para ver más →" : "Swipe to see more →"}
+            </p>
           </div>
         </div>
       </div>
@@ -275,6 +321,36 @@ export default function Projects() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {nexstockModalOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setNexstockModalOpen(false)} className="fixed inset-0 z-[80] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} transition={{ type: "spring", duration: 0.5 }} onClick={(e) => e.stopPropagation()} className="relative glass rounded-2xl p-6 md:p-8 max-w-md w-full shadow-glow-lg">
+              <button onClick={() => setNexstockModalOpen(false)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"><X className="w-5 h-5 text-fg-soft" /></button>
+              <h3 className="font-display text-2xl md:text-3xl font-bold text-center mb-2 text-cyan">NexStock</h3>
+              <p className="text-center text-fg-soft text-sm mb-6">{lang === "es" ? "Accedé a los materiales del proyecto:" : "Access the project materials:"}</p>
+              <div className="space-y-3">
+                <a href={NEXSTOCK_PROPOSAL_PDF} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-cyan/20 hover:border-cyan/60 hover:bg-cyan/10 transition-all group">
+                  <FileText className="w-5 h-5 text-cyan shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-fg">{lang === "es" ? "Propuesta formal" : "Formal proposal"}</p>
+                    <p className="text-[11px] text-fg-muted">PDF</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-fg-muted group-hover:text-cyan transition-colors" />
+                </a>
+                <a href={NEXSTOCK_PRESENTATION_PPT} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-cyan/20 hover:border-cyan/60 hover:bg-cyan/10 transition-all group">
+                  <Briefcase className="w-5 h-5 text-cyan shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-fg">{lang === "es" ? "Presentación" : "Presentation"}</p>
+                    <p className="text-[11px] text-fg-muted">PPT</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-fg-muted group-hover:text-cyan transition-colors" />
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Section>
   );
 }
@@ -285,16 +361,23 @@ type ProjectCardProps = {
   onClick: () => void;
   lang: string;
   onAsesoramientosClick: () => void;
+  onNexstockClick?: () => void;
+  variant?: "grid" | "carousel";
 };
 
-function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick }: ProjectCardProps) {
+function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onNexstockClick, variant = "grid" }: ProjectCardProps) {
+  const isCarousel = variant === "carousel";
+  const motionProps: MotionProps = isCarousel
+    ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, delay: 0.15 + index * 0.1 } }
+    : { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-50px" }, transition: { duration: 0.5, delay: 0.2 + index * 0.1 } };
+  const containedImage = project.id === "imports" || project.id === "nexstock";
   return (
-    <motion.article initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }} onClick={onClick}
-      className="relative glass rounded-2xl overflow-hidden flex flex-col group flex-1 cursor-pointer hover:shadow-glow transition-shadow touch-manipulation">
-      <ProposalButton projectId={project.id} url={project.proposalUrl} lang={lang} onAsesoramientosClick={onAsesoramientosClick} />
+    <motion.article {...motionProps} onClick={onClick}
+      className="relative glass rounded-2xl overflow-hidden flex flex-col group flex-1 w-full cursor-pointer hover:shadow-glow transition-shadow touch-manipulation">
+      <ProposalButton projectId={project.id} url={project.proposalUrl} lang={lang} onAsesoramientosClick={onAsesoramientosClick} onNexstockClick={onNexstockClick} />
       <div className="relative aspect-[16/9] overflow-hidden bg-black">
         <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 1024px) 100vw, 50vw"
-          className={`${project.id === "imports" ? "object-contain" : "object-cover"} transition-transform duration-700 group-hover:scale-105`} />
+          className={`${containedImage ? "object-contain" : "object-cover"} transition-transform duration-700 group-hover:scale-105`} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
       </div>
       <div className="p-6 flex flex-col flex-1">
