@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useAnimation, type MotionProps } from "framer-motion";
-import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText } from "lucide-react";
 import Section from "./Section";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
@@ -85,7 +85,6 @@ export default function Projects() {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
   const [nexstockModalOpen, setNexstockModalOpen] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
   const [clicked, setClicked] = useState(false);
   const [email, setEmail] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -139,12 +138,6 @@ export default function Projects() {
   };
 
   const handleModalLangToggle = () => setLang(lang === "es" ? "en" : "es");
-  const scrollCarousel = (dir: "left" | "right") => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const amount = el.clientWidth * 0.9;
-    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
-  };
   const expandedProject = allProjects.find((p) => p.id === expandedId);
 
   return (
@@ -195,38 +188,10 @@ export default function Projects() {
             </div>
           </motion.div>
 
-          <div className="relative">
-            <div
-              ref={carouselRef}
-              className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-2 lg:h-full lg:min-h-[600px]"
-            >
-              {digitalProjects.map((project, i) => (
-                <div key={project.id} className="shrink-0 snap-start flex w-[85%] sm:w-[60%] lg:w-[92%]">
-                  <ProjectCard project={project} index={i} onClick={() => setExpandedId(project.id)} lang={lang} onAsesoramientosClick={() => setCanvaModalOpen(true)} onNexstockClick={() => setNexstockModalOpen(true)} variant="carousel" />
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              aria-label={lang === "es" ? "Anterior" : "Previous"}
-              onClick={() => scrollCarousel("left")}
-              className="hidden lg:flex absolute left-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-cyan hover:bg-cyan/20 transition-all"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              aria-label={lang === "es" ? "Siguiente" : "Next"}
-              onClick={() => scrollCarousel("right")}
-              className="hidden lg:flex absolute right-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-cyan hover:bg-cyan/20 transition-all"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            <p className="lg:hidden text-center text-[10px] uppercase tracking-wider text-cyan/60 mt-3">
-              {lang === "es" ? "Deslizá para ver más →" : "Swipe to see more →"}
-            </p>
+          <div className="grid grid-flow-col grid-rows-[auto_auto] gap-6 auto-cols-[82%] sm:auto-cols-[calc(50%_-_0.75rem)] overflow-x-scroll pt-2 pb-4 [scrollbar-width:thin] [scrollbar-color:rgb(34_211_238_/_0.6)_rgb(255_255_255_/_0.08)] [&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan/50 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-cyan/70">
+            {digitalProjects.map((project, i) => (
+              <ProjectCard key={project.id} project={project} index={i} onClick={() => setExpandedId(project.id)} lang={lang} onAsesoramientosClick={() => setCanvaModalOpen(true)} onNexstockClick={() => setNexstockModalOpen(true)} variant="carousel" />
+            ))}
           </div>
         </div>
       </div>
