@@ -20,7 +20,7 @@ const ASESORAMIENTOS_EDUCATION_URL = "https://canva.link/mxh1ejfv32c2en1";
 
 // NexStock (BootCamp ITBA) — el botón "Propuesta" abre un modal con estos dos archivos
 const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
-const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.ppt";
+const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.pdf";
 
 // ORDEN del carrusel: NexStock PRIMERO, NutriOps SEGUNDO, Budgents TERCERO (se ven al desplazar)
 const digitalProjectsMeta = [
@@ -307,7 +307,7 @@ export default function Projects() {
                   <Briefcase className="w-5 h-5 text-cyan shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-fg">{lang === "es" ? "Presentación" : "Presentation"}</p>
-                    <p className="text-[11px] text-fg-muted">PPT</p>
+                    <p className="text-[11px] text-fg-muted">PDF</p>
                   </div>
                   <ExternalLink className="w-4 h-4 text-fg-muted group-hover:text-cyan transition-colors" />
                 </a>
