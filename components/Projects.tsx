@@ -24,14 +24,14 @@ const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.pd
 
 // ORDEN del carrusel: NexStock PRIMERO, NutriOps SEGUNDO, Budgents TERCERO (se ven al desplazar)
 const digitalProjectsMeta = [
-  { id: "nexstock", image: "/projects/Imagenes/NexStock.png", tags: ["Product Strategy", "Data Analysis", "UX/UI", "Team Leadership"], proposalUrl: "" },
-  { id: "nutriops", image: "/projects/Imagenes/solver.png", tags: ["Excel Solver", "Linear Programming", "Web Scraping", "Operations Research"], proposalUrl: NUTRIOPS_PROPOSAL_URL },
-  { id: "budgents", image: "/projects/Imagenes/agents.png", tags: ["LLMs", "APIs", "Webhooks", "N8N"], proposalUrl: BUDGENTS_PROPOSAL_URL },
+  { id: "nexstock", image: "/projects/Imagenes/NexStock.png", proposalUrl: "" },
+  { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL },
+  { id: "budgents", image: "/projects/Imagenes/agents.png", proposalUrl: BUDGENTS_PROPOSAL_URL },
 ];
 
 const businessProjectsMeta = [
-  { id: "imports", image: "/projects/Imagenes/Imports.png", tags: ["Importaciones", "USA-LATAM", "Negociación", "Logística"], proposalUrl: IMPORTS_PROPOSAL_URL },
-  { id: "asesoramientos", image: "/projects/Imagenes/asesoramientos.png", tags: ["Liderazgo de equipos", "Gestión de clientes", "Mentorías", "Networking"], proposalUrl: "" },
+  { id: "imports", image: "/projects/Imagenes/Imports.png", proposalUrl: IMPORTS_PROPOSAL_URL },
+  { id: "asesoramientos", image: "/projects/Imagenes/asesoramientos.png", proposalUrl: "" },
 ];
 
 function RichDescription({ text }: { text: string }) {

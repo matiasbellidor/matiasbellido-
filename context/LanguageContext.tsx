@@ -24,6 +24,7 @@ type ProjectItem = {
   category: string;
   title: string;
   desc: string;
+  tags: string[];
 };
 
 type ExperienceItem = {
@@ -248,7 +249,8 @@ export const translations: Record<Lang, Dict> = {
         date: "Mayo 2026",
         category: "BootCamp ITBA · Procesos y Operaciones",
         title: "NexStock",
-        desc: "El problema\n• Las PyMEs que venden en múltiples canales —Mercado Libre, WhatsApp, Tienda Nube, mostrador— no logran sincronizar su dato de stock en tiempo real.\n• El resultado son sobreventas, cancelaciones y pérdidas silenciosas de hasta el 10% de la facturación anual.\n\nLa solución\n• Sincronización del dato de stock de los distintos canales de venta en tiempo real para PyMEs, con distribución inteligente por canal y reposición automática con proveedores.\n\nMi rol\n• Lideré el equipo en el BootCamp Emprendedores ITBA 2026, dentro de la categoría Procesos y Operaciones (Pan American Silver).\n• Estuve a cargo del análisis de datos de mercado, el diseño de los mockups del producto, la estructuración de la propuesta de negocio y la coordinación del equipo para optimizar tiempos y llegar con la idea lista para vender.\n• Presentamos la solución ante un jurado integrado por el CEO de Bianca, la Brand Experience Leader de Supervielle y el Chief Innovation & Transformation Officer de Teleperformance.",
+        desc: "Contexto de ejecución\n• Propuesta de valor y modelo de negocio desarrollados y validados en 3 días de inmersión intensiva.\n\nEl problema\n• Las PyMEs que venden en múltiples canales —Mercado Libre, WhatsApp, Tienda Nube, mostrador— no logran sincronizar su dato de stock en tiempo real.\n• El resultado son sobreventas, cancelaciones y pérdidas silenciosas de hasta el 10% de la facturación anual.\n\nLa solución\n• Sincronización del dato de stock de los distintos canales de venta en tiempo real para PyMEs, con distribución inteligente por canal y reposición automática con proveedores.\n\nMi rol\n• Lideré el equipo en el BootCamp Emprendedores ITBA 2026, dentro de la categoría Procesos y Operaciones (Pan American Silver).\n• Estuve a cargo del análisis de datos de mercado, el diseño de los mockups del producto, la estructuración de la propuesta de negocio y la coordinación del equipo para optimizar tiempos y llegar con la idea lista para vender.\n• Presentamos la solución ante un jurado integrado por el CEO de Bianca, la Brand Experience Leader de Supervielle y el Chief Innovation & Transformation Officer de Teleperformance.",
+        tags: ["Product Strategy", "Data Analysis", "UX/UI", "Team Leadership"],
       },
 
       budgents: {
@@ -256,6 +258,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Automatización - +3 PYMEs",
         title: "Budgents - AI Agents",
         desc: "Desarrollo de ecosistemas para escalar la atención al cliente sin perder calidad, permitiendo el foco en actividades de alto impacto. Evolucioné de Make a n8n para maximizar la flexibilidad técnica e integrar un mayor volumen de APIs. La solución automatiza el primer contacto, la calificación de leads y el agendamiento para PYMEs y marcas personales. Mediante webhooks e integración con Supabase, toda la data se registra y organiza automáticamente en tiempo real para un seguimiento estratégico impecable.",
+        tags: ["LLMs", "APIs", "Webhooks", "N8N"],
       },
 
       nutriops: {
@@ -263,6 +266,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Operations Research - Fitness",
         title: "NutriOps",
         desc: "Uno de mis side-hustle es ser personal trainer, y muchos clientes me plantean la misma situación: no saben cómo hacer bien las compras de supermercado para seguir su alimentación sin gastar de más. Por eso creé NutriOps, un modelo de programación lineal que maximiza el rendimiento nutricional bajo restricciones presupuestarias. El sistema se alimenta de un pipeline de web scraping desarrollado para extraer, en tiempo real, precios y stock de las principales cadenas de supermercados en CABA. Mediante Excel Solver, el modelo procesa esta data para generar la combinación óptima de alimentos al menor costo posible.",
+        tags: ["Excel Solver", "Linear Programming", "Web Scraping", "Operations Research"],
       },
 
       // ============ OPERACIONES DE NEGOCIO: IMPORTS BELLIDO ============
@@ -271,6 +275,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Importaciones - E-commerce",
         title: "Bellido Importaciones",
         desc: "Lo que comenzó en el nicho de la perfumería evolucionó hacia un servicio de importaciones minoristas 100% bajo pedido, eliminando costos operativos de stock y maximizando la eficiencia del capital. Mi enfoque central es conectar el mercado de Estados Unidos con el público local, garantizando precios competitivos mediante el análisis de ofertas internacionales.\n\nMi valor agregado no termina ahí: también optimizo la adquisición de productos nacionales. Me encargo de rastrear los mejores precios locales contactando directamente con proveedores para evitar sobrecostos de intermediarios. Me especializo en detectar oportunidades de ahorro en cualquier categoría y negociar condiciones ventajosas, logrando un equilibrio real entre la logística estratégica y la inteligencia financiera.",
+        tags: ["Importaciones", "USA-LATAM", "Negociación", "Logística"],
       },
 
       // ============ OPERACIONES DE NEGOCIO: BELLIDO ASESORAMIENTOS ============
@@ -279,6 +284,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Coaching & Educación",
         title: "Bellido Asesoramientos",
         desc: "Este proyecto nació de una necesidad personal de progreso y una vocación natural por la enseñanza. Comencé ayudando a otros jóvenes a dar sus primeros pasos en el gimnasio; lo que empezó como una búsqueda de mis primeros ingresos, se transformó rápidamente en un servicio con resultados reales que me llevó a profesionalizarme con certificaciones de la IFBB.\n\nEn este proceso, identifiqué una problemática común: el momento más crítico es el inicio. La falta de guía al empezar un hábito o una materia es lo que suele llevar al abandono. Por eso, en junio de 2023, decidí expandir esta filosofía al ámbito académico para atacar el mismo problema desde otro ángulo, aplicando un enfoque de gestión integral y resultados medibles.\n\nGestión Estratégica y Cartera:\n• Gestión integral de cartera de clientes: Planificación estratégica y cumplimiento de objetivos a corto, mediano y largo plazo para asegurar el éxito del proceso. (educación/fitness)\n• Gestión y retención de usuarios: Seguimiento personalizado para maximizar la adherencia al plan, logrando consistencia a través de comunicación efectiva y feedback continuo. (educación/fitness)\n• Enfoque orientado a resultados: Establecimiento de KPIs claros y monitoreo semanal para garantizar la evolución constante y la satisfacción del cliente. (educación/fitness)\n\nAcompañamiento e Inteligencia de Datos:\n• Planificación basada en datos: Diseño y periodización de mesociclos de entrenamiento, ajustando variables de volumen e intensidad según la respuesta fisiológica y el análisis de progreso. (fitness)\n• Navegación de procesos iniciales: Servicio diseñado para ayudar a las personas a transitar el comienzo de sus cursos o rutinas, brindando apoyo emocional y motivación. (educación/fitness)\n• Planificación personalizada: Creación de hojas de ruta individuales adaptadas al ritmo de vida y metas de cada usuario. (educación/fitness)\n\nLiderazgo y Dominio Técnico:\n• Gestión & Delegación: Liderazgo y coordinación de un equipo de profesionales para cubrir la demanda, asignándolos estratégicamente según el perfil y la necesidad técnica del cliente. (educación/fitness)\n• Dominio Técnico Avanzado: Dictado personal de materias de alta complejidad lógica (Análisis Matemático, Álgebra Lineal y Estadística Descriptiva). (educación)\n• Optimización de la Transición: Garantía de un proceso fluido entre la incertidumbre inicial y la aprobación de la materia o la consecución de la meta física. (educación/fitness)",
+        tags: ["Liderazgo de equipos", "Gestión de clientes", "Mentorías", "Networking"],
       },
 
       modal: {
@@ -428,7 +434,8 @@ export const translations: Record<Lang, Dict> = {
         date: "May 2026",
         category: "ITBA BootCamp · Operations",
         title: "NexStock",
-        desc: "The problem\n• SMBs selling across multiple channels —Mercado Libre, WhatsApp, Tienda Nube, in-store— can't sync their stock data in real time.\n• The result is overselling, cancellations, and silent losses of up to 10% of annual revenue.\n\nThe solution\n• Real-time synchronization of stock data across every sales channel for SMBs, with smart per-channel distribution and automatic supplier restocking.\n\nMy role\n• I led the team at the ITBA Entrepreneurs BootCamp 2026, within the Processes & Operations category (Pan American Silver).\n• I was in charge of market data analysis, product mockup design, structuring the business proposal, and coordinating the team to optimize time and get the idea ready to pitch.\n• We presented the solution to a jury made up of the CEO of Bianca, the Brand Experience Leader at Supervielle, and the Chief Innovation & Transformation Officer at Teleperformance.",
+        desc: "Execution context\n• Business value proposition and model developed and validated in 3 days of intensive immersion.\n\nThe problem\n• SMBs selling across multiple channels —Mercado Libre, WhatsApp, Tienda Nube, in-store— can't sync their stock data in real time.\n• The result is overselling, cancellations, and silent losses of up to 10% of annual revenue.\n\nThe solution\n• Real-time synchronization of stock data across every sales channel for SMBs, with smart per-channel distribution and automatic supplier restocking.\n\nMy role\n• I led the team at the ITBA Entrepreneurs BootCamp 2026, within the Processes & Operations category (Pan American Silver).\n• I was in charge of market data analysis, product mockup design, structuring the business proposal, and coordinating the team to optimize time and get the idea ready to pitch.\n• We presented the solution to a jury made up of the CEO of Bianca, the Brand Experience Leader at Supervielle, and the Chief Innovation & Transformation Officer at Teleperformance.",
+        tags: ["Product Strategy", "Data Analysis", "UX/UI", "Team Leadership"],
       },
 
       budgents: {
@@ -436,6 +443,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Automation - 3+ SMBs",
         title: "Budgents - AI Agents",
         desc: "Building ecosystems to scale customer service without losing quality, freeing teams to focus on high-impact work. I evolved from Make to n8n to maximize technical flexibility and integrate more APIs. The solution automates first contact, lead qualification, and scheduling for SMBs and personal brands. Through webhooks and Supabase integration, all data is captured and organized automatically in real time for impeccable strategic follow-up.",
+        tags: ["LLMs", "APIs", "Webhooks", "N8N"],
       },
 
       nutriops: {
@@ -443,6 +451,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Operations Research - Fitness",
         title: "NutriOps",
         desc: "One of my side-hustles is being a personal trainer, and many clients face the same problem: they don't know how to grocery shop efficiently to follow their nutrition plan without overspending. That's why I built NutriOps, a linear programming model that maximizes nutritional performance under budget constraints. The system is fed by a web scraping pipeline that extracts, in real time, prices and stock from the main supermarket chains in Buenos Aires. Through Excel Solver, the model processes this data to generate the optimal food combination at the lowest possible cost.",
+        tags: ["Excel Solver", "Linear Programming", "Web Scraping", "Operations Research"],
       },
 
       imports: {
@@ -450,6 +459,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Imports - E-commerce",
         title: "Bellido Importaciones",
         desc: "What started in the perfumery niche evolved into a 100% on-demand retail import service, eliminating stock operating costs and maximizing capital efficiency. My core focus is connecting the United States market with the local audience, ensuring competitive prices through the analysis of international offers.\n\nMy value-add doesn't end there: I also optimize the acquisition of domestic products. I track the best local prices by contacting suppliers directly to avoid intermediary markups. I specialize in detecting savings opportunities across any category and negotiating advantageous conditions, achieving a real balance between strategic logistics and financial intelligence.",
+        tags: ["Imports", "USA-LATAM", "Negotiation", "Logistics"],
       },
 
       asesoramientos: {
@@ -457,6 +467,7 @@ export const translations: Record<Lang, Dict> = {
         category: "Coaching & Education",
         title: "Bellido Asesoramientos",
         desc: "This project was born out of a personal need for progress and a natural vocation for teaching. I started by helping other young people take their first steps at the gym; what began as a search for my first income quickly transformed into a service with real results that led me to professionalize myself with IFBB certifications.\n\nIn this process, I identified a common problem: the most critical moment is the beginning. The lack of guidance when starting a habit or a subject is what usually leads to abandonment. That's why, in June 2023, I decided to expand this philosophy to the academic field to attack the same problem from another angle, applying an integral management approach with measurable results.\n\nStrategic Portfolio Management:\n• Integral client portfolio management: Strategic planning and short, medium, and long-term goal fulfillment to ensure the success of the process. (education/fitness)\n• User management and retention: Personalized follow-up to maximize plan adherence, achieving consistency through effective communication and continuous feedback. (education/fitness)\n• Results-oriented approach: Establishment of clear KPIs and weekly monitoring to guarantee constant progress and client satisfaction. (education/fitness)\n\nSupport and Data Intelligence:\n• Data-driven planning: Design and periodization of training mesocycles, adjusting volume and intensity variables according to physiological response and progress analysis. (fitness)\n• Initial process navigation: Service designed to help people navigate the beginning of their courses or routines, providing emotional support and motivation. (education/fitness)\n• Personalized planning: Creation of individual roadmaps adapted to each user's lifestyle and goals. (education/fitness)\n\nLeadership and Technical Mastery:\n• Management & Delegation: Leadership and coordination of a team of professionals to cover demand, strategically assigning them according to the profile and technical needs of the client. (education/fitness)\n• Advanced Technical Mastery: Personal teaching of subjects of high logical complexity (Mathematical Analysis, Linear Algebra and Descriptive Statistics). (education)\n• Transition Optimization: Guarantee of a smooth process between initial uncertainty and passing the subject or achieving the physical goal. (education/fitness)",
+        tags: ["Team Leadership", "Client Management", "Mentoring", "Networking"],
        },
 
       modal: {
