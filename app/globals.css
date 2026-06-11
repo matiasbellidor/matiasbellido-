@@ -23,6 +23,8 @@
   --grid-line: rgba(0, 102, 255, 0.05);
   --grid-glow: rgba(0, 102, 255, 0.06);
   --accent-cyan: #0088cc;
+  --nav-border-bottom: rgba(0, 102, 255, 0.28);
+  --aurora-opacity: 0.45;
 }
 
 /* DARK MODE */
@@ -46,6 +48,8 @@
   --grid-line: rgba(0, 229, 255, 0.04);
   --grid-glow: rgba(0, 102, 255, 0.12);
   --accent-cyan: #00e5ff;
+  --nav-border-bottom: rgba(0, 229, 255, 0.35);
+  --aurora-opacity: 0.6;
 }
 
 html {
@@ -98,12 +102,133 @@ a {
   box-shadow: 0 0 40px rgba(0, 102, 255, 0.15);
 }
 
+/* ── Navbar: glassmorphism pronunciado ──
+   Blur fuerte + saturación para el efecto "vidrio esmerilado"
+   y borde inferior de 1px semi-transparente que delimita el nav. */
+.glass-nav {
+  background: linear-gradient(135deg, var(--glass-bg-1) 0%, var(--glass-bg-2) 100%);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--nav-border-bottom);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.4s ease;
+}
+
 .gradient-text {
   background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 50%, var(--gradient-end) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+}
+
+/* ── Gradiente animado del nombre (Hero) ──
+   Usa las mismas variables del tema: en dark fluye
+   blanco → cyan → azul eléctrico; en light, azul → cyan → azul oscuro.
+   Loop suave de ida y vuelta, sin saltos. */
+.gradient-text-animated {
+  background: linear-gradient(
+    100deg,
+    var(--gradient-start) 0%,
+    var(--gradient-mid) 30%,
+    var(--gradient-end) 50%,
+    var(--gradient-mid) 70%,
+    var(--gradient-start) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: name-gradient-flow 9s ease-in-out infinite;
+}
+
+@keyframes name-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ── Aurora animada detrás de la foto (Hero) ──
+   Tres manchas de luz desenfocadas que derivan en loop lento.
+   Performance: el blur es estático (se rasteriza una sola vez por blob)
+   y SOLO se anima transform, que corre en GPU sin repaints. */
+.aurora-wrap {
+  position: absolute;
+  inset: -3.5rem;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--aurora-opacity);
+  transition: opacity 0.4s ease;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(44px);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.aurora-blob-1 {
+  width: 65%;
+  height: 55%;
+  left: -6%;
+  top: -2%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.85) 0%, transparent 70%);
+  animation: aurora-drift-1 16s ease-in-out infinite alternate;
+}
+
+.aurora-blob-2 {
+  width: 70%;
+  height: 60%;
+  right: -10%;
+  top: 28%;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.85) 0%, transparent 70%);
+  animation: aurora-drift-2 22s ease-in-out infinite alternate;
+}
+
+.aurora-blob-3 {
+  width: 60%;
+  height: 50%;
+  left: 16%;
+  bottom: -6%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.75) 0%, transparent 70%);
+  animation: aurora-drift-3 28s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-1 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(22%, 18%, 0) scale(1.25);
+  }
+}
+
+@keyframes aurora-drift-2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(-20%, -14%, 0) scale(0.9);
+  }
+}
+
+@keyframes aurora-drift-3 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.95);
+  }
+  100% {
+    transform: translate3d(14%, -22%, 0) scale(1.2);
+  }
 }
 
 .grid-bg {
@@ -179,5 +304,14 @@ section[id] {
   a[role="button"],
   .touch-manipulation {
     min-height: 36px;
+  }
+}
+
+/* Accesibilidad: si el usuario pidió reducir movimiento en su sistema,
+   apagamos las animaciones decorativas en loop */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob,
+  .gradient-text-animated {
+    animation: none;
   }
 }
