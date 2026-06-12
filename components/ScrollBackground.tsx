@@ -78,6 +78,17 @@ export default function ScrollRevealText({
     offset: ["start 0.9", "end 0.6"],
   });
 
+  /* Blindaje: si la prop `text` llega vacía o indefinida (p. ej. una
+     clave inexistente en LanguageContext), no renderizamos nada en vez
+     de romper el prerender con `undefined.split`. */
+  if (typeof text !== "string" || text.length === 0) {
+    console.warn(
+      "ScrollRevealText: la prop `text` llegó vacía o indefinida. " +
+        "Revisá que la clave usada exista en LanguageContext.tsx."
+    );
+    return null;
+  }
+
   const words = text.split(" ");
 
   /* Accesibilidad: con "reducir movimiento" activo, texto plano */
