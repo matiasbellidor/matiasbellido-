@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Quote } from "lucide-react";
 import Section from "./Section";
+import DropInText from "@/components/DropInText";
 import { useLanguage } from "@/context/LanguageContext";
 
 /* Curva de easing premium (la misma del Hero) */
@@ -88,33 +89,43 @@ export default function Bio() {
         ))}
       </motion.div>
 
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-80px" }}
-        className="relative max-w-4xl mx-auto"
-      >
-        <div className="flex items-center justify-center mb-12">
+      <div className="relative max-w-4xl mx-auto">
+        {/* 1. El divisor con las comillas entra primero */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          className="flex items-center justify-center mb-12"
+        >
           <div className="h-px w-16 bg-gradient-to-r from-transparent to-cyan/50" />
           <Quote className="w-6 h-6 text-cyan mx-4" strokeWidth={1.5} />
           <div className="h-px w-16 bg-gradient-to-l from-transparent to-cyan/50" />
-        </div>
+        </motion.div>
 
         <blockquote className="text-center">
-          <p className="font-sans text-2xl md:text-3xl lg:text-4xl text-fg leading-relaxed font-normal">
-            &ldquo;{t.bio.manifesto}&rdquo;
-          </p>
+          {/* 2. El manifiesto cae palabra por palabra al entrar en viewport */}
+          <DropInText
+            text={`\u201C${t.bio.manifesto}\u201D`}
+            className="font-sans text-2xl md:text-3xl lg:text-4xl text-fg leading-relaxed font-normal"
+          />
 
-          <footer className="mt-10 flex items-center justify-center gap-3">
+          {/* 3. La firma aparece al final, cuando las palabras ya asentaron */}
+          <motion.footer
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, delay: reduced ? 0 : 1, ease: EASE }}
+            className="mt-10 flex items-center justify-center gap-3"
+          >
             <div className="h-px w-12 bg-cyan/40" />
             <cite className="text-base uppercase tracking-[0.25em] text-cyan not-italic font-medium">
               Matias Bellido
             </cite>
             <div className="h-px w-12 bg-cyan/40" />
-          </footer>
+          </motion.footer>
         </blockquote>
-      </motion.div>
+      </div>
     </Section>
   );
 }
