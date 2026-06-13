@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, AnimatePresence, useAnimation, type MotionProps } from "framer-motion";
 import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText } from "lucide-react";
 import Section from "./Section";
-import RevealText from "@/components/RevealText";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
 
@@ -143,10 +142,15 @@ export default function Projects() {
 
   return (
     <Section id="projects" eyebrow={t.projects.eyebrow} title={t.projects.title}>
-      <RevealText
-        text={t.projects.sectionDesc}
-        className="max-w-4xl mx-auto text-base md:text-lg text-fg-soft leading-relaxed text-left mb-16"
-      />
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="max-w-4xl mx-auto text-base md:text-lg text-fg-soft leading-relaxed text-center mb-16"
+      >
+        {t.projects.sectionDesc}
+      </motion.p>
 
       <div className="mb-20">
         <div className="flex items-center gap-3 mb-8">

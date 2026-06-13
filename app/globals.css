@@ -25,8 +25,6 @@
   --accent-cyan: #0088cc;
   --nav-border-bottom: rgba(0, 102, 255, 0.28);
   --aurora-opacity: 0.45;
-  --scroll-thumb: rgba(0, 136, 204, 0.35);
-  --scroll-thumb-hover: rgba(0, 136, 204, 0.6);
 }
 
 /* DARK MODE */
@@ -52,8 +50,6 @@
   --accent-cyan: #00e5ff;
   --nav-border-bottom: rgba(0, 229, 255, 0.35);
   --aurora-opacity: 0.6;
-  --scroll-thumb: rgba(0, 229, 255, 0.3);
-  --scroll-thumb-hover: rgba(0, 229, 255, 0.55);
 }
 
 html {
@@ -113,51 +109,17 @@ button:active {
   display: none; /* Chrome, Safari, Opera */
 }
 
-/* ── Carrusel horizontal premium (Proyectos) ──
-   Scrollbar ultra-fina en cyan/azul translúcido + difuminado en
-   los bordes para insinuar "hay más contenido" sin recurrir a una
-   scrollbar pesada. Reemplaza a .no-scrollbar en ESE contenedor. */
+/* ── Carrusel horizontal (Proyectos) ──
+   Scroll horizontal funcional con la scrollbar nativa oculta de
+   forma limpia. Sin mask, sin gradientes, sin track/thumb custom:
+   las tarjetas se ven sin ninguna capa encima. */
 .scroll-fade-x {
-  /* Firefox: scrollbar fina, pista transparente */
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb) transparent;
-
-  /* Difuminado en los bordes izquierdo/derecho.
-     mask-image usa el canal alfa: negro = visible, transparent = oculto.
-     Los primeros/últimos 32px de la franja se desvanecen a 0. */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 32px,
-    #000 calc(100% - 32px),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 32px,
-    #000 calc(100% - 32px),
-    transparent 100%
-  );
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge viejo */
 }
 
-/* Chrome / Safari / Edge: scrollbar de 4px, pista invisible,
-   thumb redondeado en cyan translúcido */
 .scroll-fade-x::-webkit-scrollbar {
-  height: 4px;
-}
-
-.scroll-fade-x::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroll-fade-x::-webkit-scrollbar-thumb {
-  background: var(--scroll-thumb);
-  border-radius: 10px;
-}
-
-.scroll-fade-x::-webkit-scrollbar-thumb:hover {
-  background: var(--scroll-thumb-hover);
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .glass {
