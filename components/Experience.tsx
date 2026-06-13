@@ -79,6 +79,26 @@ export default function Experience() {
     return () => carousel.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // DESKTOP: la rueda del mouse sobre el carrusel NO debe moverlo de
+  // costado. Si el gesto es predominantemente vertical (lo normal con
+  // una rueda de mouse), reenviamos ese desplazamiento al scroll de la
+  // PÁGINA y evitamos que el navegador lo convierta en scroll horizontal
+  // del carrusel. El swipe horizontal de trackpad (deltaX) se respeta.
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const handleWheel = (e: WheelEvent) => {
+      // Gesto mayormente vertical → es scroll de página, no de carrusel
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault(); // frena el scroll-x nativo del contenedor
+        window.scrollBy({ top: e.deltaY, behavior: "auto" });
+      }
+    };
+    // passive:false es obligatorio para poder usar preventDefault
+    carousel.addEventListener("wheel", handleWheel, { passive: false });
+    return () => carousel.removeEventListener("wheel", handleWheel);
+  }, []);
+
   const scrollToCard = (idx: number) => {
     const carousel = carouselRef.current;
     if (!carousel) return;
@@ -122,10 +142,22 @@ export default function Experience() {
           </div>
         </div>
 
-        {/* Scroll container - scroll manual habilitado (overflow-x-auto) + scrollbar oculta (no-scrollbar) + scroll-snap */}
+        {/* Scroll container - SOLO horizontal:
+            - touch-action: pan-x → en mobile, los gestos verticales
+              pasan a la página (no se traban en el carrusel); solo el
+              swipe horizontal mueve las tarjetas.
+            - overscroll-behavior-x: contain → el scroll horizontal no
+              rebota ni se filtra al scroll de la página.
+            La rueda del mouse en desktop scrollea la página con
+            normalidad; el carrusel se mueve con las flechas y los dots. */}
         <div ref={carouselRef}
           className="flex gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 -mx-6 px-6 md:-mx-16 md:px-16"
-          style={{ scrollPaddingLeft: "1.5rem" }}>
+          style={{
+            scrollPaddingLeft: "1.5rem",
+            touchAction: "pan-x",
+            overscrollBehaviorX: "contain",
+            overscrollBehaviorY: "auto",
+          }}>
           {t.experience.items.map((item, i) => (
             <motion.div
               key={item.role + item.company}
