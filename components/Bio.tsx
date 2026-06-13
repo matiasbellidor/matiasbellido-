@@ -10,7 +10,7 @@ import { useLanguage } from "@/context/LanguageContext";
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export default function Bio() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const reduced = !!useReducedMotion();
 
   const skillCategories = [
@@ -106,6 +106,7 @@ export default function Bio() {
         <blockquote className="text-center">
           {/* 2. El manifiesto cae palabra por palabra al entrar en viewport */}
           <DropInText
+            key={lang}
             text={`\u201C${t.bio.manifesto}\u201D`}
             className="font-sans text-2xl md:text-3xl lg:text-4xl text-fg leading-relaxed font-normal"
           />
@@ -128,4 +129,4 @@ export default function Bio() {
       </div>
     </Section>
   );
-} 
+}
