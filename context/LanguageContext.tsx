@@ -79,6 +79,7 @@ type Dict = {
     experienceTitle: string;
     educationTitle: string;
     coursesTitle: string;
+    courses: string[];
     items: ExperienceItem[];
     education: EducationItem[];
   };
@@ -228,6 +229,20 @@ export const translations: Record<Lang, Dict> = {
           longDesc:
             "Formación humanista centrada en el pensamiento crítico y la conciencia social. Voluntariado en TECHO, deportes y actividades de acción social. Desarrollo de habilidades fundamentales que hoy complemento con mi formación técnica en Actuario y Ciencia de Datos.\n\nIniciativa y Ventas:\n• Para costear el viaje de egresados, me encargué de la venta de productos (tortas, rifas).\n• No me limité a vender mi parte; me ofrecí a gestionar y vender los productos de algunos compañeros para asegurar que todos llegaran al objetivo.\n• Fue mi primer contacto real con la venta y el trato con la gente.\n\nVoluntariado y Liderazgo:\n• Participación activa en proyectos sociales (TECHO).\n• Desarrollo de habilidades de trabajo en equipo, adaptabilidad en terreno y gestión de recursos bajo presión.\n\nHabilidades Blandas:\n• Comunicación efectiva y empatía como bases que hoy complemento con la formación técnica.",
         },
+      ],
+      courses: [
+        "Introduction to Model Context Protocol - Anthropic",
+        "Claude Platform 101 - Anthropic",
+        "Claude Code in Action - Anthropic",
+        "Data Science Intro - Santander Open Academy",
+        "Finanzas - FEMSA",
+        "Gestión Agile - Santander Open Academy",
+        "Claude Code 101 - Anthropic",
+        "Introduction to Claude Cowork - Anthropic",
+        "Negociación - Santander Open Academy",
+        "Storytelling - Santander Open Academy",
+        "Claude 101: Everyday Work Tasks - Anthropic",
+        "AI Fluency for Educators - Anthropic",
       ],
     },
 
@@ -418,6 +433,20 @@ export const translations: Record<Lang, Dict> = {
           longDesc:
             "Humanist education centered on critical thinking and social awareness. Volunteering at TECHO, sports, and social action activities. Development of foundational skills that I now complement with my technical training in Actuarial Science and Data Science.\n\nInitiative and Sales:\n• To pay for the senior class trip, I took charge of selling products (cakes, raffles).\n• I didn't limit myself to selling my own share; I offered to manage and sell my classmates' products to ensure everyone reached the goal.\n• It was my first real contact with sales and dealing with people.\n\nVolunteering and Leadership:\n• Active participation in social projects (TECHO).\n• Development of teamwork skills, field adaptability, and resource management under pressure.\n\nSoft Skills:\n• Effective communication and empathy as foundations that I now complement with technical training.",
         },
+      ],
+      courses: [
+        "Introduction to Model Context Protocol - Anthropic",
+        "Claude Platform 101 - Anthropic",
+        "Claude Code in Action - Anthropic",
+        "Data Science Intro - Santander Open Academy",
+        "Finance - FEMSA",
+        "Agile Management - Santander Open Academy",
+        "Claude Code 101 - Anthropic",
+        "Introduction to Claude Cowork - Anthropic",
+        "Negotiation - Santander Open Academy",
+        "Storytelling - Santander Open Academy",
+        "Claude 101: Everyday Work Tasks - Anthropic",
+        "AI Fluency for Educators - Anthropic",
       ],
     },
     projects: {

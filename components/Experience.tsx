@@ -31,13 +31,6 @@ const educationLogos = [
   "/projects/Imagenes/STJ.png",
 ];
 
-const courses = [
-  "Negociación - Santander Open Academy",
-  "Storytelling - Santander Open Academy",
-  "Data Science Intro - Santander Open Academy",
-  "Gestión Agile - Santander Open Academy",
-  "Finanzas - FEMSA",
-];
 
 export default function Experience() {
   const { t, lang, setLang } = useLanguage();
@@ -270,8 +263,8 @@ export default function Experience() {
           </div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="glass rounded-xl p-6">
             <ul className="space-y-4">
-              {courses.map((course, i) => (
-                <motion.li key={course} initial={{ opacity: 0, x: 10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }} className="flex items-start gap-3 text-sm md:text-base text-fg-soft">
+              {t.experience.courses.map((course, i) => (
+                <motion.li key={`${course}-${i}`} initial={{ opacity: 0, x: 10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }} className="flex items-start gap-3 text-sm md:text-base text-fg-soft">
                   <div className="w-1.5 h-1.5 rounded-full bg-cyan shrink-0 mt-2" />
                   <span>{course}</span>
                 </motion.li>
