@@ -229,16 +229,35 @@ export default function Experience() {
         </p>
       </div>
 
-      {/* EDUCACIÓN + FORMACIÓN */}
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-        <div>
+      {/* EDUCACIÓN + FORMACIÓN
+          PROBLEMA 1 (alineación de base en desktop):
+          - El grid con lg:items-stretch iguala la ALTURA de ambas columnas.
+          - Dentro de cada columna, el contenedor de tarjetas es flex-1 y la
+            ÚLTIMA tarjeta crece (flex-grow / last:flex-grow) para absorber el
+            espacio sobrante. Así, la columna más corta se estira hasta tocar la
+            misma línea base que la más larga, eliminando el hueco inferior. */}
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 lg:items-stretch">
+        {/* ──────── COLUMNA IZQUIERDA · Educación ──────── */}
+        <div className="flex flex-col h-full">
           <div className="flex items-center gap-3 mb-8">
             <GraduationCap className="w-5 h-5 text-cyan" />
             <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.experience.educationTitle}</h3>
           </div>
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-1 flex-col gap-8">
             {t.experience.education.map((item, i) => (
-              <motion.div key={item.institution} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: i * 0.1 }} onClick={() => setExpandedIdx(i)} className="glass rounded-2xl p-7 md:p-9 hover:shadow-glow transition-all cursor-pointer group touch-manipulation">
+              <motion.div
+                key={item.institution}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                onClick={() => setExpandedIdx(i)}
+                className="glass rounded-2xl p-7 md:p-9 hover:shadow-glow transition-all cursor-pointer group touch-manipulation flex flex-col last:flex-grow"
+              >
+                {/* HEADER: logo + (fechas / título / subtítulo) en una fila.
+                    PROBLEMA 2: el header se mantiene compacto al lado del logo
+                    tanto en mobile como en desktop (el texto del título es corto
+                    y fluye al costado del logo sin dejar espacio negro). */}
                 <div className="flex items-start gap-5 md:gap-6">
                   <div className="shrink-0 relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden">
                     <Image src={educationLogos[i]} alt={item.institution} fill sizes="96px" className="object-contain" />
@@ -246,55 +265,95 @@ export default function Experience() {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs uppercase tracking-[0.2em] text-cyan/80 mb-2.5 font-mono">{item.period}</p>
                     <h4 className="font-display text-xl md:text-2xl font-bold text-fg mb-1.5">{item.institution}</h4>
-                    <p className="text-base md:text-lg text-cyan mb-4">{item.degree}</p>
-                    <p className="text-sm md:text-base text-fg-soft leading-relaxed">{item.desc}</p>
-                    {item.descBullets && (
-                      <ul className="mt-4 space-y-2.5">
-                        {item.descBullets.map((bullet) => (
-                          <li key={bullet} className="flex items-start gap-3 text-sm md:text-base text-fg-soft leading-relaxed">
-                            <div className="w-1.5 h-1.5 rounded-full bg-cyan shrink-0 mt-2" />
-                            <span>{bullet}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <p className="text-[11px] uppercase tracking-wider text-cyan/70 mt-4">{lang === "es" ? "Click para leer más →" : "Click to read more →"}</p>
+                    <p className="text-base md:text-lg text-cyan">{item.degree}</p>
                   </div>
+                </div>
+
+                {/* BODY: descripción + bullets debajo del header, a ancho completo
+                    (w-full). En mobile esto elimina la columna delgada y el hueco
+                    negro debajo del logo; en desktop queda igual de prolijo. */}
+                <div className="w-full mt-5 md:mt-6">
+                  <p className="text-sm md:text-base text-fg-soft leading-relaxed">{item.desc}</p>
+                  {item.descBullets && (
+                    <ul className="mt-4 space-y-2.5">
+                      {item.descBullets.map((bullet) => (
+                        <li key={bullet} className="flex items-start gap-3 text-sm md:text-base text-fg-soft leading-relaxed">
+                          <div className="w-1.5 h-1.5 rounded-full bg-cyan shrink-0 mt-2" />
+                          <span>{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="text-[11px] uppercase tracking-wider text-cyan/70 mt-4">{lang === "es" ? "Click para leer más →" : "Click to read more →"}</p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
 
-        <div>
+        {/* ──────── COLUMNA DERECHA · Formación Complementaria ──────── */}
+        <div className="flex flex-col h-full">
           <div className="flex items-center gap-3 mb-8">
             <Award className="w-5 h-5 text-cyan" />
             <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.experience.coursesTitle}</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {t.experience.courses.map((group, gi, arr) => (
-              <motion.div
-                key={group.category}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.5, delay: gi * 0.08 }}
-                className={`glass rounded-xl p-6 ${gi === arr.length - 1 && arr.length % 2 !== 0 ? "md:col-span-2" : ""}`}
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-mono text-cyan/60">{String(gi + 1).padStart(2, "0")}</span>
-                  <h4 className="text-sm font-semibold uppercase tracking-wider text-cyan">{group.category}</h4>
-                </div>
-                <ul className={`space-y-3 ${gi === arr.length - 1 && arr.length % 2 !== 0 ? "md:columns-2 md:gap-x-8" : ""}`}>
-                  {group.items.map((course) => (
-                    <li key={course} className="flex items-start gap-3 text-sm md:text-base text-fg-soft break-inside-avoid">
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan shrink-0 mt-2" />
-                      <span>{course}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
+          <div className="flex flex-1 flex-col gap-5">
+            {/* Todas las tarjetas menos la última → grilla de 2 columnas. */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {t.experience.courses.slice(0, -1).map((group, gi) => (
+                <motion.div
+                  key={group.category}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: gi * 0.08 }}
+                  className="glass rounded-xl p-6"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xs font-mono text-cyan/60">{String(gi + 1).padStart(2, "0")}</span>
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-cyan">{group.category}</h4>
+                  </div>
+                  <ul className="space-y-3">
+                    {group.items.map((course) => (
+                      <li key={course} className="flex items-start gap-3 text-sm md:text-base text-fg-soft break-inside-avoid">
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan shrink-0 mt-2" />
+                        <span>{course}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* ÚLTIMA tarjeta → ancho completo + flex-grow: cierra el hueco
+                inferior y alinea la base con la columna de Educación. */}
+            {t.experience.courses.length > 0 && (() => {
+              const gi = t.experience.courses.length - 1;
+              const group = t.experience.courses[gi];
+              return (
+                <motion.div
+                  key={group.category}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: gi * 0.08 }}
+                  className="glass rounded-xl p-6 flex flex-col flex-grow"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xs font-mono text-cyan/60">{String(gi + 1).padStart(2, "0")}</span>
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-cyan">{group.category}</h4>
+                  </div>
+                  <ul className="space-y-3 md:columns-2 md:gap-x-8">
+                    {group.items.map((course) => (
+                      <li key={course} className="flex items-start gap-3 text-sm md:text-base text-fg-soft break-inside-avoid">
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan shrink-0 mt-2" />
+                        <span>{course}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              );
+            })()}
           </div>
         </div>
       </div>
