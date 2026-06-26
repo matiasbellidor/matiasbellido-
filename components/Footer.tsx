@@ -199,7 +199,7 @@ export default function Footer() {
               LinkedIn
             </a>
             <a
-              href="https://github.com/rbellidomatias-spec"
+              href="https://github.com/matiasbellidor"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass text-sm text-fg-soft hover:text-cyan hover:shadow-glow transition-all"
