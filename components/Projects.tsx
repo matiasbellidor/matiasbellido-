@@ -14,7 +14,8 @@ import { useModal } from "@/context/ModalContext";
 // ============================================================================
 const SYMBIOSIS_PROPOSAL_URL = "";
 const BUDGENTS_PROPOSAL_URL = "/projects/Imagenes/Budgents.pdf";
-const NUTRIOPS_PROPOSAL_URL = "";
+const NUTRIOPS_PROPOSAL_URL = "/projects/Imagenes/NutriOps.pdf";
+const ONEIRIC_PROPOSAL_URL = "/projects/Imagenes/OneiricAi.pdf";
 const IMPORTS_PROPOSAL_URL = "/projects/Imagenes/Importaciones.pdf";
 const ASESORAMIENTOS_FITNESS_URL = "https://canva.link/yj6is9jfjf8y3j3";
 const ASESORAMIENTOS_EDUCATION_URL = "https://canva.link/mxh1ejfv32c2en1";
@@ -23,10 +24,12 @@ const ASESORAMIENTOS_EDUCATION_URL = "https://canva.link/mxh1ejfv32c2en1";
 const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
 const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.pdf";
 
-// ORDEN del carrusel: NexStock PRIMERO, NutriOps SEGUNDO, Budgents TERCERO (se ven al desplazar)
+// ORDEN del carrusel (grid-flow-col con 2 filas -> se llena por COLUMNAS):
+// [0] OneiricAi (arriba-izq) | [1] NutriOps (abajo-izq) | [2] NexStock (arriba-der) | [3] Budgents (abajo-der)
 const digitalProjectsMeta = [
-  { id: "nexstock", image: "/projects/Imagenes/NexStock.png", proposalUrl: "", imageBg: "#FFFFFF" },
+  { id: "oneiric", image: "/projects/Imagenes/OneiricAi.png", proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05060E" },
   { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL },
+  { id: "nexstock", image: "/projects/Imagenes/NexStock.png", proposalUrl: "", imageBg: "#FFFFFF" },
   { id: "budgents", image: "/projects/Imagenes/agents.png", proposalUrl: BUDGENTS_PROPOSAL_URL },
 ];
 
@@ -93,6 +96,7 @@ export default function Projects() {
 
   const digitalProjects = digitalProjectsMeta.map((meta) => {
     const content =
+      meta.id === "oneiric" ? t.projects.oneiric :
       meta.id === "nexstock" ? t.projects.nexstock :
       meta.id === "nutriops" ? t.projects.nutriops :
       t.projects.budgents;
@@ -149,7 +153,7 @@ export default function Projects() {
         className="max-w-4xl mx-auto text-base md:text-lg text-fg-soft leading-relaxed text-center mb-16"
       />
 
-      <div className="mb-20">
+      <div className="mb-12">
         <div className="flex items-center gap-3 mb-8">
           <Code2 className="w-5 h-5 text-cyan" />
           <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
@@ -190,7 +194,7 @@ export default function Projects() {
             </div>
           </motion.div>
 
-          <div className="grid grid-flow-col grid-rows-[auto_auto] gap-6 auto-cols-[82%] sm:auto-cols-[calc(50%_-_0.75rem)] overflow-x-scroll pt-2 pb-4 scroll-fade-x">
+          <div className="grid grid-flow-col grid-rows-[1fr_1fr] gap-6 auto-cols-[82%] sm:auto-cols-[calc(50%_-_0.75rem)] overflow-x-scroll h-full scroll-fade-x">
             {digitalProjects.map((project, i) => (
               <ProjectCard key={project.id} project={project} index={i} onClick={() => setExpandedId(project.id)} lang={lang} onAsesoramientosClick={() => setCanvaModalOpen(true)} onNexstockClick={() => setNexstockModalOpen(true)} variant="carousel" />
             ))}
@@ -216,7 +220,7 @@ export default function Projects() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setExpandedId(null)} className="fixed inset-0 z-[60] modal-overlay" />
             <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 md:p-8 pointer-events-none">
               <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: 20 }} transition={{ duration: 0.35 }}
-                className="modal-surface rounded-3xl overflow-hidden w-full max-w-5xl max-h-[95vh] md:max-h-[90vh] flex flex-col pointer-events-auto">
+                className="relative modal-surface rounded-3xl overflow-hidden w-full max-w-5xl max-h-[95vh] md:max-h-[90vh] flex flex-col pointer-events-auto">
                 <div className="absolute top-3 right-3 md:top-4 md:right-4 z-50 flex items-center gap-2">
                   <button onClick={handleModalLangToggle} className="flex items-center gap-1.5 px-3 py-2.5 rounded-full glass hover:bg-cyan/20 transition-all touch-manipulation">
                     <Languages className="w-4 h-4 text-cyan" />
@@ -337,7 +341,7 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
   const motionProps: MotionProps = isCarousel
     ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, delay: 0.15 + index * 0.1 } }
     : { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-50px" }, transition: { duration: 0.5, delay: 0.2 + index * 0.1 } };
-  const containedImage = project.id === "imports" || project.id === "nexstock";
+  const containedImage = project.id === "imports" || project.id === "nexstock" || project.id === "oneiric";
   return (
     <motion.article {...motionProps} onClick={onClick}
       className="relative glass rounded-2xl overflow-hidden flex flex-col group flex-1 w-full cursor-pointer hover:shadow-glow transition-shadow touch-manipulation">
