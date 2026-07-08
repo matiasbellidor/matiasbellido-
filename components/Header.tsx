@@ -17,9 +17,11 @@ export default function Header() {
   const ignoreScrollSpy = useRef(false);
 
   // ORDEN CORRECTO: Inicio → Habilidades → Proyectos → Experiencia → Contacto
+  // NOTA: el id "bio" es el id real de la sección de Habilidades en el DOM
+  // (components/Bio.tsx usa <Section id="bio">), aunque el label sea "Habilidades/Skills".
   const navItems = [
     { href: "#home", label: t.nav.home, id: "home" },
-    { href: "#skills", label: t.nav.skills, id: "skills" },
+    { href: "#bio", label: t.nav.skills, id: "bio" },
     { href: "#projects", label: t.nav.projects, id: "projects" },
     { href: "#experience", label: t.nav.experience, id: "experience" },
     { href: "#contact", label: t.nav.contact, id: "contact" },

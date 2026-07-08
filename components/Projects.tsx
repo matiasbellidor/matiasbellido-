@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useAnimation, type MotionProps } from "framer-motion";
-import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText } from "lucide-react";
+import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown } from "lucide-react";
 import Section from "./Section";
 import WaveText from "@/components/WaveText";
 import { useLanguage } from "@/context/LanguageContext";
@@ -17,8 +17,8 @@ const BUDGENTS_PROPOSAL_URL = "/projects/Imagenes/Budgents.pdf";
 const NUTRIOPS_PROPOSAL_URL = "/projects/Imagenes/NutriOps.pdf";
 const ONEIRIC_PROPOSAL_URL = "/projects/Imagenes/OneiricAi.pdf";
 const IMPORTS_PROPOSAL_URL = "/projects/Imagenes/Importaciones.pdf";
-const ASESORAMIENTOS_FITNESS_URL = "https://canva.link/yj6is9jfjf8y3j3";
-const ASESORAMIENTOS_EDUCATION_URL = "https://canva.link/mxh1ejfv32c2en1";
+const ASESORAMIENTOS_FITNESS_URL = "/projects/Imagenes/Bellido-Asesoramientos-Fitness.pdf";
+const ASESORAMIENTOS_EDUCATION_URL = "/projects/Imagenes/Bellido-Asesoramientos-Educativo.pdf";
 
 // NexStock (BootCamp ITBA) — el botón "Propuesta" abre un modal con estos dos archivos
 const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
@@ -238,7 +238,13 @@ export default function Projects() {
                     <AnimatePresence mode="wait">
                       <motion.div key={`${expandedProject.id}-${lang}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
                         <p className="text-xs uppercase tracking-[0.2em] text-cyan mb-4">{expandedProject.date} - {expandedProject.category}</p>
-                        <h3 className="font-display text-3xl md:text-5xl font-bold mb-6 gradient-text">{expandedProject.title}</h3>
+                        <h3 className="font-display text-3xl md:text-5xl font-bold mb-3 gradient-text">{expandedProject.title}</h3>
+                        {expandedProject.role && (
+                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan/15 to-electric/10 border border-cyan/30 mb-6">
+                            <Crown className="w-3.5 h-3.5 text-cyan" strokeWidth={2} />
+                            <span className="text-xs font-semibold uppercase tracking-wider text-cyan">{expandedProject.role}</span>
+                          </div>
+                        )}
                         <RichDescription text={expandedProject.desc} />
                         <div className="flex flex-wrap gap-3 pt-6 border-t border-cyan/20">
                           {expandedProject.tags.map((tag: string) => <span key={tag} className="text-xs px-4 py-2 rounded-full bg-electric/10 text-cyan border border-cyan/30">{tag}</span>)}
@@ -278,15 +284,29 @@ export default function Projects() {
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} transition={{ type: "spring", duration: 0.5 }} onClick={(e) => e.stopPropagation()} className="relative glass rounded-2xl p-6 md:p-8 max-w-md w-full shadow-glow-lg">
               <button onClick={() => setCanvaModalOpen(false)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"><X className="w-5 h-5 text-fg-soft" /></button>
               <h3 className="font-display text-2xl md:text-3xl font-bold text-center mb-6 text-cyan">{lang === "es" ? "Mis Asesoramientos" : "My Services"}</h3>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-lg font-semibold text-cyan mb-2">{lang === "es" ? "Asesoramientos Fitness" : "Fitness Coaching"}</p>
-                  <a href={ASESORAMIENTOS_FITNESS_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-electric hover:text-cyan break-all underline">{ASESORAMIENTOS_FITNESS_URL}</a>
-                </div>
-                <div>
-                  <p className="text-lg font-semibold text-cyan mb-2">{lang === "es" ? "Asesoramientos Educativos" : "Educational Tutoring"}</p>
-                  <a href={ASESORAMIENTOS_EDUCATION_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-electric hover:text-cyan break-all underline">{ASESORAMIENTOS_EDUCATION_URL}</a>
-                </div>
+              <div className="space-y-4">
+                <a href={ASESORAMIENTOS_FITNESS_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-cyan/[0.06] border border-cyan/25 hover:border-cyan/60 hover:bg-cyan/[0.12] transition-all group">
+                  <div className="shrink-0 w-11 h-11 rounded-lg bg-cyan/10 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-cyan" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-semibold text-fg">{lang === "es" ? "Asesoramientos Fitness" : "Fitness Coaching"}</p>
+                    <p className="text-xs text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-cyan/60 group-hover:text-cyan shrink-0" />
+                </a>
+                <a href={ASESORAMIENTOS_EDUCATION_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-cyan/[0.06] border border-cyan/25 hover:border-cyan/60 hover:bg-cyan/[0.12] transition-all group">
+                  <div className="shrink-0 w-11 h-11 rounded-lg bg-cyan/10 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-cyan" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-semibold text-fg">{lang === "es" ? "Asesoramientos Educativos" : "Educational Tutoring"}</p>
+                    <p className="text-xs text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-cyan/60 group-hover:text-cyan shrink-0" />
+                </a>
               </div>
             </motion.div>
           </motion.div>
@@ -327,7 +347,7 @@ export default function Projects() {
 }
 
 type ProjectCardProps = {
-  project: { id: string; image: string; date: string; category: string; title: string; desc: string; tags: string[]; proposalUrl: string; imageBg?: string };
+  project: { id: string; image: string; date: string; category: string; title: string; role?: string; desc: string; tags: string[]; proposalUrl: string; imageBg?: string };
   index: number;
   onClick: () => void;
   lang: string;
@@ -361,7 +381,13 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
       </div>
       <div className="p-6 flex flex-col flex-1">
         <p className="text-[10px] uppercase tracking-[0.2em] text-fg-muted mb-2">{project.date} - {project.category}</p>
-        <h3 className="font-display text-xl font-bold mb-3 text-cyan">{project.title}</h3>
+        <h3 className="font-display text-xl font-bold mb-2 text-cyan">{project.title}</h3>
+        {project.role && (
+          <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-gradient-to-r from-cyan/15 to-electric/10 border border-cyan/30 mb-3">
+            <Crown className="w-3 h-3 text-cyan" strokeWidth={2} />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan">{project.role}</span>
+          </div>
+        )}
         <p className="text-sm text-fg-soft leading-relaxed mb-4 flex-1 line-clamp-3">{project.desc}</p>
         <div className="flex flex-wrap gap-2 pt-3 border-t border-white/5">
           {project.tags.map((tag) => <span key={tag} className="text-[10px] px-2.5 py-1 rounded-full bg-electric/10 text-cyan border border-cyan/20">{tag}</span>)}

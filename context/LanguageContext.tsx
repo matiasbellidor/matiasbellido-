@@ -23,6 +23,7 @@ type ProjectItem = {
   date: string;
   category: string;
   title: string;
+  role?: string;
   desc: string;
   tags: string[];
 };
@@ -308,7 +309,7 @@ export const translations: Record<Lang, Dict> = {
       },
 
       oneiric: {
-        date: "Junio 2026",
+        date: "Julio 2026",
         category: "Hackathon · SideQuest 1er edición",
         title: "OneiricAi",
         desc: "Desarrollado en solo 4 horas durante la primera edición del hackathon SideQuest. OneiricAi nace de un problema que todos conocemos: casi todo lo que soñamos se borra a los pocos minutos de despertar, y con eso se pierden ideas, escenas y recuerdos que nos gustaría conservar.\n\nLa plataforma integra IA para reconstruir tus sueños en formato de video a partir del contexto que vos le aportás, es decir, los fragmentos que sí recordás al despertar. Esa información se combina con patrones biológicos como la frecuencia cardíaca y los ciclos de sueño, medidos a lo largo de la noche por dispositivos wearable como el Apple Watch.\n\nEse cruce entre tu relato y tus datos biológicos es lo que hace única a la propuesta: el video generado no es una invención, es una reconstrucción respaldada por lo que tu cuerpo registró esa noche. Esos videos se pueden publicar directamente desde la aplicación en la red social integrada de Oneiric o compartirlos en plataformas como TikTok e Instagram. La diferencia clave con el resto de las redes sociales es que acá no se puede mentir ni aparentar: cada video está anclado a datos biológicos reales, lo que elimina las falsas apariencias. Por eso la llamamos 'The Healthy Social Network'.",
@@ -327,6 +328,7 @@ export const translations: Record<Lang, Dict> = {
         date: "May 2025",
         category: "Automatización - +3 PYMEs",
         title: "Budgents - AI Agents",
+        role: "Co-Founder & Chief AI Architect",
         desc: "Desarrollo de ecosistemas para escalar la atención al cliente sin perder calidad, permitiendo el foco en actividades de alto impacto. Evolucioné de Make a n8n para maximizar la flexibilidad técnica e integrar un mayor volumen de APIs. La solución automatiza el primer contacto, la calificación de leads y el agendamiento para PYMEs y marcas personales. Mediante webhooks e integración con Supabase, toda la data se registra y organiza automáticamente en tiempo real para un seguimiento estratégico impecable.",
         tags: ["LLMs", "APIs", "Webhooks", "N8N"],
       },
@@ -344,6 +346,7 @@ export const translations: Record<Lang, Dict> = {
         date: "Marzo 2025",
         category: "Importaciones - E-commerce",
         title: "Bellido Importaciones",
+        role: "Founder & Operations Lead",
         desc: "Lo que comenzó en el nicho de la perfumería evolucionó hacia un servicio de importaciones minoristas 100% bajo pedido, eliminando costos operativos de stock y maximizando la eficiencia del capital. Mi enfoque central es conectar el mercado de Estados Unidos con el público local, garantizando precios competitivos mediante el análisis de ofertas internacionales.\n\nMi valor agregado no termina ahí: también optimizo la adquisición de productos nacionales. Me encargo de rastrear los mejores precios locales contactando directamente con proveedores para evitar sobrecostos de intermediarios. Me especializo en detectar oportunidades de ahorro en cualquier categoría y negociar condiciones ventajosas, logrando un equilibrio real entre la logística estratégica y la inteligencia financiera.",
         tags: ["Importaciones", "USA-LATAM", "Negociación", "Logística"],
       },
@@ -353,6 +356,7 @@ export const translations: Record<Lang, Dict> = {
         date: "Junio 2023",
         category: "Coaching & Educación",
         title: "Bellido Asesoramientos",
+        role: "Founder",
         desc: "Este proyecto nació de una necesidad personal de progreso y una vocación natural por la enseñanza. Comencé ayudando a otros jóvenes a dar sus primeros pasos en el gimnasio; lo que empezó como una búsqueda de mis primeros ingresos, se transformó rápidamente en un servicio con resultados reales que me llevó a profesionalizarme con certificaciones de la IFBB.\n\nEn este proceso, identifiqué una problemática común: el momento más crítico es el inicio. La falta de guía al empezar un hábito o una materia es lo que suele llevar al abandono. Por eso, en junio de 2023, decidí expandir esta filosofía al ámbito académico para atacar el mismo problema desde otro ángulo, aplicando un enfoque de gestión integral y resultados medibles.\n\nGestión Estratégica y Cartera:\n• Gestión integral de cartera de clientes: Planificación estratégica y cumplimiento de objetivos a corto, mediano y largo plazo para asegurar el éxito del proceso. (educación/fitness)\n• Gestión y retención de usuarios: Seguimiento personalizado para maximizar la adherencia al plan, logrando consistencia a través de comunicación efectiva y feedback continuo. (educación/fitness)\n• Enfoque orientado a resultados: Establecimiento de KPIs claros y monitoreo semanal para garantizar la evolución constante y la satisfacción del cliente. (educación/fitness)\n\nAcompañamiento e Inteligencia de Datos:\n• Planificación basada en datos: Diseño y periodización de mesociclos de entrenamiento, ajustando variables de volumen e intensidad según la respuesta fisiológica y el análisis de progreso. (fitness)\n• Navegación de procesos iniciales: Servicio diseñado para ayudar a las personas a transitar el comienzo de sus cursos o rutinas, brindando apoyo emocional y motivación. (educación/fitness)\n• Planificación personalizada: Creación de hojas de ruta individuales adaptadas al ritmo de vida y metas de cada usuario. (educación/fitness)\n\nLiderazgo y Dominio Técnico:\n• Gestión & Delegación: Liderazgo y coordinación de un equipo de profesionales para cubrir la demanda, asignándolos estratégicamente según el perfil y la necesidad técnica del cliente. (educación/fitness)\n• Dominio Técnico Avanzado: Dictado personal de materias de alta complejidad lógica (Análisis Matemático, Álgebra Lineal y Estadística Descriptiva). (educación)\n• Optimización de la Transición: Garantía de un proceso fluido entre la incertidumbre inicial y la aprobación de la materia o la consecución de la meta física. (educación/fitness)",
         tags: ["Liderazgo de equipos", "Gestión de clientes", "Mentorías", "Networking"],
       },
@@ -559,7 +563,7 @@ export const translations: Record<Lang, Dict> = {
       },
 
       oneiric: {
-        date: "June 2026",
+        date: "July 2026",
         category: "Hackathon · SideQuest 1st edition",
         title: "OneiricAi",
         desc: "Built in just 4 hours during the first edition of the SideQuest hackathon. OneiricAi was born from a problem we all know: almost everything we dream fades within minutes of waking up, and with it we lose ideas, scenes, and memories we would love to keep.\n\nThe platform integrates AI to reconstruct your dreams in video format from the context you provide, meaning the fragments you do remember when you wake up. That information is combined with biological patterns such as heart rate and sleep cycles, measured throughout the night by wearable devices like the Apple Watch.\n\nThat merge between your story and your biological data is what makes the product unique: the generated video is not an invention, it is a reconstruction backed by what your body recorded that night. These videos can be published directly from the app on Oneiric's built-in social network or shared to platforms like TikTok and Instagram. The key difference from other social networks is that you cannot lie or fake appearances here: every video is anchored to real biological data, which eliminates superficiality. That is why we call it 'The Healthy Social Network'.",
@@ -578,6 +582,7 @@ export const translations: Record<Lang, Dict> = {
         date: "May 2025",
         category: "Automation - 3+ SMBs",
         title: "Budgents - AI Agents",
+        role: "Co-Founder & Chief AI Architect",
         desc: "Building ecosystems to scale customer service without losing quality, freeing teams to focus on high-impact work. I evolved from Make to n8n to maximize technical flexibility and integrate more APIs. The solution automates first contact, lead qualification, and scheduling for SMBs and personal brands. Through webhooks and Supabase integration, all data is captured and organized automatically in real time for impeccable strategic follow-up.",
         tags: ["LLMs", "APIs", "Webhooks", "N8N"],
       },
@@ -594,6 +599,7 @@ export const translations: Record<Lang, Dict> = {
         date: "March 2025",
         category: "Imports - E-commerce",
         title: "Bellido Importaciones",
+        role: "Founder & Operations Lead",
         desc: "What started in the perfumery niche evolved into a 100% on-demand retail import service, eliminating stock operating costs and maximizing capital efficiency. My core focus is connecting the United States market with the local audience, ensuring competitive prices through the analysis of international offers.\n\nMy value-add doesn't end there: I also optimize the acquisition of domestic products. I track the best local prices by contacting suppliers directly to avoid intermediary markups. I specialize in detecting savings opportunities across any category and negotiating advantageous conditions, achieving a real balance between strategic logistics and financial intelligence.",
         tags: ["Imports", "USA-LATAM", "Negotiation", "Logistics"],
       },
@@ -602,6 +608,7 @@ export const translations: Record<Lang, Dict> = {
         date: "June 2023",
         category: "Coaching & Education",
         title: "Bellido Asesoramientos",
+        role: "Founder",
         desc: "This project was born out of a personal need for progress and a natural vocation for teaching. I started by helping other young people take their first steps at the gym; what began as a search for my first income quickly transformed into a service with real results that led me to professionalize myself with IFBB certifications.\n\nIn this process, I identified a common problem: the most critical moment is the beginning. The lack of guidance when starting a habit or a subject is what usually leads to abandonment. That's why, in June 2023, I decided to expand this philosophy to the academic field to attack the same problem from another angle, applying an integral management approach with measurable results.\n\nStrategic Portfolio Management:\n• Integral client portfolio management: Strategic planning and short, medium, and long-term goal fulfillment to ensure the success of the process. (education/fitness)\n• User management and retention: Personalized follow-up to maximize plan adherence, achieving consistency through effective communication and continuous feedback. (education/fitness)\n• Results-oriented approach: Establishment of clear KPIs and weekly monitoring to guarantee constant progress and client satisfaction. (education/fitness)\n\nSupport and Data Intelligence:\n• Data-driven planning: Design and periodization of training mesocycles, adjusting volume and intensity variables according to physiological response and progress analysis. (fitness)\n• Initial process navigation: Service designed to help people navigate the beginning of their courses or routines, providing emotional support and motivation. (education/fitness)\n• Personalized planning: Creation of individual roadmaps adapted to each user's lifestyle and goals. (education/fitness)\n\nLeadership and Technical Mastery:\n• Management & Delegation: Leadership and coordination of a team of professionals to cover demand, strategically assigning them according to the profile and technical needs of the client. (education/fitness)\n• Advanced Technical Mastery: Personal teaching of subjects of high logical complexity (Mathematical Analysis, Linear Algebra and Descriptive Statistics). (education)\n• Transition Optimization: Guarantee of a smooth process between initial uncertainty and passing the subject or achieving the physical goal. (education/fitness)",
         tags: ["Team Leadership", "Client Management", "Mentoring", "Networking"],
        },
