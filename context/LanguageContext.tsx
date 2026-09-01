@@ -26,6 +26,7 @@ type ProjectItem = {
   role?: string;
   desc: string;
   tags: string[];
+  links?: { github?: string; review?: string };
 };
 
 type ExperienceItem = {
@@ -91,14 +92,8 @@ type Dict = {
     sectionDesc: string;
     digitalSubtitle: string;
     businessSubtitle: string;
-    symbiosis: {
-      status: string;
-      building: string;
-      clickHint: string;
-      meta: string;
-      title: string;
-      desc: string;
-    };
+    symbiosis: ProjectItem & { comingSoonLabel: string; clickHint: string };
+    zira: ProjectItem;
     oneiric: ProjectItem;
     nexstock: ProjectItem;
     budgents: ProjectItem;
@@ -300,12 +295,25 @@ export const translations: Record<Lang, Dict> = {
       businessSubtitle: "Operaciones de Negocio",
 
       symbiosis: {
-        status: "Status",
-        building: "Building",
-        clickHint: "Click para recibir novedades",
-        meta: "Abr 2026 - En desarrollo - Flagship",
+        date: "Abr 2026",
+        category: "Flagship · En desarrollo",
         title: "Symbiosis AI",
         desc: "Tras encuestar a +80 estudiantes universitarios en CABA de entre 17-28 años, identifiqué una frustración constante: el miedo a quedar obsoletos frente a las herramientas que exige el mercado laboral actual. SymbiosisAI nace para cerrar esa brecha. No es solo una plataforma de estudio, es un ecosistema que enseña material de estudio universitario a través de la programación y el uso de tecnología real. Monitorea el progreso en tiempo real y ajusta el plan de aprendizaje para que el estudiante no solo apruebe sus materias, sino que domine las herramientas que lo harán competitivo el día de mañana.",
+        tags: ["Python Backend", "LLM API Integration", "Streamlit UI", "RAG (Retrieval-Augmented Generation)"],
+        comingSoonLabel: "Próximamente",
+        clickHint: "Click para recibir novedades",
+      },
+
+      zira: {
+        date: "Ago 2026",
+        category: "Aleph Hackathon",
+        title: "ZIRA - Agente de Conciliación Financiera con IA",
+        desc: "Desarrollado en 24 horas durante el Aleph Hackathon. ZIRA es un agente de IA que recibe comprobantes desde una carpeta local y ejecuta OCR y matching 100% on-device contra un CSV bancario. Prioriza alertar anomalías antes que fallar en silencio, garantizando la privacidad total de los datos financieros sensibles mediante tecnología descentralizada QVAC.",
+        tags: ["QVAC SDK", "Python", "Local UI"],
+        links: {
+          github: "", // TODO: pegar la URL del repo de GitHub (ya cubierto por el botón Propuesta)
+          review: "", // TODO: pegar la URL del post/review
+        },
       },
 
       oneiric: {
@@ -554,12 +562,25 @@ export const translations: Record<Lang, Dict> = {
       businessSubtitle: "Business Ops & Logic Models",
 
       symbiosis: {
-        status: "Status",
-        building: "Building",
-        clickHint: "Click to receive updates",
-        meta: "Apr 2026 - In development - Flagship",
+        date: "Apr 2026",
+        category: "Flagship · In Development",
         title: "Symbiosis AI",
         desc: "After surveying 80+ university students in Buenos Aires aged 17-28, I identified a constant frustration: the fear of becoming obsolete against the tools demanded by today's job market. SymbiosisAI was born to close that gap. It's not just a study platform, it's an ecosystem that teaches university material through programming and the use of real technology. It monitors progress in real time and adjusts the learning plan so that students don't just pass their courses, but master the tools that will make them competitive tomorrow.",
+        tags: ["Python Backend", "LLM API Integration", "Streamlit UI", "RAG (Retrieval-Augmented Generation)"],
+        comingSoonLabel: "Coming Soon",
+        clickHint: "Click to get notified",
+      },
+
+      zira: {
+        date: "Aug 2026",
+        category: "Aleph Hackathon",
+        title: "ZIRA - AI Financial Reconciliation Agent",
+        desc: "Built in 24 hours at the Aleph Hackathon. ZIRA is an AI agent that receives receipts from a local folder and runs OCR and matching 100% on-device against a bank CSV. It prioritizes alerting anomalies over failing silently, guaranteeing total privacy of sensitive financial data through decentralized QVAC technology.",
+        tags: ["QVAC SDK", "Python", "Local UI"],
+        links: {
+          github: "", // TODO: paste the GitHub repo URL (already covered by the Proposal button)
+          review: "", // TODO: paste the review/post URL
+        },
       },
 
       oneiric: {

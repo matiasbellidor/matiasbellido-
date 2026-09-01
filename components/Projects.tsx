@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useAnimation, type MotionProps } from "framer-motion";
-import { Lock, Clock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown } from "lucide-react";
+import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, GitBranch, Newspaper } from "lucide-react";
 import Section from "./Section";
 import WaveText from "@/components/WaveText";
 import { useLanguage } from "@/context/LanguageContext";
@@ -12,7 +12,6 @@ import { useModal } from "@/context/ModalContext";
 // ============================================================================
 // PROPOSAL/RESUMEN LINKS — completá manualmente las URLs faltantes
 // ============================================================================
-const SYMBIOSIS_PROPOSAL_URL = "";
 const BUDGENTS_PROPOSAL_URL = "/projects/Imagenes/Budgents.pdf";
 const NUTRIOPS_PROPOSAL_URL = "/projects/Imagenes/NutriOps.pdf";
 const ONEIRIC_PROPOSAL_URL = "/projects/Imagenes/OneiricAi.pdf";
@@ -24,9 +23,24 @@ const ASESORAMIENTOS_EDUCATION_URL = "/projects/Imagenes/Bellido-Asesoramientos-
 const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
 const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.pdf";
 
-// ORDEN del carrusel (grid-flow-col con 2 filas -> se llena por COLUMNAS):
-// [0] OneiricAi (arriba-izq) | [1] NutriOps (abajo-izq) | [2] NexStock (arriba-der) | [3] Budgents (abajo-der)
+// ZIRA — repo del hackathon. El botón "Propuesta" de la card abre este link
+// directamente (mismo mecanismo que usan las demás cards, sin componente
+// especial). Si más adelante querés sumar también un link de review/post,
+// completá ZIRA_REVIEW_URL.
+const ZIRA_GITHUB_URL = "https://github.com/felipebridge/aleph-hackathon";
+const ZIRA_REVIEW_URL = ""; // TODO: pegar la URL del post/review
+
+// ============================================================================
+// DOS CATEGORÍAS — "Soluciones Digitales & IA" y "Operaciones de Negocio".
+// Symbiosis y ZIRA viven en Digital, como cards ESTÁNDAR (mismo componente,
+// tamaño y aspect-ratio que el resto) — NO vuelven al layout hero/vertical
+// viejo solo por ir primeras en la categoría. Para agregar un proyecto
+// nuevo, solo hay que sumar un objeto al array correspondiente + su entrada
+// en LanguageContext.tsx — el grid de esa categoría se reacomoda solo.
+// ============================================================================
 const digitalProjectsMeta = [
+  { id: "symbiosis", image: "/projects/Imagenes/symbiosis.png", proposalUrl: "", comingSoon: true },
+  { id: "zira", image: "/projects/Imagenes/zira-cover.png", proposalUrl: ZIRA_GITHUB_URL, links: { github: "", review: ZIRA_REVIEW_URL } },
   { id: "oneiric", image: "/projects/Imagenes/OneiricAi.png", proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05060E" },
   { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL },
   { id: "nexstock", image: "/projects/Imagenes/NexStock.png", proposalUrl: "", imageBg: "#FFFFFF" },
@@ -37,6 +51,12 @@ const businessProjectsMeta = [
   { id: "imports", image: "/projects/Imagenes/Imports.png", proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#252629" },
   { id: "asesoramientos", image: "/projects/Imagenes/asesoramientos.png", proposalUrl: "" },
 ];
+
+// Proyectos cuya imagen es un mockup/logo con fondo propio → object-contain.
+// Si zira-cover.png es una captura de pantalla full-bleed, dejalo cover
+// (no lo agregues acá). Si en cambio es un logo/mockup con fondo, sumá
+// "zira" a este array.
+const containedImageIds = ["imports", "nexstock", "oneiric"];
 
 function RichDescription({ text }: { text: string }) {
   return (
@@ -94,15 +114,18 @@ export default function Projects() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const lockControls = useAnimation();
 
-  const digitalProjects = digitalProjectsMeta.map((meta) => {
-    const content =
-      meta.id === "oneiric" ? t.projects.oneiric :
-      meta.id === "nexstock" ? t.projects.nexstock :
-      meta.id === "nutriops" ? t.projects.nutriops :
-      t.projects.budgents;
-    return { ...meta, ...content };
-  });
-  const businessProjects = businessProjectsMeta.map((meta) => ({ ...meta, ...(meta.id === "imports" ? t.projects.imports : t.projects.asesoramientos) }));
+  const projectContentMap: Record<string, typeof t.projects.oneiric> = {
+    symbiosis: t.projects.symbiosis,
+    zira: t.projects.zira,
+    oneiric: t.projects.oneiric,
+    nexstock: t.projects.nexstock,
+    nutriops: t.projects.nutriops,
+    budgents: t.projects.budgents,
+    imports: t.projects.imports,
+    asesoramientos: t.projects.asesoramientos,
+  };
+  const digitalProjects = digitalProjectsMeta.map((meta) => ({ ...meta, ...projectContentMap[meta.id] }));
+  const businessProjects = businessProjectsMeta.map((meta) => ({ ...meta, ...projectContentMap[meta.id] }));
   const allProjects = [...digitalProjects, ...businessProjects];
 
   useEffect(() => {
@@ -153,63 +176,50 @@ export default function Projects() {
         className="max-w-4xl mx-auto text-base md:text-lg text-fg-soft leading-relaxed text-center mb-16"
       />
 
-      <div className="mb-12">
+      {/* CATEGORÍA: Soluciones Digitales & IA — incluye Symbiosis y ZIRA,
+          ambas como cards ESTÁNDAR (mismo componente/tamaño que el resto).
+          Grid responsive: mobile = carrusel horizontal (scroll-snap);
+          md+ = grid que wrappea en 2 columnas, lg: 3 columnas. */}
+      <div className="mb-16">
         <div className="flex items-center gap-3 mb-8">
           <Code2 className="w-5 h-5 text-cyan" />
           <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
         </div>
-
-        <div className="grid lg:grid-cols-2 gap-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.6 }}
-            onClick={handleLockClick}
-            className="relative glass rounded-2xl overflow-hidden cursor-pointer group min-h-[500px] lg:min-h-[600px] flex flex-col touch-manipulation">
-            {SYMBIOSIS_PROPOSAL_URL && (
-              <button onClick={(e) => { e.stopPropagation(); window.open(SYMBIOSIS_PROPOSAL_URL, "_blank"); }}
-                className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs hover:bg-electric/40 transition-all touch-manipulation">
-                <FileText className="w-3.5 h-3.5" />
-                <span>{lang === "es" ? "Propuesta" : "Proposal"}</span>
-              </button>
-            )}
-            <div className="absolute inset-0">
-              <Image src="/projects/Imagenes/symbiosis.png" alt="Symbiosis AI" fill quality={80} sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30" />
+        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
+          {digitalProjects.map((project, i) => (
+            <div key={project.id} className="snap-start shrink-0 w-[85vw] sm:w-[420px] md:w-auto md:shrink">
+              <ProjectCard
+                project={project}
+                index={i}
+                onClick={project.id === "symbiosis" ? handleLockClick : () => setExpandedId(project.id)}
+                lang={lang}
+                onAsesoramientosClick={() => setCanvaModalOpen(true)}
+                onNexstockClick={() => setNexstockModalOpen(true)}
+                lockControls={project.id === "symbiosis" ? lockControls : undefined}
+                locked={project.id === "symbiosis" ? clicked : undefined}
+              />
             </div>
-            <AnimatePresence>{clicked && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-red-500 z-30 mix-blend-overlay" />}</AnimatePresence>
-            <div className="relative z-20 flex flex-col items-center justify-center flex-1 gap-6 p-8">
-              <motion.div animate={lockControls}><Lock className={`w-20 h-20 ${clicked ? "text-red-500" : "text-cyan"}`} strokeWidth={1.5} /></motion.div>
-              <p className="text-xs uppercase tracking-[0.4em] text-cyan">{t.projects.symbiosis.status}</p>
-              <div className="flex items-center gap-3">
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }}><Clock className="w-6 h-6 text-white" strokeWidth={1.5} /></motion.div>
-                <p className="font-display text-3xl font-bold text-white">{t.projects.symbiosis.building}...</p>
-              </div>
-              <p className="text-xs uppercase tracking-wider text-white/60 mt-4 text-center">{t.projects.symbiosis.clickHint}</p>
-            </div>
-            <div className="relative z-20 p-6 md:p-8 border-t border-white/10 bg-black/40 backdrop-blur-sm">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-2">{t.projects.symbiosis.meta}</p>
-              <h3 className="font-display text-2xl md:text-3xl font-bold mb-3 text-cyan">{t.projects.symbiosis.title}</h3>
-              <p className="text-sm text-white/70 leading-relaxed mb-4">{t.projects.symbiosis.desc}</p>
-              <div className="flex flex-wrap gap-2 pt-3 border-t border-white/5">
-                {["Python Backend", "LLM API Integration", "Streamlit UI", "RAG (Retrieval-Augmented Generation)"].map((tag) => <span key={tag} className="text-[10px] px-2.5 py-1 rounded-full bg-electric/10 text-cyan border border-cyan/20">{tag}</span>)}
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="grid grid-flow-col grid-rows-[1fr_1fr] gap-6 auto-cols-[82%] sm:auto-cols-[calc(50%_-_0.75rem)] overflow-x-scroll h-full scroll-fade-x">
-            {digitalProjects.map((project, i) => (
-              <ProjectCard key={project.id} project={project} index={i} onClick={() => setExpandedId(project.id)} lang={lang} onAsesoramientosClick={() => setCanvaModalOpen(true)} onNexstockClick={() => setNexstockModalOpen(true)} variant="carousel" />
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
+      {/* CATEGORÍA: Operaciones de Negocio */}
       <div>
         <div className="flex items-center gap-3 mb-8">
           <Briefcase className="w-5 h-5 text-cyan" />
           <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.projects.businessSubtitle}</h3>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
           {businessProjects.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} onClick={() => setExpandedId(project.id)} lang={lang} onAsesoramientosClick={() => setCanvaModalOpen(true)} />
+            <div key={project.id} className="snap-start shrink-0 w-[85vw] sm:w-[420px] md:w-auto md:shrink">
+              <ProjectCard
+                project={project}
+                index={i}
+                onClick={() => setExpandedId(project.id)}
+                lang={lang}
+                onAsesoramientosClick={() => setCanvaModalOpen(true)}
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -231,7 +241,7 @@ export default function Projects() {
                   </button>
                 </div>
                 <div className="overflow-y-auto">
-                  <div className="relative w-full flex items-center justify-center" style={{ minHeight: "250px", maxHeight: "55vh", backgroundColor: expandedProject.imageBg ?? "#000000" }}>
+                  <div className="relative w-full aspect-video max-h-[70vh] overflow-hidden flex items-center justify-center" style={{ backgroundColor: expandedProject.imageBg ?? "#000000" }}>
                     <Image src={expandedProject.image} alt={expandedProject.title} fill quality={90} sizes="(max-width: 1024px) 100vw, 1024px" className="object-contain" priority />
                   </div>
                   <div className="p-6 md:p-12">
@@ -249,6 +259,22 @@ export default function Projects() {
                         <div className="flex flex-wrap gap-3 pt-6 border-t border-cyan/20">
                           {expandedProject.tags.map((tag: string) => <span key={tag} className="text-xs px-4 py-2 rounded-full bg-electric/10 text-cyan border border-cyan/30">{tag}</span>)}
                         </div>
+                        {(expandedProject.links?.github || expandedProject.links?.review) && (
+                          <div className="flex flex-wrap gap-3 pt-4">
+                            {expandedProject.links.github && (
+                              <a href={expandedProject.links.github} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-cyan/30 text-cyan text-xs hover:bg-cyan/10 hover:border-cyan/60 transition-all">
+                                <GitBranch className="w-4 h-4" /><span>GitHub</span>
+                              </a>
+                            )}
+                            {expandedProject.links.review && (
+                              <a href={expandedProject.links.review} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-cyan/30 text-cyan text-xs hover:bg-cyan/10 hover:border-cyan/60 transition-all">
+                                <Newspaper className="w-4 h-4" /><span>{lang === "es" ? "Review" : "Review"}</span>
+                              </a>
+                            )}
+                          </div>
+                        )}
                       </motion.div>
                     </AnimatePresence>
                   </div>
@@ -347,25 +373,52 @@ export default function Projects() {
 }
 
 type ProjectCardProps = {
-  project: { id: string; image: string; date: string; category: string; title: string; role?: string; desc: string; tags: string[]; proposalUrl: string; imageBg?: string };
+  project: {
+    id: string;
+    image: string;
+    date: string;
+    category: string;
+    title: string;
+    role?: string;
+    desc: string;
+    tags: string[];
+    proposalUrl: string;
+    imageBg?: string;
+    comingSoon?: boolean;
+    comingSoonLabel?: string;
+    clickHint?: string;
+    links?: { github?: string; review?: string };
+  };
   index: number;
   onClick: () => void;
   lang: string;
   onAsesoramientosClick: () => void;
   onNexstockClick?: () => void;
-  variant?: "grid" | "carousel";
+  /** Solo lo usa Symbiosis: controla la animación del ícono de candado del ribbon. */
+  lockControls?: ReturnType<typeof useAnimation>;
+  /** Solo lo usa Symbiosis: activa el flash rojo mientras se "desbloquea". */
+  locked?: boolean;
 };
 
-function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onNexstockClick, variant = "grid" }: ProjectCardProps) {
-  const isCarousel = variant === "carousel";
-  const motionProps: MotionProps = isCarousel
-    ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, delay: 0.15 + index * 0.1 } }
-    : { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-50px" }, transition: { duration: 0.5, delay: 0.2 + index * 0.1 } };
-  const containedImage = project.id === "imports" || project.id === "nexstock" || project.id === "oneiric";
+function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onNexstockClick, lockControls, locked }: ProjectCardProps) {
+  const motionProps: MotionProps = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-50px" }, transition: { duration: 0.5, delay: 0.2 + index * 0.1 } };
+  const containedImage = containedImageIds.includes(project.id);
   return (
     <motion.article {...motionProps} onClick={onClick}
       className="relative glass rounded-2xl overflow-hidden flex flex-col group flex-1 w-full cursor-pointer hover:shadow-glow transition-shadow touch-manipulation">
       <ProposalButton projectId={project.id} url={project.proposalUrl} lang={lang} onAsesoramientosClick={onAsesoramientosClick} onNexstockClick={onNexstockClick} />
+
+      {/* Ribbon "Coming Soon" — solo para Symbiosis. El candado hereda la
+          animación de shake/pulse de handleLockClick vía lockControls. */}
+      {project.comingSoon && (
+        <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm text-cyan border border-cyan/40 text-xs">
+          <motion.span animate={lockControls} className="flex">
+            <Lock className={`w-3.5 h-3.5 ${locked ? "text-red-500" : "text-cyan"}`} />
+          </motion.span>
+          <span className="uppercase tracking-wider">{project.comingSoonLabel}</span>
+        </div>
+      )}
+
       <div
         className="relative aspect-[16/9] overflow-hidden flex items-center justify-center"
         style={{ backgroundColor: project.imageBg ?? "#000000" }}
@@ -392,7 +445,26 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
         <div className="flex flex-wrap gap-2 pt-3 border-t border-white/5">
           {project.tags.map((tag) => <span key={tag} className="text-[10px] px-2.5 py-1 rounded-full bg-electric/10 text-cyan border border-cyan/20">{tag}</span>)}
         </div>
-        <p className="text-[10px] uppercase tracking-wider text-cyan/70 mt-3">{lang === "es" ? "Click para leer más →" : "Click to read more →"}</p>
+
+        {/* Links de GitHub / Review — solo se muestran si el proyecto los tiene (ej. ZIRA) */}
+        {(project.links?.github || project.links?.review) && (
+          <div className="flex flex-wrap gap-2 pt-3">
+            {project.links.github && (
+              <a href={project.links.github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full bg-white/5 text-cyan border border-cyan/20 hover:border-cyan/60 hover:bg-cyan/10 transition-all">
+                <GitBranch className="w-3 h-3" /><span>GitHub</span>
+              </a>
+            )}
+            {project.links.review && (
+              <a href={project.links.review} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full bg-white/5 text-cyan border border-cyan/20 hover:border-cyan/60 hover:bg-cyan/10 transition-all">
+                <Newspaper className="w-3 h-3" /><span>Review</span>
+              </a>
+            )}
+          </div>
+        )}
+
+        <p className="text-[10px] uppercase tracking-wider text-cyan/70 mt-3">{project.clickHint ?? (lang === "es" ? "Click para leer más →" : "Click to read more →")}</p>
       </div>
     </motion.article>
   );
