@@ -17,7 +17,7 @@ export default function Bio() {
     {
       number: "01",
       title: t.bio.categories.data,
-      skills: ["Python", "R", "SQL", "Power BI"],
+      skills: ["Python", "R", "SQL", "Excel", "Power BI", "Looker Studio (Data Studio)"],
     },
     {
       number: "02",
@@ -61,7 +61,7 @@ export default function Bio() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-80px" }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 mb-24"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-12 mb-24"
       >
         {skillCategories.map((category) => (
           <motion.div key={category.title} variants={fadeUp}>

@@ -152,7 +152,7 @@ export const translations: Record<Lang, Dict> = {
       },
       englishSkill: "Inglés C1",
       manifesto:
-        "Creo que la teoría solo cobra sentido cuando se convierte en una solución. Soy estudiante de Actuario y autodidacta en Data Science porque me apasiona entender el por qué de las cosas, y me motiva mucho más construir el cómo. Mi enfoque es simple: combinar el rigor estadístico con distintas herramientas para que los datos dejen de ser ruido y pasen a ser decisiones estratégicas.",
+        "Me metí en Actuario porque quería entender el 'por\u00A0qué' matemático detrás de las cosas, y aprendí Data Science por mi cuenta para poder construir el 'cómo'. Mi idea es simple: agarrar la teoría estadística, bajarla a código y usarla para resolver problemas de verdad.",
     },
     experience: {
       eyebrow: "Journey",
@@ -421,7 +421,7 @@ export const translations: Record<Lang, Dict> = {
       },
       englishSkill: "C1 English",
       manifesto:
-        "I believe theory only makes sense when it turns into a solution. I'm an Actuarial student and self-taught Data Scientist because I'm passionate about understanding the why of things, and even more motivated to build the how. My approach is simple: combine statistical rigor with different tools so that data stops being noise and becomes strategic decisions.",
+        "I got into Actuarial Science because I wanted to understand the mathematical 'why' behind things, and I taught myself Data Science so I could build the 'how'. My idea is simple: take statistical theory, turn it into code, and use it to solve real problems.",
     },
     experience: {
       eyebrow: "Journey",

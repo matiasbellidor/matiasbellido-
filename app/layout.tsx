@@ -42,10 +42,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Antes del primer paint:
             - tema guardado (sin flash claro→oscuro; también aplica en /cv)
             - si la intro ya se vio en esta sesión, marcamos el <html>
-              para que el loader no aparezca ni un frame. */}
+              para que el loader no aparezca ni un frame.
+              Para volver a verla: abrir la URL con ?intro (ej. /?intro). */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement;if(localStorage.getItem("theme")!=="light")d.classList.add("dark");if(sessionStorage.getItem("intro-seen"))d.classList.add("intro-seen")}catch(e){}`,
+            __html: `try{var d=document.documentElement;if(localStorage.getItem("theme")!=="light")d.classList.add("dark");if(sessionStorage.getItem("intro-seen")&&!/[?&]intro\\b/.test(location.search))d.classList.add("intro-seen")}catch(e){}`,
           }}
         />
       </head>
