@@ -1,24 +1,20 @@
 <div align="center">
 
-<h1>
-  <img src="public/projects/Imagenes/profile-framed.svg" width="150" align="middle" alt="Matías Rodrigo Bellido" />
-  &nbsp;Matías Rodrigo Bellido
-</h1>
+<a href="https://matiasbellido.vercel.app">
+  <img src="public/projects/Imagenes/readme-banner.webp" width="100%" alt="Matías Rodrigo Bellido — Actuarial Science · Data & AI · Founder. Optimizing reality through data & AI." />
+</a>
 
-### Optimizing Reality through Data & AI
-
-Actuarial Science student · Data & AI builder · Founder
+<a href="https://matiasbellido.vercel.app"><img src="https://img.shields.io/badge/View_Live_Portfolio-0D1A31?style=for-the-badge&logo=vercel&logoColor=white" alt="View live portfolio" /></a>
+<a href="mailto:rbellidomatias@gmail.com"><img src="https://img.shields.io/badge/Get_in_Touch-3B82F6?style=for-the-badge&logo=gmail&logoColor=white" alt="Get in touch" /></a>
+<a href="https://github.com/matiasbellidor"><img src="https://img.shields.io/badge/GitHub-0D1A31?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
 
 <br />
 
-[![Live Site](https://img.shields.io/badge/Live-matiasbellido.vercel.app-0A0A0A?style=for-the-badge&logo=vercel&logoColor=white)](https://matiasbellido.vercel.app)
-[![GitHub](https://img.shields.io/badge/GitHub-matiasbellidor-0A0A0A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/matiasbellidor)
-
-![Next.js](https://img.shields.io/badge/Next.js_14-000000?style=flat-square&logo=nextdotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deployed_on_Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+<img src="https://img.shields.io/badge/Next.js_14-1E293B?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js 14" />
+<img src="https://img.shields.io/badge/TypeScript-1E293B?style=flat-square&logo=typescript&logoColor=7FB2FF" alt="TypeScript" />
+<img src="https://img.shields.io/badge/Tailwind_CSS-1E293B?style=flat-square&logo=tailwindcss&logoColor=7FB2FF" alt="Tailwind CSS" />
+<img src="https://img.shields.io/badge/Framer_Motion-1E293B?style=flat-square&logo=framer&logoColor=7FB2FF" alt="Framer Motion" />
+<img src="https://img.shields.io/badge/Vercel-1E293B?style=flat-square&logo=vercel&logoColor=white" alt="Vercel" />
 
 </div>
 
