@@ -152,7 +152,7 @@ export const translations: Record<Lang, Dict> = {
       },
       englishSkill: "Inglés C1",
       manifesto:
-        "Me metí en Actuario porque quería entender el 'por\u00A0qué' matemático detrás de las cosas, y aprendí Data Science por mi cuenta para poder construir el 'cómo'. Mi idea es simple: agarrar la teoría estadística, bajarla a código y usarla para resolver problemas de verdad.",
+        "Decidí estudiar Actuario por varias razones. Una es el desafío de cursar una carrera exigente como Ciencias Actuariales; otra, la posibilidad de aprender a usar y comprender herramientas estadísticas que me sirvan para cualquier proyecto que emprenda. La mirada analítica que me aporta la carrera es algo que agradezco.",
     },
     experience: {
       eyebrow: "Journey",
@@ -421,7 +421,7 @@ export const translations: Record<Lang, Dict> = {
       },
       englishSkill: "C1 English",
       manifesto:
-        "I got into Actuarial Science because I wanted to understand the mathematical 'why' behind things, and I taught myself Data Science so I could build the 'how'. My idea is simple: take statistical theory, turn it into code, and use it to solve real problems.",
+        "I decided to study Actuarial Science for several reasons. One is the challenge of taking on a degree as demanding as this one; another is the chance to learn how to use and understand statistical tools that will help me in any project I take on. I'm grateful for the analytical mindset the degree gives me.",
     },
     experience: {
       eyebrow: "Journey",
