@@ -37,7 +37,11 @@ export default function Experience() {
   const { setModalOpen: setGlobalModalOpen } = useModal();
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [activeCard, setActiveCard] = useState(0);
+  /* Qué tarjetas se ven COMPLETAS + si el scroll está en algún extremo.
+     Se mide lo que realmente está en pantalla (no scrollLeft / ancho):
+     así el indicador llega a 6/6 aunque las últimas tarjetas nunca
+     puedan llegar al borde izquierdo (pasa en desktop y tablets). */
+  const [view, setView] = useState({ first: 0, last: 0, atStart: true, atEnd: false });
 
   useEffect(() => {
     setGlobalModalOpen(expandedIdx !== null);
@@ -57,19 +61,55 @@ export default function Experience() {
     return () => { document.body.style.overflow = ""; };
   }, [expandedIdx]);
 
-  // Listener de scroll para sincronizar la activeCard con scroll manual (dedo/mouse)
+  // Sincroniza el indicador con el scroll (dedo, trackpad, flechas o puntos).
+  // Throttle con rAF + ResizeObserver para recalcular al cambiar el ancho.
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
-    const handleScroll = () => {
-      const cards = carousel.querySelectorAll("[data-card]");
+    let ticking = false;
+
+    const measure = () => {
+      ticking = false;
+      const cards = carousel.querySelectorAll<HTMLElement>("[data-card]");
       if (cards.length === 0) return;
-      const cardWidth = (cards[0] as HTMLElement).offsetWidth + 24;
-      const idx = Math.round(carousel.scrollLeft / cardWidth);
-      setActiveCard(Math.min(idx, cards.length - 1));
+      const box = carousel.getBoundingClientRect();
+      let first = -1;
+      let last = 0;
+      cards.forEach((card, i) => {
+        const r = card.getBoundingClientRect();
+        const visible = Math.min(r.right, box.right) - Math.max(r.left, box.left);
+        if (visible / r.width >= 0.95) {
+          if (first < 0) first = i;
+          last = i;
+        }
+      });
+      const max = carousel.scrollWidth - carousel.clientWidth;
+      const atStart = carousel.scrollLeft <= 2;
+      const atEnd = carousel.scrollLeft >= max - 2;
+      // Al tope del scroll, la última tarjeta siempre cuenta como vista
+      if (atEnd) last = cards.length - 1;
+      if (first < 0) first = last;
+      setView((v) =>
+        v.first === first && v.last === last && v.atStart === atStart && v.atEnd === atEnd
+          ? v
+          : { first, last, atStart, atEnd }
+      );
     };
-    carousel.addEventListener("scroll", handleScroll, { passive: true });
-    return () => carousel.removeEventListener("scroll", handleScroll);
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(measure);
+    };
+
+    carousel.addEventListener("scroll", onScroll, { passive: true });
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(carousel);
+    measure();
+    return () => {
+      carousel.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+    };
   }, []);
 
   // DESKTOP: evita que el carrusel atrape la rueda del mouse.
@@ -93,24 +133,29 @@ export default function Experience() {
     return () => carousel.removeEventListener("wheel", handleWheel);
   }, []);
 
-  const scrollToCard = (idx: number) => {
-    const carousel = carouselRef.current;
-    if (!carousel) return;
-    const cards = carousel.querySelectorAll("[data-card]");
-    if (!cards[idx]) return;
-    const cardWidth = (cards[0] as HTMLElement).offsetWidth + 24;
-    carousel.scrollTo({ left: cardWidth * idx, behavior: "smooth" });
+  /* Distancia entre el inicio de una tarjeta y la siguiente (ancho + gap),
+     medida del DOM para que valga en cualquier breakpoint */
+  const cardStep = () => {
+    const cards = carouselRef.current?.querySelectorAll<HTMLElement>("[data-card]");
+    if (!cards || cards.length < 2) return 0;
+    return cards[1].getBoundingClientRect().left - cards[0].getBoundingClientRect().left;
   };
 
-  const scrollPrev = () => scrollToCard(Math.max(0, activeCard - 1));
-  const scrollNext = () => scrollToCard(Math.min(t.experience.items.length - 1, activeCard + 1));
+  // El navegador recorta el destino al máximo scrolleable: pedir la
+  // última tarjeta lleva al final aunque no pueda alinearse a la izquierda.
+  const scrollToCard = (idx: number) => {
+    carouselRef.current?.scrollTo({ left: cardStep() * idx, behavior: "smooth" });
+  };
+
+  const scrollPrev = () => carouselRef.current?.scrollBy({ left: -cardStep(), behavior: "smooth" });
+  const scrollNext = () => carouselRef.current?.scrollBy({ left: cardStep(), behavior: "smooth" });
 
   const handleModalLangToggle = () => setLang(lang === "es" ? "en" : "es");
 
   const expandedEdu = expandedIdx !== null ? t.experience.education[expandedIdx] : null;
   const expandedLogo = expandedIdx !== null ? educationLogos[expandedIdx] : null;
-  const isAtEnd = activeCard === t.experience.items.length - 1;
   const totalCards = t.experience.items.length;
+  const isAtEnd = view.last === totalCards - 1;
 
   return (
     <Section id="experience" eyebrow={t.experience.eyebrow} title={t.experience.title}>
@@ -125,11 +170,11 @@ export default function Experience() {
           </div>
           {/* Flechas - solo en desktop. Mobile usa swipe */}
           <div className="hidden md:flex items-center gap-2">
-            <button onClick={scrollPrev} disabled={activeCard === 0} aria-label="Previous"
+            <button onClick={scrollPrev} disabled={view.atStart} aria-label="Previous"
               className="p-2 rounded-full glass hover:shadow-glow transition-all disabled:opacity-10 disabled:cursor-not-allowed disabled:hover:shadow-none touch-manipulation">
               <ChevronLeft className="w-5 h-5 text-cyan" />
             </button>
-            <button onClick={scrollNext} disabled={isAtEnd} aria-label="Next"
+            <button onClick={scrollNext} disabled={view.atEnd || isAtEnd} aria-label="Next"
               className="p-2 rounded-full glass hover:shadow-glow transition-all disabled:opacity-10 disabled:cursor-not-allowed disabled:hover:shadow-none touch-manipulation">
               <ChevronRight className="w-5 h-5 text-cyan" />
             </button>
@@ -143,11 +188,12 @@ export default function Experience() {
               navegador decide por la dirección del gesto: swipe horizontal
               mueve las tarjetas, swipe vertical baja la página. (pan-x solo
               dejaba el gesto vertical en tierra de nadie y se trababa.)
-            - snap-proximity (no mandatory) → el snap no "agarra" el gesto. */}
+            - snap-proximity (no mandatory) → el snap no "agarra" el gesto.
+            - scroll-pl-* = mismo valor que px-*: el snap alinea cada tarjeta
+              con el margen de la sección (antes quedaba corrida en desktop). */}
         <div ref={carouselRef}
-          className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 sm:-mx-6 sm:px-6 md:-mx-16 md:px-16"
+          className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:-mx-16 md:px-16 md:scroll-pl-16"
           style={{
-            scrollPaddingLeft: "1.5rem",
             touchAction: "pan-x pan-y",
             overscrollBehaviorX: "contain",
           }}>
@@ -193,7 +239,7 @@ export default function Experience() {
           ))}
         </div>
 
-        {/* PROGRESS BAR - puntos que se van llenando */}
+        {/* PROGRESS BAR - se llena hasta la última tarjeta que ya se vio completa */}
         <div className="flex items-center justify-center gap-2 mt-8">
           {t.experience.items.map((_, i) => (
             <button
@@ -204,7 +250,7 @@ export default function Experience() {
             >
               <div
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  i <= activeCard
+                  i <= view.last
                     ? "w-10 bg-cyan shadow-[0_0_10px_rgba(0,229,255,0.5)]"
                     : "w-2 bg-cyan/20 group-hover:bg-cyan/50"
                 }`}
@@ -213,10 +259,10 @@ export default function Experience() {
           ))}
         </div>
 
-        {/* Counter "X de N" + indicador de fin */}
+        {/* Counter: tarjetas visibles "X / N" (o "X–Y / N" si se ven varias) + fin */}
         <div className="text-center mt-3">
-          <p className="text-xs text-cyan/60 uppercase tracking-wider font-mono">
-            {activeCard + 1} / {totalCards}
+          <p data-counter className="text-xs text-cyan/60 uppercase tracking-wider font-mono">
+            {view.first === view.last ? view.last + 1 : `${view.first + 1}–${view.last + 1}`} / {totalCards}
             {isAtEnd && (
               <span className="ml-3 text-cyan">
                 {lang === "es" ? "— Fin —" : "— End —"}
@@ -225,10 +271,12 @@ export default function Experience() {
           </p>
         </div>
 
-        {/* Hint de swipe solo en mobile */}
-        <p className="text-center text-xs text-fg-muted mt-2 md:hidden uppercase tracking-wider">
-          {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
-        </p>
+        {/* Hint de swipe solo en mobile (al llegar al final ya no hace falta) */}
+        {!isAtEnd && (
+          <p className="text-center text-xs text-fg-muted mt-2 md:hidden uppercase tracking-wider">
+            {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
+          </p>
+        )}
       </div>
 
       {/* EDUCACIÓN + FORMACIÓN
