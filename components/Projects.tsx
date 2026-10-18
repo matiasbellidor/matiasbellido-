@@ -39,17 +39,17 @@ const ZIRA_REVIEW_URL = ""; // TODO: pegar la URL del post/review
 // en LanguageContext.tsx — el grid de esa categoría se reacomoda solo.
 // ============================================================================
 const digitalProjectsMeta = [
-  { id: "symbiosis", image: "/projects/Imagenes/symbiosis.png", proposalUrl: "", comingSoon: true },
-  { id: "zira", image: "/projects/Imagenes/zira-cover.png", proposalUrl: ZIRA_GITHUB_URL, links: { github: "", review: ZIRA_REVIEW_URL } },
+  { id: "symbiosis", image: "/projects/Imagenes/symbiosis.webp", proposalUrl: "", comingSoon: true },
+  { id: "zira", image: "/projects/Imagenes/zira-cover.webp", proposalUrl: ZIRA_GITHUB_URL, links: { github: "", review: ZIRA_REVIEW_URL } },
   { id: "oneiric", image: "/projects/Imagenes/OneiricAi.png", proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05060E" },
   { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL },
-  { id: "nexstock", image: "/projects/Imagenes/NexStock.png", proposalUrl: "", imageBg: "#FFFFFF" },
-  { id: "budgents", image: "/projects/Imagenes/agents.png", proposalUrl: BUDGENTS_PROPOSAL_URL },
+  { id: "nexstock", image: "/projects/Imagenes/NexStock.webp", proposalUrl: "", imageBg: "#FFFFFF" },
+  { id: "budgents", image: "/projects/Imagenes/agents.webp", proposalUrl: BUDGENTS_PROPOSAL_URL },
 ];
 
 const businessProjectsMeta = [
-  { id: "imports", image: "/projects/Imagenes/Imports.png", proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#252629" },
-  { id: "asesoramientos", image: "/projects/Imagenes/asesoramientos.png", proposalUrl: "" },
+  { id: "imports", image: "/projects/Imagenes/Imports.webp", proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#252629" },
+  { id: "asesoramientos", image: "/projects/Imagenes/asesoramientos.webp", proposalUrl: "" },
 ];
 
 // Proyectos cuya imagen es un mockup/logo con fondo propio → object-contain.
@@ -429,7 +429,7 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
         className="relative aspect-[16/9] overflow-hidden flex items-center justify-center"
         style={{ backgroundColor: project.imageBg ?? "#000000" }}
       >
-        <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 1024px) 100vw, 50vw"
+        <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 767px) 80vw, 50vw"
           className={`${containedImage ? "object-contain" : "object-cover"} transition-transform duration-700 group-hover:scale-105`} />
         {/* El degradé oscuro solo tiene sentido sobre fondo oscuro (imágenes
             cover). Sobre un imageBg claro se vería como una sombra gris fea,

@@ -109,12 +109,15 @@ export default function Hero() {
               className="relative aspect-[4/5] rounded-2xl overflow-hidden glass shadow-glow-lg will-change-transform"
             >
               <Image
-                src="/projects/Imagenes/profile.png"
+                src="/projects/Imagenes/profile.webp"
                 alt="Matías Bellido"
                 fill
                 priority
                 quality={80}
-                sizes="(max-width: 768px) 90vw, 384px"
+                /* En mobile la foto ocupa ~90vw, pero declarar 60vw limita la
+                   densidad efectiva a ~2x: en pantallas 3x baja de 1280 a 768 px
+                   (~-60% de peso) sin diferencia visible a ese tamaño. */
+                sizes="(max-width: 768px) 60vw, 384px"
                 className="object-cover object-top scale-90"
               />
 

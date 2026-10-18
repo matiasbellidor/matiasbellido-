@@ -18,10 +18,10 @@ import { useModal } from "@/context/ModalContext";
 // [5] Asistente Investigación → fundacionapolo
 // ============================================================================
 const experienceLogos = [
-  "/projects/Imagenes/asesoramientoslogo.png",
-  "/projects/Imagenes/asesoramientoslogo.png",
+  "/projects/Imagenes/asesoramientoslogo.webp",
+  "/projects/Imagenes/asesoramientoslogo.webp",
   "/projects/Imagenes/arcosdorados.png",
-  "/projects/Imagenes/SOMECLUB.png",
+  "/projects/Imagenes/SOMECLUB.webp",
   "/projects/Imagenes/fiat.png",
   "/projects/Imagenes/fundacionapolo.png",
 ];
