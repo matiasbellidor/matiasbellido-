@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, type MouseEvent as ReactMouseEvent } from "react";
+import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import {
   motion,
   useMotionValue,
@@ -12,6 +12,7 @@ import {
 import { Sparkles, ArrowDown, Linkedin, Github, Phone, MapPin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Magnetic, { useHasFinePointer } from "@/components/Magnetic";
+import { getIntroDelay } from "@/components/IntroLoader";
 
 /* Curva de easing premium (ease-out suave, estilo Apple) */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -26,6 +27,8 @@ export default function Hero() {
   const { t } = useLanguage();
   const fine = useHasFinePointer();
   const reduced = !!useReducedMotion();
+  /* Si la intro está en pantalla, la entrada arranca cuando se va */
+  const [introDelay] = useState(getIntroDelay);
 
   /* ── Tilt 3D + glare de la foto ── */
   const photoRef = useRef<HTMLDivElement>(null);
@@ -65,7 +68,7 @@ export default function Hero() {
     show: {
       transition: {
         staggerChildren: reduced ? 0 : 0.13,
-        delayChildren: reduced ? 0 : 0.25,
+        delayChildren: (reduced ? 0 : 0.25) + introDelay,
       },
     },
   };
@@ -80,13 +83,13 @@ export default function Hero() {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center px-6 md:px-16 py-24">
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center w-full">
+    <section id="home" className="relative min-h-screen flex items-center px-5 sm:px-6 md:px-16 py-24">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full min-w-0">
         {/* ── Columna izquierda: foto con tilt 3D + aurora + redes ── */}
         <motion.div
           initial={{ opacity: 0, y: reduced ? 0 : 30, scale: reduced ? 1 : 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.9, ease: EASE }}
+          transition={{ duration: 0.9, ease: EASE, delay: introDelay }}
           className="relative flex flex-col items-center gap-6"
         >
           <div className="relative w-full max-w-sm" style={{ perspective: 1100 }}>
@@ -110,7 +113,7 @@ export default function Hero() {
                 alt="Matías Bellido"
                 fill
                 priority
-                quality={90}
+                quality={80}
                 sizes="(max-width: 768px) 90vw, 384px"
                 className="object-cover object-top scale-90"
               />
@@ -167,11 +170,11 @@ export default function Hero() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="space-y-6"
+          className="space-y-6 min-w-0"
         >
           <motion.div
             variants={fadeUp}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm uppercase tracking-widest text-cyan"
+            className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 rounded-full glass text-xs sm:text-sm uppercase tracking-wider sm:tracking-widest text-cyan max-w-full"
           >
             <Sparkles className="w-4 h-4 shrink-0" />
             <span>{t.hero.badge}</span>
@@ -182,7 +185,7 @@ export default function Hero() {
 
           <motion.h1
             variants={fadeUp}
-            className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1]"
+            className="font-display text-[clamp(2.1rem,10vw,3.75rem)] lg:text-7xl font-bold leading-[1.1]"
           >
             <span className="text-fg">{t.hero.titleLine1}</span>
             <br />
@@ -193,23 +196,23 @@ export default function Hero() {
 
           <motion.p
             variants={fadeUp}
-            className="text-xl md:text-2xl text-fg-soft max-w-xl leading-relaxed"
+            className="text-lg sm:text-xl md:text-2xl text-fg-soft max-w-xl leading-relaxed"
           >
             {t.hero.desc}
           </motion.p>
 
-          <motion.div variants={fadeUp} className="flex items-center gap-4 pt-4">
+          <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3 sm:gap-4 pt-4">
             <Magnetic strength={0.3}>
               <a
                 href="#projects"
-                className="group relative px-7 py-4 rounded-full bg-electric text-white font-medium text-base overflow-hidden transition-all hover:shadow-glow"
+                className="group relative px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-electric text-white font-medium text-base overflow-hidden transition-all hover:shadow-glow"
               >
                 <span className="relative z-10">{t.hero.ctaProjects}</span>
               </a>
             </Magnetic>
             <a
               href="#bio"
-              className="px-7 py-4 rounded-full glass text-fg-soft hover:text-fg transition-colors inline-flex items-center gap-2 text-base"
+              className="px-6 sm:px-7 py-3.5 sm:py-4 rounded-full glass text-fg-soft hover:text-fg transition-colors inline-flex items-center gap-2 text-base"
             >
               {t.hero.ctaAbout} <ArrowDown className="w-4 h-4" />
             </a>

@@ -49,8 +49,12 @@ export default function Header() {
   };
 
   // Scroll spy MEJORADO - elige la sección que ocupa más viewport
+  // Throttle con requestAnimationFrame: como mucho un cálculo por frame
+  // (antes medía todas las secciones en CADA evento de scroll).
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
+      ticking = false;
       if (ignoreScrollSpy.current) return;
 
       const scrollY = window.scrollY;
@@ -93,9 +97,15 @@ export default function Header() {
       setActiveSection(bestSection);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(handleScroll);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
     handleScroll(); // run once on mount
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", onScroll);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -117,10 +127,10 @@ export default function Header() {
           animate={{ y: 0 }}
           exit={{ y: -100 }}
           transition={{ duration: 0.3 }}
-          className="fixed top-4 left-0 right-0 z-50 px-4 md:px-8"
+          className="fixed top-4 left-0 right-0 z-50 px-3 sm:px-4 md:px-8"
         >
           <div className="max-w-7xl mx-auto">
-            <div className="glass-nav rounded-full px-4 md:px-6 py-2.5 flex items-center justify-between">
+            <div className="glass-nav rounded-full px-3 sm:px-4 md:px-6 py-2.5 flex items-center justify-between gap-2">
               {/* Logo */}
               <Link href="#home" onClick={() => handleNavClick("home")} className="font-display text-xl font-bold text-cyan tracking-tight">
                 MB.

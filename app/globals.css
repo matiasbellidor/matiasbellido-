@@ -66,7 +66,32 @@ body {
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.4s ease, color 0.4s ease;
+  /* Nada se escapa por los costados: sin scroll horizontal fantasma
+     en mobile (hidden como fallback, clip donde se soporta). */
   overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  max-width: 100%;
+}
+
+/* Medios nunca más anchos que su contenedor */
+img,
+svg,
+video,
+iframe {
+  max-width: 100%;
+}
+
+/* Palabras largas (emails, URLs, títulos) cortan antes que desbordar */
+h1,
+h2,
+h3,
+h4,
+p,
+a,
+span,
+li {
+  overflow-wrap: break-word;
 }
 
 /* El color base vive en <html>: pinta DEBAJO de la capa de
@@ -375,6 +400,91 @@ section[id] {
   .touch-manipulation {
     min-height: 36px;
   }
+
+  /* Performance mobile: backdrop-filter es de lo más caro de pintar
+     en GPUs chicas. Con menos radio el efecto vidrio se mantiene y
+     el scroll deja de tironear. */
+  .glass {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .glass-nav {
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+  }
+
+  .aurora-blob {
+    filter: blur(32px);
+  }
+}
+
+/* ── Intro loader (primera visita de la sesión) ──
+   Solo transform/opacity → corre en el compositor (GPU). */
+.intro-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.intro-loader--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ya vista en esta sesión → oculto desde el primer paint */
+html.intro-seen .intro-loader {
+  display: none;
+}
+
+.intro-loader__logo {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  will-change: transform;
+  animation: intro-spin 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+.intro-loader__ring {
+  position: absolute;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  border: 2px solid rgb(var(--accent-cyan) / 0.15);
+  border-top-color: rgb(var(--accent-cyan) / 0.9);
+  will-change: transform;
+  animation: intro-ring 1s linear infinite;
+}
+
+.intro-loader--out .intro-loader__logo,
+.intro-loader--out .intro-loader__ring {
+  transform: scale(1.15);
+  transition: transform 0.5s ease;
+}
+
+@keyframes intro-spin {
+  0% {
+    transform: rotate(0deg) scale(0.92);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.06);
+  }
+  100% {
+    transform: rotate(360deg) scale(0.92);
+  }
+}
+
+@keyframes intro-ring {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Accesibilidad: si el usuario pidió reducir movimiento en su sistema,
@@ -382,7 +492,22 @@ section[id] {
 @media (prefers-reduced-motion: reduce) {
   .aurora-blob,
   .gradient-text,
-  .gradient-text-animated {
+  .gradient-text-animated,
+  .intro-loader__ring {
     animation: none;
+  }
+
+  .intro-loader__logo {
+    animation: intro-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes intro-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
   }
 }

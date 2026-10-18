@@ -183,11 +183,11 @@ export default function Projects() {
       <div className="mb-16">
         <div className="flex items-center gap-3 mb-8">
           <Code2 className="w-5 h-5 text-cyan" />
-          <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
+          <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
         </div>
-        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
+        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
           {digitalProjects.map((project, i) => (
-            <div key={project.id} className="snap-start shrink-0 w-[85vw] sm:w-[420px] md:w-auto md:shrink">
+            <div key={project.id} className="snap-start shrink-0 w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
               <ProjectCard
                 project={project}
                 index={i}
@@ -201,17 +201,20 @@ export default function Projects() {
             </div>
           ))}
         </div>
+        <p className="text-center text-xs text-fg-muted mt-3 md:hidden uppercase tracking-wider">
+          {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
+        </p>
       </div>
 
       {/* CATEGORÍA: Operaciones de Negocio */}
       <div>
         <div className="flex items-center gap-3 mb-8">
           <Briefcase className="w-5 h-5 text-cyan" />
-          <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.projects.businessSubtitle}</h3>
+          <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.businessSubtitle}</h3>
         </div>
-        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
+        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
           {businessProjects.map((project, i) => (
-            <div key={project.id} className="snap-start shrink-0 w-[85vw] sm:w-[420px] md:w-auto md:shrink">
+            <div key={project.id} className="snap-start shrink-0 w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
               <ProjectCard
                 project={project}
                 index={i}
@@ -222,6 +225,9 @@ export default function Projects() {
             </div>
           ))}
         </div>
+        <p className="text-center text-xs text-fg-muted mt-3 md:hidden uppercase tracking-wider">
+          {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
+        </p>
       </div>
 
       <AnimatePresence>
@@ -401,7 +407,7 @@ type ProjectCardProps = {
 };
 
 function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onNexstockClick, lockControls, locked }: ProjectCardProps) {
-  const motionProps: MotionProps = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-50px" }, transition: { duration: 0.5, delay: 0.2 + index * 0.1 } };
+  const motionProps: MotionProps = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "0px 0px -50px 0px" }, transition: { duration: 0.5, delay: 0.2 + index * 0.1 } };
   const containedImage = containedImageIds.includes(project.id);
   return (
     <motion.article {...motionProps} onClick={onClick}

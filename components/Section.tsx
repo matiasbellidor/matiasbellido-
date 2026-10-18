@@ -15,7 +15,7 @@ export default function Section({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="px-6 md:px-16 py-14 md:py-16">
+    <section id={id} className="px-5 sm:px-6 md:px-16 py-14 md:py-16">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -27,7 +27,7 @@ export default function Section({
           <p className="text-xs uppercase tracking-[0.3em] text-cyan mb-4">
             {eyebrow}
           </p>
-          <h2 className="font-display text-4xl md:text-6xl font-bold gradient-text">
+          <h2 className="font-display text-[clamp(2rem,8vw,3.75rem)] font-bold gradient-text leading-tight">
             {title}
           </h2>
         </motion.div>

@@ -39,6 +39,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icon.png" type="image/png" sizes="any" />
+        {/* Antes del primer paint:
+            - tema guardado (sin flash claro→oscuro; también aplica en /cv)
+            - si la intro ya se vio en esta sesión, marcamos el <html>
+              para que el loader no aparezca ni un frame. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var d=document.documentElement;if(localStorage.getItem("theme")!=="light")d.classList.add("dark");if(sessionStorage.getItem("intro-seen"))d.classList.add("intro-seen")}catch(e){}`,
+          }}
+        />
       </head>
       <body className={`${inter.variable} ${plusJakartaSans.variable} font-sans bg-[var(--bg)] text-[var(--fg)] transition-colors`}>
         <LanguageProvider>

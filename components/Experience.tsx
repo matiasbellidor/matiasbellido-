@@ -119,7 +119,7 @@ export default function Experience() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Briefcase className="w-5 h-5 text-cyan" />
-            <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">
+            <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">
               {t.experience.experienceTitle}
             </h3>
           </div>
@@ -145,7 +145,7 @@ export default function Experience() {
               dejaba el gesto vertical en tierra de nadie y se trababa.)
             - snap-proximity (no mandatory) → el snap no "agarra" el gesto. */}
         <div ref={carouselRef}
-          className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-6 px-6 md:-mx-16 md:px-16"
+          className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 sm:-mx-6 sm:px-6 md:-mx-16 md:px-16"
           style={{
             scrollPaddingLeft: "1.5rem",
             touchAction: "pan-x pan-y",
@@ -157,9 +157,11 @@ export default function Experience() {
               data-card
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              /* Margen solo abajo: si fuera en los 4 lados, la tarjeta que
+                 asoma a la derecha del carrusel nunca "entra" y queda invisible */
+              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
               transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="snap-start shrink-0 w-[85vw] sm:w-[400px] md:w-[440px]"
+              className="snap-start shrink-0 w-[80vw] max-w-[400px] sm:w-[400px] md:w-[440px] md:max-w-none"
             >
               <div className="glass rounded-xl p-6 h-full flex flex-col hover:shadow-glow transition-all">
                 {/* Header con logo - SIN fondo blanco, transparente para PNGs */}
@@ -241,7 +243,7 @@ export default function Experience() {
         <div className="flex flex-col h-full">
           <div className="flex items-center gap-3 mb-8">
             <GraduationCap className="w-5 h-5 text-cyan" />
-            <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.experience.educationTitle}</h3>
+            <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.experience.educationTitle}</h3>
           </div>
           <div className="flex flex-1 flex-col gap-8">
             {t.experience.education.map((item, i) => (
@@ -252,14 +254,14 @@ export default function Experience() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 onClick={() => setExpandedIdx(i)}
-                className="glass rounded-2xl p-7 md:p-9 hover:shadow-glow transition-all cursor-pointer group touch-manipulation flex flex-col last:flex-grow"
+                className="glass rounded-2xl p-5 sm:p-7 md:p-9 hover:shadow-glow transition-all cursor-pointer group touch-manipulation flex flex-col last:flex-grow"
               >
                 {/* HEADER: logo + (fechas / título / subtítulo) en una fila.
                     PROBLEMA 2: el header se mantiene compacto al lado del logo
                     tanto en mobile como en desktop (el texto del título es corto
                     y fluye al costado del logo sin dejar espacio negro). */}
-                <div className="flex items-start gap-5 md:gap-6">
-                  <div className="shrink-0 relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden">
+                <div className="flex items-start gap-4 sm:gap-5 md:gap-6">
+                  <div className="shrink-0 relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden">
                     <Image src={educationLogos[i]} alt={item.institution} fill sizes="96px" className="object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -295,7 +297,7 @@ export default function Experience() {
         <div className="flex flex-col h-full">
           <div className="flex items-center gap-3 mb-8">
             <Award className="w-5 h-5 text-cyan" />
-            <h3 className="font-display text-lg font-semibold uppercase tracking-[0.2em] text-fg">{t.experience.coursesTitle}</h3>
+            <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.experience.coursesTitle}</h3>
           </div>
           <div className="flex flex-1 flex-col gap-5">
             {/* Todas las tarjetas menos la última → grilla de 2 columnas. */}

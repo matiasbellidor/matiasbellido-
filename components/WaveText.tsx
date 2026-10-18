@@ -15,13 +15,11 @@ const word: Variants = {
   hidden: {
     opacity: 0,
     y: 8,
-    filter: "blur(4px)",
     transition: { duration: 0.35, ease: EASE },
   },
   show: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: { duration: 0.35, ease: EASE },
   },
 };
@@ -52,7 +50,7 @@ export default function WaveText({
       variants={container}
       initial="hidden"
       whileInView="show"
-      viewport={{ once: false, amount: 0.2 }}
+      viewport={{ once: true, amount: 0.2 }}
       className={className}
     >
       {text.split(" ").map((w, i, arr) => (
