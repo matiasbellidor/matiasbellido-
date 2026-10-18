@@ -1,18 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Mail, MapPin, Linkedin, Github, Phone, ArrowUpRight, Copy, Check, FileText } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Magnetic from "@/components/Magnetic";
+import CVModal from "@/components/CVModal";
 
 /* Curva de easing premium (la misma del Hero) */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const EMAIL = "rbellidomatias@gmail.com";
 const MAILTO_URL = `mailto:${EMAIL}`;
-/* Vista previa del CV (app/cv/page.tsx) — se abre en pestaña nueva */
-const CV_PAGE_URL = "/cv";
 const MAPS_URL =
   "https://www.google.com/maps/place/Buenos+Aires/@-34.615796,-58.5156997,12z/data=!3m1!4b1!4m6!3m5!1s0x95bcca3b4ef90cbd:0xa0b3812e88e88e87!8m2!3d-34.6036739!4d-58.3821215!16zL20vMDFseTVt";
 
@@ -20,6 +19,8 @@ export default function Footer() {
   const { t } = useLanguage();
   const reduced = !!useReducedMotion();
   const [copied, setCopied] = useState(false);
+  const [cvOpen, setCvOpen] = useState(false);
+  const closeCv = useCallback(() => setCvOpen(false), []);
 
   const handleCopy = async () => {
     try {
@@ -170,16 +171,17 @@ export default function Footer() {
             </a>
           </Magnetic>
           <Magnetic strength={0.45}>
-            <a
-              href={CV_PAGE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass px-4 py-3 rounded-full inline-flex items-center gap-2 hover:text-cyan hover:shadow-glow transition-all"
+            {/* Abre el CV en un modal, sin salir de la página */}
+            <button
+              type="button"
+              onClick={() => setCvOpen(true)}
+              className="glass px-4 py-3 rounded-full inline-flex items-center gap-2 hover:text-cyan hover:shadow-glow transition-all touch-manipulation"
               aria-label="Curriculum Vitae"
+              aria-haspopup="dialog"
             >
               <FileText className="w-5 h-5" />
               <span className="text-sm font-semibold">CV</span>
-            </a>
+            </button>
           </Magnetic>
         </motion.div>
       </motion.div>
@@ -233,15 +235,6 @@ export default function Footer() {
               <Phone className="w-4 h-4" />
               WhatsApp
             </a>
-            <a
-              href={CV_PAGE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass text-sm text-fg-soft hover:text-cyan hover:shadow-glow transition-all"
-            >
-              <FileText className="w-4 h-4" />
-              CV
-            </a>
           </div>
         </div>
 
@@ -249,6 +242,8 @@ export default function Footer() {
           {t.footer.rights}
         </p>
       </div>
+
+      <CVModal open={cvOpen} onClose={closeCv} />
     </footer>
   );
 }
