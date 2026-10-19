@@ -79,7 +79,7 @@ export default function Bio() {
               {category.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="text-base px-4 py-2.5 rounded-full bg-cyan/[0.08] text-cyan border border-cyan/40 hover:border-cyan/70 hover:bg-cyan/[0.15] hover:scale-105 transition-all duration-300 cursor-default font-medium"
+                  className="text-sm sm:text-base px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full bg-cyan/[0.08] text-cyan border border-cyan/40 hover:border-cyan/70 hover:bg-cyan/[0.15] hover:scale-105 transition-all duration-300 cursor-default font-medium"
                 >
                   {skill}
                 </span>
@@ -108,7 +108,7 @@ export default function Bio() {
           <DropInText
             key={lang}
             text={`\u201C${t.bio.manifesto}\u201D`}
-            className="font-sans text-2xl md:text-3xl lg:text-4xl text-fg leading-relaxed font-normal"
+            className="font-sans text-xl md:text-2xl lg:text-3xl text-fg leading-relaxed font-normal"
           />
 
           {/* 3. La firma aparece al final, cuando las palabras ya asentaron */}

@@ -1,37 +1,19 @@
 "use client";
 
-import { Fragment } from "react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { Fragment, useRef } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+/* ═════════════════════════════════════════════════════════════
+   WAVE TEXT — las palabras suben en ola al entrar en pantalla.
 
-/* Transiciones SIMÉTRICAS: hidden y show definen tanto el estado
-   visual de destino como CÓMO llegar a él. Framer Motion usa la
-   transition del variant de DESTINO, así que:
-   - Entrando (hidden→show): usa la transition de "show"
-   - Saliendo (show→hidden): usa la transition de "hidden"
-   Ambas con los mismos tiempos = reverse suave e idéntico. */
-const word: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 8,
-    transition: { duration: 0.35, ease: EASE },
-  },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: EASE },
-  },
-};
+   La animación es CSS (.wave-word en globals.css, solo opacity y
+   transform → GPU). Antes cada palabra era un componente de Framer
+   Motion (~100 en la descripción de Proyectos). Acá solo se observa
+   el párrafo y se le agrega .is-shown; el retraso de cada palabra va
+   inline.
+   ═════════════════════════════════════════════════════════════ */
 
-const container: Variants = {
-  hidden: {
-    transition: { staggerChildren: 0.025, staggerDirection: -1 },
-  },
-  show: {
-    transition: { staggerChildren: 0.025 },
-  },
-};
+const STAGGER_MS = 25;
 
 export default function WaveText({
   text,
@@ -41,26 +23,22 @@ export default function WaveText({
   className?: string;
 }) {
   const reduced = !!useReducedMotion();
+  const ref = useRef<HTMLParagraphElement>(null);
+  const shown = useInView(ref, { once: true, amount: 0.2 });
 
   if (typeof text !== "string" || !text) return null;
   if (reduced) return <p className={className}>{text}</p>;
 
   return (
-    <motion.p
-      variants={container}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.2 }}
-      className={className}
-    >
+    <p ref={ref} className={`${className} ${shown ? "is-shown" : ""}`}>
       {text.split(" ").map((w, i, arr) => (
         <Fragment key={`${w}-${i}`}>
-          <motion.span variants={word} className="inline-block">
+          <span className="wave-word" style={{ animationDelay: `${i * STAGGER_MS}ms` }}>
             {w}
-          </motion.span>
+          </span>
           {i < arr.length - 1 ? " " : ""}
         </Fragment>
       ))}
-    </motion.p>
+    </p>
   );
 }

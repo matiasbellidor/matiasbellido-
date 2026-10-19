@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { Mail, MapPin, Linkedin, Github, Phone, ArrowUpRight, Copy, Check, FileText } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Magnetic from "@/components/Magnetic";
 import CVModal from "@/components/CVModal";
+import ContactForm from "@/components/ContactForm";
+/* El mismo ícono del Header (y del favicon) cierra la página */
+import logo from "@/app/icon.png";
 
 /* Curva de easing premium (la misma del Hero) */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -14,6 +18,16 @@ const EMAIL = "rbellidomatias@gmail.com";
 const MAILTO_URL = `mailto:${EMAIL}`;
 const MAPS_URL =
   "https://www.google.com/maps/place/Buenos+Aires/@-34.615796,-58.5156997,12z/data=!3m1!4b1!4m6!3m5!1s0x95bcca3b4ef90cbd:0xa0b3812e88e88e87!8m2!3d-34.6036739!4d-58.3821215!16zL20vMDFseTVt";
+
+/* Único lugar del sitio con las redes (el Hero ya no las repite) */
+const SOCIAL_LINKS = [
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/matiasbellido", Icon: Linkedin },
+  { label: "GitHub", href: "https://github.com/matiasbellidor", Icon: Github },
+  { label: "WhatsApp", href: "https://wa.me/message/RRG5RHLSINR3M1", Icon: Phone },
+];
+
+const socialClass =
+  "w-full sm:w-auto glass px-5 py-3 rounded-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-fg-soft hover:text-cyan hover:shadow-glow transition-all touch-manipulation";
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -33,7 +47,7 @@ export default function Footer() {
   };
 
   /* Stagger de entrada al hacer scroll hasta la sección:
-     eyebrow → título → texto → tarjetas → redes */
+     eyebrow → título → texto → formulario → tarjetas → redes */
   const container = {
     hidden: {},
     show: {
@@ -68,7 +82,7 @@ export default function Footer() {
 
         <motion.h2
           variants={fadeUp}
-          className="font-display text-[clamp(2.25rem,11vw,4.5rem)] leading-tight font-bold gradient-text mb-6"
+          className="font-display text-[clamp(2.25rem,9vw,4.5rem)] leading-tight font-bold gradient-text mb-6"
         >
           {t.footer.title}
         </motion.h2>
@@ -80,15 +94,18 @@ export default function Footer() {
           {t.footer.desc}
         </motion.p>
 
+        {/* Formulario = CTA principal: arma el email en Gmail u Outlook */}
+        <motion.div variants={fadeUp} className="max-w-2xl mx-auto mb-4">
+          <ContactForm to={EMAIL} />
+        </motion.div>
+
         <motion.div
           variants={fadeUp}
           className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 max-w-2xl mx-auto"
         >
-          {/* Tarjeta de Email = CTA principal.
+          {/* Tarjeta de Email (dato de contacto, debajo del formulario).
              Estructura: la tarjeta entera es un enlace mailto, con un
-             botón de copiar SEPARADO (no anidado, para HTML válido).
-             Borde de acento cyan + hover marcado para cargar el peso
-             visual que dejó el botón azul eliminado. */}
+             botón de copiar SEPARADO (no anidado, para HTML válido). */}
           <div className="relative glass rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 text-left min-w-0 border border-cyan/30 hover:border-cyan/60 hover:shadow-glow transition-all group">
             <a
               href={MAILTO_URL}
@@ -132,116 +149,69 @@ export default function Footer() {
           </a>
         </motion.div>
 
-        {/* Redes sociales con efecto magnético (igual que en el Hero) */}
+        {/* Redes + CV: un solo juego de enlaces, con ícono Y texto (antes
+            había una fila de íconos y otra de texto con los mismos links).
+            Mobile: grilla 2×2 simétrica; sm+: una fila centrada. */}
         <motion.div
           variants={fadeUp}
-          className="flex flex-wrap items-center justify-center gap-3"
+          className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-center"
         >
-          <Magnetic strength={0.45}>
-            <a
-              href="https://www.linkedin.com/in/matiasbellido"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass p-3 rounded-full hover:text-cyan hover:shadow-glow transition-all"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="w-5 h-5" />
-            </a>
-          </Magnetic>
-          <Magnetic strength={0.45}>
-            <a
-              href="https://github.com/matiasbellidor"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass p-3 rounded-full hover:text-cyan hover:shadow-glow transition-all"
-              aria-label="GitHub"
-            >
-              <Github className="w-5 h-5" />
-            </a>
-          </Magnetic>
-          <Magnetic strength={0.45}>
-            <a
-              href="https://wa.me/message/RRG5RHLSINR3M1"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass p-3 rounded-full hover:text-cyan hover:shadow-glow transition-all"
-              aria-label="WhatsApp"
-            >
-              <Phone className="w-5 h-5" />
-            </a>
-          </Magnetic>
-          <Magnetic strength={0.45}>
+          {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+            <Magnetic key={label} strength={0.45} className="w-full sm:w-auto">
+              <a href={href} target="_blank" rel="noopener noreferrer" className={socialClass}>
+                <Icon className="w-5 h-5 shrink-0" />
+                <span>{label}</span>
+              </a>
+            </Magnetic>
+          ))}
+          <Magnetic strength={0.45} className="w-full sm:w-auto">
             {/* Abre el CV en un modal, sin salir de la página */}
             <button
               type="button"
               onClick={() => setCvOpen(true)}
-              className="glass px-4 py-3 rounded-full inline-flex items-center gap-2 hover:text-cyan hover:shadow-glow transition-all touch-manipulation"
+              className={socialClass}
               aria-label="Curriculum Vitae"
               aria-haspopup="dialog"
             >
-              <FileText className="w-5 h-5" />
-              <span className="text-sm font-semibold">CV</span>
+              <FileText className="w-5 h-5 shrink-0" />
+              <span>CV</span>
             </button>
           </Magnetic>
         </motion.div>
       </motion.div>
 
-      {/* ── Franja inferior absoluta: nombre, bio y enlaces de texto ── */}
-      <div className="max-w-5xl mx-auto mt-16 pt-10 border-t border-white/10">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-          {/* Nombre + bio */}
-          <div className="text-center md:text-left">
-            <p className="font-display text-xl font-bold text-fg">
-              Matías Rodrigo Bellido
+      {/* ── Cierre: mismo lenguaje visual que el resto del sitio — divisor
+          con degradé cyan (se ve en ambos temas; el border blanco no se veía
+          en light), el logo del Header y el rol entre líneas como la firma
+          de la cita de Habilidades. Entra con el mismo fade-up. ── */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-40px" }}
+        className="max-w-5xl mx-auto mt-16"
+      >
+        <div className="h-px bg-gradient-to-r from-transparent via-cyan/40 to-transparent" />
+        <div className="pt-10 flex flex-col items-center text-center">
+          <Image src={logo} alt="" width={40} height={40} className="w-10 h-10 object-contain" />
+          <p className="mt-4 font-display text-xl font-bold text-fg">
+            Matías Rodrigo Bellido
+          </p>
+          <div className="mt-3 flex items-center justify-center gap-3">
+            <div className="h-px w-6 sm:w-12 shrink-0 bg-cyan/40" />
+            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.25em] font-medium text-cyan">
+              {t.footer.role}
             </p>
-            <p className="text-sm text-fg-soft mt-1">
-              {t.footer.tagline}
-            </p>
+            <div className="h-px w-6 sm:w-12 shrink-0 bg-cyan/40" />
           </div>
-
-          {/* Enlaces de texto explícitos (para quien no reconoce los íconos) */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-            <a
-              href={MAILTO_URL}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass text-sm text-fg-soft hover:text-cyan hover:shadow-glow transition-all"
-            >
-              <Mail className="w-4 h-4" />
-              Email
-            </a>
-            <a
-              href="https://www.linkedin.com/in/matiasbellido"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass text-sm text-fg-soft hover:text-cyan hover:shadow-glow transition-all"
-            >
-              <Linkedin className="w-4 h-4" />
-              LinkedIn
-            </a>
-            <a
-              href="https://github.com/matiasbellidor"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass text-sm text-fg-soft hover:text-cyan hover:shadow-glow transition-all"
-            >
-              <Github className="w-4 h-4" />
-              GitHub
-            </a>
-            <a
-              href="https://wa.me/message/RRG5RHLSINR3M1"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass text-sm text-fg-soft hover:text-cyan hover:shadow-glow transition-all"
-            >
-              <Phone className="w-4 h-4" />
-              WhatsApp
-            </a>
-          </div>
+          <p className="mt-3 text-sm text-fg-soft">
+            {t.footer.tagline}
+          </p>
+          <p className="mt-8 text-xs text-fg-faint">
+            {t.footer.rights}
+          </p>
         </div>
-
-        <p className="text-center text-sm text-fg-faint mt-10">
-          {t.footer.rights}
-        </p>
-      </div>
+      </motion.div>
 
       <CVModal open={cvOpen} onClose={closeCv} />
     </footer>

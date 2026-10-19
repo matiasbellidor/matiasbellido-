@@ -19,7 +19,9 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-jakarta)", "system-ui", "sans-serif"],
+        /* Títulos: Inter, igual que hasta ahora (apuntaba a --font-jakarta,
+           que no existía, y por eso ya heredaban Inter del body) */
+        display: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       boxShadow: {
         glow: "0 0 24px rgb(var(--accent-cyan) / 0.35)",

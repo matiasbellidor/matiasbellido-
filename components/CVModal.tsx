@@ -16,7 +16,7 @@ export const CV_PATH = "/Matias_Bellido_Data_Analytics_CV.pdf";
 const CV_FILENAME = "Matias_Bellido_Data_Analytics_CV.pdf";
 
 export default function CVModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
   const { setModalOpen: setGlobalModalOpen } = useModal();
 
   /* Oculta el header, bloquea el scroll de fondo y cierra con Esc
@@ -62,7 +62,7 @@ export default function CVModal({ open, onClose }: { open: boolean; onClose: () 
                     <h3 className="font-display text-2xl md:text-3xl font-bold gradient-text leading-tight">
                       Curriculum Vitae
                     </h3>
-                    <p className="text-sm text-fg-soft">Matías Bellido · Actuario & Data Scientist</p>
+                    <p className="text-sm text-fg-soft">Matías Bellido · {t.footer.role}</p>
                   </div>
                   <button
                     onClick={onClose}

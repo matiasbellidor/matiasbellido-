@@ -44,6 +44,8 @@ type EducationItem = {
   degree: string;
   desc: string;
   descBullets?: string[];
+  /** Texto del enlace de la tarjeta; si falta, "Click para leer más →" */
+  clickHint?: string;
   longDesc: string;
 };
 
@@ -114,9 +116,24 @@ type Dict = {
     emailLabel: string;
     locationLabel: string;
     location: string;
-    cta: string;
+    role: string;
     tagline: string;
     rights: string;
+    form: {
+      providerLabel: string;
+      nameLabel: string;
+      namePlaceholder: string;
+      emailLabel: string;
+      emailPlaceholder: string;
+      messageLabel: string;
+      messagePlaceholder: string;
+      submit: string;
+      hint: string;
+      opened: string;
+      subject: string;
+      greeting: string;
+      emailLine: string;
+    };
   };
 };
 
@@ -133,11 +150,12 @@ export const translations: Record<Lang, Dict> = {
       contact: "Contacto",
     },
     hero: {
-      badge: "Actuario & Data Scientist",
+      badge: "Actuario & Data Analyst",
       location: "CABA, Argentina",
       titleLine1: "Hola! Soy",
       titleLine2: "Matías Bellido",
-      desc: "Soy estudiante de Actuario y autodidacta en Data Science, enfocado en cerrar la brecha entre el análisis teórico y la ejecución práctica. Me mueve la curiosidad por emprender proyectos que desafíen lo convencional y el deseo constante de aprender. Creo en la capacidad de transformar problemas complejos en soluciones humanas y funcionales que tengan un impacto real.",
+      // Lo que va entre **dobles asteriscos** se resalta con el color de acento
+      desc: "Estudiante de **Actuario** (FCE-UBA), con foco en **Data Analysis** e IA aplicada. Construyo soluciones que convierten datos complejos en decisiones claras.",
       ctaProjects: "Ver Proyectos",
       ctaAbout: "Sobre mí",
     },
@@ -231,7 +249,10 @@ export const translations: Record<Lang, Dict> = {
           descBullets: [
             "Iniciativa y Ventas: Gestión y liderazgo en ventas para financiamiento colectivo, asegurando el cumplimiento de objetivos grupales.",
             "Voluntariado y Liderazgo: Participación activa en proyectos sociales (TECHO), desarrollando adaptabilidad, trabajo en equipo y gestión de recursos bajo presión.",
+            "Habilidades Blandas: Comunicación efectiva y empatía como bases que hoy complemento con la formación técnica.",
           ],
+          // La tarjeta ya muestra todo el contenido: el click abre la vista ampliada
+          clickHint: "Ver en pantalla completa →",
           longDesc:
             "Formación humanista centrada en el pensamiento crítico y la conciencia social. Voluntariado en TECHO, deportes y actividades de acción social. Desarrollo de habilidades fundamentales que hoy complemento con mi formación técnica en Actuario y Ciencia de Datos.\n\nIniciativa y Ventas:\n• Para costear el viaje de egresados, me encargué de la venta de productos (tortas, rifas).\n• No me limité a vender mi parte; me ofrecí a gestionar y vender los productos de algunos compañeros para asegurar que todos llegaran al objetivo.\n• Fue mi primer contacto real con la venta y el trato con la gente.\n\nVoluntariado y Liderazgo:\n• Participación activa en proyectos sociales (TECHO).\n• Desarrollo de habilidades de trabajo en equipo, adaptabilidad en terreno y gestión de recursos bajo presión.\n\nHabilidades Blandas:\n• Comunicación efectiva y empatía como bases que hoy complemento con la formación técnica.",
         },
@@ -384,9 +405,25 @@ export const translations: Record<Lang, Dict> = {
       emailLabel: "Email",
       locationLabel: "Ubicación",
       location: "CABA, Argentina",
-      cta: "Colaboremos - Enviar Email",
-      tagline: "Actuario & Data Scientist · IA, Automatización y Estrategia de Negocios",
+      role: "Actuario & Data Analyst",
+      tagline: "IA, Automatización y Estrategia de Negocios",
       rights: "© 2026 Matías Rodrigo Bellido. Todos los derechos reservados.",
+      // Formulario de contacto. {provider} se reemplaza por "Gmail" u "Outlook".
+      form: {
+        providerLabel: "Enviar con",
+        nameLabel: "Nombre (opcional)",
+        namePlaceholder: "¿Cómo te llamás?",
+        emailLabel: "Tu email",
+        emailPlaceholder: "tu@email.com",
+        messageLabel: "Mensaje",
+        messagePlaceholder: "Contame en qué te puedo ayudar...",
+        submit: "Abrir en {provider}",
+        hint: "Se abre {provider} con el asunto y el mensaje listos: solo te queda tocar Enviar.",
+        opened: "Listo: {provider} se abrió en una pestaña nueva.",
+        subject: "Consulta desde el portfolio",
+        greeting: "Hola Matías,",
+        emailLine: "Mi email:",
+      },
     },
   },
 
@@ -402,11 +439,11 @@ export const translations: Record<Lang, Dict> = {
       contact: "Contact",
     },
     hero: {
-      badge: "Actuary & Data Scientist",
+      badge: "Actuary & Data Analyst",
       location: "Buenos Aires, Argentina",
       titleLine1: "Hi! I'm",
       titleLine2: "Matías Bellido",
-      desc: "I'm an Actuarial student and self-taught Data Scientist, focused on bridging the gap between theoretical analysis and practical execution. Driven by curiosity to take on unconventional projects and a constant desire to learn. I believe in transforming complex problems into human, functional solutions that create real impact.",
+      desc: "**Actuarial Science** student (FCE-UBA), focused on **Data Analysis** and applied AI. I build solutions that turn complex data into clear decisions.",
       ctaProjects: "View Projects",
       ctaAbout: "About me",
     },
@@ -500,7 +537,9 @@ export const translations: Record<Lang, Dict> = {
           descBullets: [
             "Initiative and Sales: Management and leadership in sales for collective fundraising, ensuring group goals were met.",
             "Volunteering and Leadership: Active participation in social projects (TECHO), developing adaptability, teamwork, and resource management under pressure.",
+            "Soft Skills: Effective communication and empathy as foundations that I now complement with technical training.",
           ],
+          clickHint: "View full screen →",
           longDesc:
             "Humanist education centered on critical thinking and social awareness. Volunteering at TECHO, sports, and social action activities. Development of foundational skills that I now complement with my technical training in Actuarial Science and Data Science.\n\nInitiative and Sales:\n• To pay for the senior class trip, I took charge of selling products (cakes, raffles).\n• I didn't limit myself to selling my own share; I offered to manage and sell my classmates' products to ensure everyone reached the goal.\n• It was my first real contact with sales and dealing with people.\n\nVolunteering and Leadership:\n• Active participation in social projects (TECHO).\n• Development of teamwork skills, field adaptability, and resource management under pressure.\n\nSoft Skills:\n• Effective communication and empathy as foundations that I now complement with technical training.",
         },
@@ -648,9 +687,24 @@ export const translations: Record<Lang, Dict> = {
       emailLabel: "Email",
       locationLabel: "Location",
       location: "Buenos Aires, Argentina",
-      cta: "Let's Collaborate - Send Email",
-      tagline: "Actuary & Data Scientist · AI, Automation, and Business Strategy",
+      role: "Actuary & Data Analyst",
+      tagline: "AI, Automation, and Business Strategy",
       rights: "© 2026 Matías Rodrigo Bellido. All rights reserved.",
+      form: {
+        providerLabel: "Send with",
+        nameLabel: "Name (optional)",
+        namePlaceholder: "What's your name?",
+        emailLabel: "Your email",
+        emailPlaceholder: "you@email.com",
+        messageLabel: "Message",
+        messagePlaceholder: "Tell me how I can help...",
+        submit: "Open in {provider}",
+        hint: "{provider} opens with the subject and message ready: just hit Send.",
+        opened: "Done: {provider} opened in a new tab.",
+        subject: "Inquiry from your portfolio",
+        greeting: "Hi Matías,",
+        emailLine: "My email:",
+      },
     },
   },
 };

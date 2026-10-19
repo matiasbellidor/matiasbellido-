@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, Languages, Sun, Moon } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
+/* El mismo archivo que usa el favicon de la pestaña */
+import logo from "@/app/icon.png";
 
 export default function Header() {
   const { t, lang, setLang } = useLanguage();
@@ -16,14 +19,14 @@ export default function Header() {
   // Flag para ignorar scroll spy mientras hacemos scroll programático (al click)
   const ignoreScrollSpy = useRef(false);
 
-  // ORDEN CORRECTO: Inicio → Habilidades → Proyectos → Experiencia → Contacto
+  // ORDEN CORRECTO (igual que app/page.tsx): Inicio → Proyectos → Experiencia → Habilidades → Contacto
   // NOTA: el id "bio" es el id real de la sección de Habilidades en el DOM
   // (components/Bio.tsx usa <Section id="bio">), aunque el label sea "Habilidades/Skills".
   const navItems = [
     { href: "#home", label: t.nav.home, id: "home" },
-    { href: "#bio", label: t.nav.skills, id: "bio" },
     { href: "#projects", label: t.nav.projects, id: "projects" },
     { href: "#experience", label: t.nav.experience, id: "experience" },
+    { href: "#bio", label: t.nav.skills, id: "bio" },
     { href: "#contact", label: t.nav.contact, id: "contact" },
   ];
 
@@ -132,8 +135,8 @@ export default function Header() {
           <div className="max-w-7xl mx-auto">
             <div className="glass-nav rounded-full px-3 sm:px-4 md:px-6 py-2.5 flex items-center justify-between gap-2">
               {/* Logo */}
-              <Link href="#home" onClick={() => handleNavClick("home")} className="font-display text-xl font-bold text-cyan tracking-tight">
-                MB.
+              <Link href="#home" onClick={() => handleNavClick("home")} className="shrink-0 flex items-center">
+                <Image src={logo} alt="Matías Bellido" width={32} height={32} priority className="w-8 h-8 object-contain" />
               </Link>
 
               {/* Desktop nav */}

@@ -239,6 +239,7 @@ button:active {
   animation: name-gradient-flow 9s ease-in-out infinite;
 }
 
+/* Fuera de pantalla se pausa (components/PauseOffscreenGradients) */
 @keyframes name-gradient-flow {
   0% {
     background-position: 0% 50%;
@@ -420,7 +421,10 @@ section[id] {
 }
 
 /* ── Intro loader (primera visita de la sesión) ──
-   Solo transform/opacity → corre en el compositor (GPU). */
+   Solo transform/opacity → corre en el compositor (GPU).
+   El fade es CSS puro: arranca con el primer paint y termina a los
+   0.9s (0.6s visible + 0.3s de fade) aunque el JS tarde en cargar.
+   La entrada del Hero (.hero-reveal) espera 0.75s = 0.6 + 0.3 / 2. */
 .intro-loader {
   position: fixed;
   inset: 0;
@@ -429,25 +433,15 @@ section[id] {
   align-items: center;
   justify-content: center;
   background: var(--bg);
-  opacity: 1;
-  transition: opacity 0.5s ease;
-  /* Red de seguridad: si el JS no carga (o tarda), el overlay se va
-     solo a los 3s y nunca deja la página tapada. Con JS normal el
-     componente se desmonta antes (~2.2s). */
-  animation: intro-failsafe 0.5s ease 3s forwards;
+  animation: intro-out 0.3s ease 0.6s forwards;
 }
 
-@keyframes intro-failsafe {
+@keyframes intro-out {
   to {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
-}
-
-.intro-loader--out {
-  opacity: 0;
-  pointer-events: none;
 }
 
 /* Ya vista en esta sesión → oculto desde el primer paint */
@@ -475,12 +469,6 @@ html.intro-seen .intro-loader {
   animation: intro-ring 1s linear infinite;
 }
 
-.intro-loader--out .intro-loader__logo,
-.intro-loader--out .intro-loader__ring {
-  transform: scale(1.15);
-  transition: transform 0.5s ease;
-}
-
 @keyframes intro-spin {
   0% {
     transform: rotate(0deg) scale(0.92);
@@ -499,6 +487,85 @@ html.intro-seen .intro-loader {
   }
 }
 
+/* ── Animaciones de entrada en CSS (rendimiento) ──
+   Antes las hacía Framer Motion: el Hero arrancaba invisible hasta que
+   cargaba el JS, y la cita y la descripción de Proyectos eran cientos
+   de componentes (uno por letra o palabra). Ahora las anima el
+   navegador, solo con opacity/transform → GPU, mismo movimiento. */
+
+/* Hero: corre apenas se pinta el HTML. --d = retraso de cada bloque.
+   Primera visita (sin .intro-seen): espera 0.75s a que se vaya la intro. */
+.hero-photo-in {
+  animation: hero-photo-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-reveal {
+  animation: hero-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--d, 0s);
+}
+
+html:not(.intro-seen) .hero-photo-in {
+  animation-delay: 0.75s;
+}
+
+html:not(.intro-seen) .hero-reveal {
+  animation-delay: calc(var(--d, 0s) + 0.75s);
+}
+
+@keyframes hero-photo-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Cita (DropInText): cada letra cae desde arriba. Descripción de
+   Proyectos (WaveText): cada palabra sube. Ocultas hasta que el
+   párrafo entra en pantalla (.is-shown); el retraso de cada una va inline. */
+.drop-char,
+.wave-word {
+  display: inline-block;
+  opacity: 0;
+}
+
+.drop-char {
+  transform: translateY(-12px);
+}
+
+.wave-word {
+  transform: translateY(8px);
+}
+
+.is-shown .drop-char {
+  animation: text-settle 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.is-shown .wave-word {
+  animation: text-settle 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes text-settle {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Accesibilidad: si el usuario pidió reducir movimiento en su sistema,
    apagamos las animaciones decorativas en loop */
 @media (prefers-reduced-motion: reduce) {
@@ -511,6 +578,21 @@ html.intro-seen .intro-loader {
 
   .intro-loader__logo {
     animation: intro-pulse 1.6s ease-in-out infinite;
+  }
+
+  /* Entradas: el contenido aparece directo, sin desplazamiento */
+  .hero-photo-in,
+  .hero-reveal {
+    animation: none;
+  }
+
+  .drop-char,
+  .wave-word,
+  .is-shown .drop-char,
+  .is-shown .wave-word {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }
 

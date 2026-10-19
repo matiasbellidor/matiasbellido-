@@ -162,8 +162,9 @@ export default function Experience() {
       {/* CARRUSEL DE EXPERIENCIA */}
       <div className="mb-16">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Briefcase className="w-5 h-5 text-cyan" />
+          {/* Ícono alineado a la primera línea del título (por si baja a dos) */}
+          <div className="flex items-start gap-3">
+            <Briefcase className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
             <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">
               {t.experience.experienceTitle}
             </h3>
@@ -222,7 +223,8 @@ export default function Experience() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs uppercase tracking-[0.2em] text-cyan/80 mb-1 font-mono">{item.period}</p>
+                    {/* tracking menor en mobile: "ABR 2024 - ACTUALIDAD" entra en una línea */}
+                    <p className="text-xs uppercase tracking-[0.1em] sm:tracking-[0.2em] text-cyan/80 mb-1 font-mono">{item.period}</p>
                     <h4 className="font-display text-lg md:text-xl font-bold text-fg leading-tight">{item.role}</h4>
                     <p className="text-base text-cyan">{item.company}</p>
                   </div>
@@ -248,10 +250,11 @@ export default function Experience() {
               aria-label={`Go to experience ${i + 1}`}
               className="touch-manipulation p-1.5 group"
             >
+              {/* w-8 en mobile: con las 6 llenas la fila entra en 335px (con w-10 medía 352) */}
               <div
                 className={`h-2 rounded-full transition-all duration-300 ${
                   i <= view.last
-                    ? "w-10 bg-cyan shadow-[0_0_10px_rgba(0,229,255,0.5)]"
+                    ? "w-8 sm:w-10 bg-cyan shadow-[0_0_10px_rgba(0,229,255,0.5)]"
                     : "w-2 bg-cyan/20 group-hover:bg-cyan/50"
                 }`}
               />
@@ -289,8 +292,8 @@ export default function Experience() {
       <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 lg:items-stretch">
         {/* ──────── COLUMNA IZQUIERDA · Educación ──────── */}
         <div className="flex flex-col h-full">
-          <div className="flex items-center gap-3 mb-8">
-            <GraduationCap className="w-5 h-5 text-cyan" />
+          <div className="flex items-start gap-3 mb-8">
+            <GraduationCap className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
             <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.experience.educationTitle}</h3>
           </div>
           <div className="flex flex-1 flex-col gap-8">
@@ -334,7 +337,7 @@ export default function Experience() {
                       ))}
                     </ul>
                   )}
-                  <p className="text-[11px] uppercase tracking-wider text-cyan/70 mt-4">{lang === "es" ? "Click para leer más →" : "Click to read more →"}</p>
+                  <p className="text-[11px] uppercase tracking-wider text-cyan/70 mt-4">{item.clickHint ?? (lang === "es" ? "Click para leer más →" : "Click to read more →")}</p>
                 </div>
               </motion.div>
             ))}
@@ -343,8 +346,8 @@ export default function Experience() {
 
         {/* ──────── COLUMNA DERECHA · Formación Complementaria ──────── */}
         <div className="flex flex-col h-full">
-          <div className="flex items-center gap-3 mb-8">
-            <Award className="w-5 h-5 text-cyan" />
+          <div className="flex items-start gap-3 mb-8">
+            <Award className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
             <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.experience.coursesTitle}</h3>
           </div>
           <div className="flex flex-1 flex-col gap-5">

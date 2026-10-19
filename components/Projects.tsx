@@ -173,21 +173,27 @@ export default function Projects() {
       <WaveText
         key={lang}
         text={t.projects.sectionDesc}
-        className="max-w-4xl mx-auto text-base md:text-lg text-fg-soft leading-relaxed text-center mb-16"
+        className="max-w-4xl mx-auto text-base md:text-lg text-fg-soft leading-relaxed text-left md:text-center mb-16"
       />
 
       {/* CATEGORÍA: Soluciones Digitales & IA — incluye Symbiosis y ZIRA,
           ambas como cards ESTÁNDAR (mismo componente/tamaño que el resto).
           Grid responsive: mobile = carrusel horizontal (scroll-snap);
-          md+ = grid que wrappea en 2 columnas, lg: 3 columnas. */}
+          md+ = grid que wrappea en 2 columnas, lg: 3 columnas.
+          El wrapper de cada tarjeta es flex: la tarjeta se estira y todas
+          quedan del mismo alto (en el carrusel y en cada fila del grid).
+          scroll-pl-* = mismo valor que px-*: el snap deja cada tarjeta
+          alineada con el margen de la sección (sin él quedaba pegada al
+          borde izquierdo de la pantalla). Ícono del título alineado a la
+          primera línea por si el texto baja a dos. */}
       <div className="mb-16">
-        <div className="flex items-center gap-3 mb-8">
-          <Code2 className="w-5 h-5 text-cyan" />
+        <div className="flex items-start gap-3 mb-8">
+          <Code2 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
           <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
         </div>
-        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
+        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
           {digitalProjects.map((project, i) => (
-            <div key={project.id} className="snap-start shrink-0 w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
+            <div key={project.id} className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
               <ProjectCard
                 project={project}
                 index={i}
@@ -208,13 +214,13 @@ export default function Projects() {
 
       {/* CATEGORÍA: Operaciones de Negocio */}
       <div>
-        <div className="flex items-center gap-3 mb-8">
-          <Briefcase className="w-5 h-5 text-cyan" />
+        <div className="flex items-start gap-3 mb-8">
+          <Briefcase className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
           <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.businessSubtitle}</h3>
         </div>
-        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
+        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
           {businessProjects.map((project, i) => (
-            <div key={project.id} className="snap-start shrink-0 w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
+            <div key={project.id} className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
               <ProjectCard
                 project={project}
                 index={i}
@@ -429,7 +435,8 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
         className="relative aspect-[16/9] overflow-hidden flex items-center justify-center"
         style={{ backgroundColor: project.imageBg ?? "#000000" }}
       >
-        <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 767px) 80vw, 50vw"
+        {/* sizes = ancho real de la tarjeta: carrusel 80vw, 2 columnas en md, 3 en lg */}
+        <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 767px) 80vw, (max-width: 1023px) 50vw, 33vw"
           className={`${containedImage ? "object-contain" : "object-cover"} transition-transform duration-700 group-hover:scale-105`} />
         {/* El degradé oscuro solo tiene sentido sobre fondo oscuro (imágenes
             cover). Sobre un imageBg claro se vería como una sombra gris fea,

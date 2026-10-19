@@ -1,38 +1,19 @@
 "use client";
 
-import { Fragment, type CSSProperties } from "react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { Fragment, useRef } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+/* ═════════════════════════════════════════════════════════════
+   DROP-IN TEXT — cada letra cae a su lugar al entrar en pantalla.
 
-/* Solo transform/opacity: corren en el compositor (GPU). El blur por
-   carácter que había antes forzaba repaints de cientos de spans. */
-const charStyle: CSSProperties = {
-  display: "inline-block",
-};
+   La animación es CSS (.drop-char en globals.css, solo opacity y
+   transform → GPU). Antes cada letra era un componente de Framer
+   Motion (~330 en la cita) y eso cargaba el hilo principal en
+   mobile. Acá solo se observa el párrafo y, al entrar en pantalla,
+   se le agrega .is-shown; el retraso de cada letra va inline.
+   ═════════════════════════════════════════════════════════════ */
 
-/* Transiciones SIMÉTRICAS — ver comentario en WaveText. */
-const char: Variants = {
-  hidden: {
-    opacity: 0,
-    y: -12,
-    transition: { duration: 0.3, ease: EASE },
-  },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, ease: EASE },
-  },
-};
-
-const container: Variants = {
-  hidden: {
-    transition: { staggerChildren: 0.012, staggerDirection: -1 },
-  },
-  show: {
-    transition: { staggerChildren: 0.012 },
-  },
-};
+const STAGGER_MS = 12;
 
 export default function DropInText({
   text,
@@ -42,35 +23,32 @@ export default function DropInText({
   className?: string;
 }) {
   const reduced = !!useReducedMotion();
+  const ref = useRef<HTMLParagraphElement>(null);
+  const shown = useInView(ref, { once: true, amount: 0.2 });
 
   if (typeof text !== "string" || !text) return null;
   if (reduced) return <p className={className}>{text}</p>;
 
-  const words = text.split(" ");
+  /* Índice global: el stagger corre de punta a punta del texto */
+  let charIndex = 0;
 
   return (
-    <motion.p
-      variants={container}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.2 }}
-      aria-label={text}
-      className={className}
-    >
+    <p ref={ref} aria-label={text} className={`${className} ${shown ? "is-shown" : ""}`}>
       <span aria-hidden="true">
-        {words.map((w, wi) => (
+        {text.split(" ").map((w, wi, words) => (
           <Fragment key={`${w}-${wi}`}>
-            <span style={{ display: "inline-block" }}>
+            {/* inline-block por palabra: nunca la corta a la mitad */}
+            <span className="inline-block">
               {Array.from(w).map((c, ci) => (
-                <motion.span key={`${c}-${ci}`} variants={char} style={charStyle}>
+                <span key={ci} className="drop-char" style={{ animationDelay: `${charIndex++ * STAGGER_MS}ms` }}>
                   {c}
-                </motion.span>
+                </span>
               ))}
             </span>
             {wi < words.length - 1 ? " " : ""}
           </Fragment>
         ))}
       </span>
-    </motion.p>
+    </p>
   );
 }
