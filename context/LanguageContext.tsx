@@ -60,6 +60,8 @@ type Dict = {
   hero: {
     badge: string;
     location: string;
+    /** Versión corta para el badge del Hero en pantallas de menos de 1280px */
+    locationShort: string;
     titleLine1: string;
     titleLine2: string;
     desc: string;
@@ -152,10 +154,13 @@ export const translations: Record<Lang, Dict> = {
     hero: {
       badge: "Actuario & Data Analyst",
       location: "CABA, Argentina",
+      locationShort: "CABA",
       titleLine1: "Hola! Soy",
       titleLine2: "Matías Bellido",
-      // Lo que va entre **dobles asteriscos** se resalta con el color de acento
-      desc: "Estudiante de **Actuario** (FCE-UBA), con foco en **Data Analysis** e IA aplicada. Construyo soluciones que convierten datos complejos en decisiones claras.",
+      // Lo que va entre **dobles asteriscos** se resalta con el color de acento.
+      // ⁠ (unión invisible) evita que "FCE-UBA" se corte en el guion; el guion
+      // no separable (‑) no sirve porque Inter no lo trae.
+      desc: "Estudiante de **Actuario** (FCE-⁠UBA), con foco en **Data Analysis** e IA aplicada. Construyo soluciones que convierten datos complejos en decisiones claras.",
       ctaProjects: "Ver Proyectos",
       ctaAbout: "Sobre mí",
     },
@@ -441,9 +446,10 @@ export const translations: Record<Lang, Dict> = {
     hero: {
       badge: "Actuary & Data Analyst",
       location: "Buenos Aires, Argentina",
+      locationShort: "Buenos Aires",
       titleLine1: "Hi! I'm",
       titleLine2: "Matías Bellido",
-      desc: "**Actuarial Science** student (FCE-UBA), focused on **Data Analysis** and applied AI. I build solutions that turn complex data into clear decisions.",
+      desc: "**Actuarial Science** student (FCE-⁠UBA), focused on **Data Analysis** and applied AI. I build solutions that turn complex data into clear decisions.",
       ctaProjects: "View Projects",
       ctaAbout: "About me",
     },

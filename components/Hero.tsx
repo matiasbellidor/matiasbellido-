@@ -77,8 +77,8 @@ export default function Hero() {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center px-5 sm:px-6 md:px-16 py-24">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center w-full min-w-0">
+    <section id="home" className="relative min-h-screen flex items-center px-5 sm:px-6 md:px-10 lg:px-16 py-24">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-center w-full min-w-0">
         {/* ── Columna izquierda: foto con tilt 3D + aurora ──
             (las redes viven solo en Contacto, al final del sitio) */}
         <div className="hero-photo-in relative flex flex-col items-center">
@@ -125,27 +125,30 @@ export default function Hero() {
 
         {/* ── Columna derecha: textos con entrada escalonada ── */}
         <div className="space-y-6 min-w-0">
-          {/* Cada ícono viaja pegado a su texto: en mobile el badge va en
-              dos líneas limpias, ajustado al texto (sin el separador colgando
-              ni el pin huérfano); sm+ en una sola línea con separador */}
+          {/* Siempre en una sola línea. Hasta xl la columna de texto es angosta
+              (mobile, y tablet a dos columnas): versión compacta con la
+              ubicación corta. Desde xl, completa y con separador. */}
           <div
             style={delay(0.25)}
-            className="hero-reveal inline-flex flex-col items-start sm:flex-row sm:flex-wrap sm:items-center gap-x-2 gap-y-1 px-4 py-2 rounded-2xl sm:rounded-full glass text-xs sm:text-sm uppercase tracking-wider sm:tracking-widest text-cyan max-w-full"
+            className="hero-reveal inline-flex flex-wrap max-w-full items-center gap-x-2.5 gap-y-1 xl:gap-x-2 px-3 xl:px-4 py-1.5 xl:py-2 rounded-full glass text-[11px] leading-4 xl:text-sm font-medium xl:font-normal uppercase tracking-wide xl:tracking-widest text-cyan"
           >
-            <span className="inline-flex items-center gap-2">
-              <Sparkles className="w-4 h-4 shrink-0" />
+            <span className="inline-flex items-center gap-1.5 xl:gap-2 whitespace-nowrap">
+              <Sparkles className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
               {t.hero.badge}
             </span>
-            <span className="hidden sm:inline text-cyan/40">|</span>
-            <span className="inline-flex items-center gap-2">
-              <MapPin className="w-4 h-4 shrink-0" />
-              {t.hero.location}
+            <span className="hidden xl:inline text-cyan/40" aria-hidden="true">|</span>
+            <span className="inline-flex items-center gap-1.5 xl:gap-2 whitespace-nowrap">
+              <MapPin className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
+              <span className="xl:hidden">{t.hero.locationShort}</span>
+              <span className="hidden xl:inline">{t.hero.location}</span>
             </span>
           </div>
 
+          {/* md+: el tamaño sigue al ancho de la columna (7vw − 12px, tope 72px)
+              para que "Matías Bellido" no se corte en tablets */}
           <h1
             style={delay(0.38)}
-            className="hero-reveal font-display text-[clamp(2.1rem,10vw,3.75rem)] lg:text-7xl font-bold leading-[1.1]"
+            className="hero-reveal font-display text-[clamp(2.1rem,10vw,3.75rem)] md:text-[clamp(2.5rem,calc(7vw_-_12px),4.5rem)] font-bold leading-[1.1] lg:leading-none"
           >
             <span className="text-fg">{t.hero.titleLine1}</span>
             <br />
