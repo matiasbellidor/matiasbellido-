@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, AnimatePresence, useAnimation, type MotionProps } from "framer-motion";
 import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, GitBranch, Newspaper } from "lucide-react";
 import Section from "./Section";
-import WaveText from "@/components/WaveText";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
 
@@ -170,12 +169,6 @@ export default function Projects() {
 
   return (
     <Section id="projects" eyebrow={t.projects.eyebrow} title={t.projects.title}>
-      <WaveText
-        key={lang}
-        text={t.projects.sectionDesc}
-        className="max-w-4xl mx-auto text-base md:text-lg text-fg-soft leading-relaxed text-left md:text-center mb-16"
-      />
-
       {/* CATEGORÍA: Soluciones Digitales & IA — incluye Symbiosis y ZIRA,
           ambas como cards ESTÁNDAR (mismo componente/tamaño que el resto).
           Grid responsive: mobile = carrusel horizontal (scroll-snap);

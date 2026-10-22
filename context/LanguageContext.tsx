@@ -93,7 +93,6 @@ type Dict = {
   projects: {
     eyebrow: string;
     title: string;
-    sectionDesc: string;
     digitalSubtitle: string;
     businessSubtitle: string;
     symbiosis: ProjectItem & { comingSoonLabel: string; clickHint: string };
@@ -315,8 +314,6 @@ export const translations: Record<Lang, Dict> = {
     projects: {
       eyebrow: "Work",
       title: "Proyectos",
-      sectionDesc:
-        "Mi enfoque profesional no se limita a una herramienta, sino a una mentalidad: la optimización de resultados. En este espacio conviven dos mundos que se retroalimentan. Por un lado, el desarrollo de soluciones tecnológicas y automatizaciones diseñadas para escalar procesos. Por el otro, la gestión estratégica de negocios y desarrollo humano, donde aplico la disciplina, el liderazgo de equipos y la optimización de recursos —ya sea en el ámbito académico, comercial o del rendimiento físico— para transformar objetivos en realidades medibles.",
       digitalSubtitle: "Soluciones Digitales & IA",
       businessSubtitle: "Operaciones de Negocio",
 
@@ -601,8 +598,6 @@ export const translations: Record<Lang, Dict> = {
     projects: {
       eyebrow: "Work",
       title: "Projects",
-      sectionDesc:
-        "My professional approach is not limited to one tool, but to a mindset: results optimization. In this space, two mutually reinforcing worlds coexist. On one side, the development of technological solutions and automations designed to scale processes. On the other, the strategic management of business and human development, where I apply discipline, team leadership, and resource optimization —whether in the academic, commercial, or physical performance domain— to transform objectives into measurable realities.",
       digitalSubtitle: "Digital Solutions & AI",
       businessSubtitle: "Business Ops & Logic Models",
 
