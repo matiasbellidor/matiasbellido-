@@ -310,7 +310,10 @@ async function overflow(page) {
     const fab = () => page.evaluate(() => { const b = document.querySelector("button[aria-label^='Ver carrito']"); return b ? b.getAttribute("aria-label") : null; });
     const addBtn = (scope) => page.locator(`${scope} button`, { hasText: "🛒 Agregar al carrito" }).first();
     await page.locator("#infoproductos").scrollIntoViewIfNeeded();
-    await addBtn("#infoproductos").click();
+    // Infoproductos de mayor a menor precio
+    const ipOrder = await page.evaluate(() => [...document.querySelectorAll("#infoproductos h3")].map((h) => `${h.textContent} ${h.closest("li").querySelector("p.font-display")?.textContent.replace(/\s/g, " ")}`));
+    log(ipOrder.join("|") === "Anatomía muscular $ 24.700 pago único|Alimentación saludable $ 24.700 pago único|Recetario $ 15.800 pago único", `infoproductos de mayor a menor precio: ${ipOrder.join(" | ")}`);
+    await page.locator("#infoproductos li", { has: page.locator("h3", { hasText: "Recetario" }) }).locator("button", { hasText: "🛒 Agregar al carrito" }).click();
     await page.waitForTimeout(300);
     const f1 = await fab();
     log(/1 · \$\s?15\.800/.test(f1 || ""), `agregar Recetario: botón flotante "${f1}"`);
@@ -331,7 +334,7 @@ async function overflow(page) {
     await page.locator("#planes button", { hasText: "🛒 Agregar al carrito" }).last().click();
     await page.waitForTimeout(300);
     const f3 = await fab();
-    log(/4 · \$\s?446\.700/.test(f3 || ""), `2 clases presenciales: "${f3}"`);
+    log(/4 · \$\s?460\.900/.test(f3 || ""), `2 clases presenciales a $ 24.700: "${f3}"`);
     // Persistencia
     await page.reload({ waitUntil: "networkidle" });
     await page.waitForTimeout(600);
@@ -344,7 +347,7 @@ async function overflow(page) {
     await page.locator("[role='dialog'] button[aria-label='Una clase menos']").click();
     const focusAfter = await page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
     const total1 = await page.evaluate(() => document.querySelector("[role='dialog'] .border-t span.tabular-nums")?.textContent.replace(/\s/g, " "));
-    log(/Carrito/.test(step1) && focusAfter === "Una clase menos" && total1 === "$ 429.100", `paso "${step1}", foco tras − en "${focusAfter}", total ${total1}`);
+    log(/Carrito/.test(step1) && focusAfter === "Una clase menos" && total1 === "$ 436.200", `paso "${step1}", foco tras − en "${focusAfter}", total ${total1}`);
     const ax1 = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).include("[role='dialog']").analyze();
     log(ax1.violations.length === 0, `axe carrito: ${ax1.violations.map((v) => v.id).join(", ") || "sin violaciones"}`);
     await page.locator("[role='dialog']").screenshot({ path: path.join(OUT, "carrito-1280.png") });
@@ -373,7 +376,7 @@ async function overflow(page) {
       const wa = d.querySelector("a[href*='wa.me']");
       return { step: d.querySelector("[aria-current='step']")?.textContent, wa: wa ? decodeURIComponent(wa.href.split("text=")[1]) : null };
     });
-    log(/Formulario/.test(done.step) && /Intensive Pack/.test(done.wa) && /Recetario/.test(done.wa) && /\$\s?429\.100/.test(done.wa), `paso final: ${done.step}; WhatsApp: "${done.wa}"`);
+    log(/Formulario/.test(done.step) && /Intensive Pack/.test(done.wa) && /Recetario/.test(done.wa) && /\$\s?436\.200/.test(done.wa), `paso final: ${done.step}; WhatsApp: "${done.wa}"`);
     await page.locator("[role='dialog'] button", { hasText: "Terminar" }).click();
     await page.waitForTimeout(300);
     const after = await page.evaluate(() => ({ fab: !!document.querySelector("button[aria-label^='Ver carrito']"), saved: localStorage.getItem("bellido-fitness-cart-v1") }));

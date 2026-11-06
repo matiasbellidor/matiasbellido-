@@ -7,8 +7,8 @@ import { useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, Reveal, SectionHeading, WhatsAppButton, formatARS, isValidCode } from "./shared";
 import { AddToCartButton, cleanCode, cleanName, useCart } from "./cart";
 
-/* Un ícono por infoproducto, en el mismo orden que t.fitness.infoproducts.items */
-const PRODUCT_ICONS = [ChefHat, BookOpen, Apple];
+/* Un ícono por infoproducto, por id (no por posición: el orden de la lista puede cambiar) */
+const PRODUCT_ICONS: Record<string, LucideIcon> = { anatomia: BookOpen, alimentacion: Apple, recetario: ChefHat };
 
 /* Infoproductos y Afiliados (PDF, páginas 11 y 12). Superficies planas:
    el vidrio queda para los planes, que son la decisión principal. */
@@ -21,7 +21,7 @@ export function FitnessInfoproducts() {
       <SectionHeading eyebrow={ip.eyebrow} title={ip.title} intro={ip.intro} />
       <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {ip.items.map((product, i) => {
-          const Icon = PRODUCT_ICONS[i % PRODUCT_ICONS.length];
+          const Icon = PRODUCT_ICONS[product.id] ?? BookOpen;
           return (
             <motion.li
               key={product.title}

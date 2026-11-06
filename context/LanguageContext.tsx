@@ -937,7 +937,7 @@ export const translations: Record<Lang, Dict> = {
           id: "presencial",
           title: "Entrenamiento asesorado presencial",
           desc: "Clases 1 a 1 en el gimnasio. Sumá al carrito las que quieras o consultame por un pack de clases. Antes de empezar te paso los términos y condiciones.",
-          price: 17600,
+          price: 24700,
           unit: "por clase",
           cta: "Consultar por un pack",
           message: "Hola Matías, quiero consultar por un pack de clases presenciales.",
@@ -948,8 +948,8 @@ export const translations: Record<Lang, Dict> = {
         title: "Material para entender lo que hacés.",
         intro: "Guías para seguir aprendiendo por tu cuenta, entre sesión y sesión.",
         unit: "pago único",
+        // De mayor a menor precio (pedido de Matías)
         items: [
-          { id: "recetario", title: "Recetario", price: 15800, items: ["Más de 10 recetas saludables que te ayudan a ahorrar tiempo en la cocina"] },
           { id: "anatomia", title: "Anatomía muscular", price: 24700, items: ["Biomecánica y tips de entrenamiento fundamentados por la ciencia para mejorar tus resultados"] },
           {
             id: "alimentacion",
@@ -957,6 +957,7 @@ export const translations: Record<Lang, Dict> = {
             price: 24700,
             items: ["Tips de alimentación y nutrición", "Teoría de suplementación", "Teoría científica", "Alteración hormonal por alimentación"],
           },
+          { id: "recetario", title: "Recetario", price: 15800, items: ["Más de 10 recetas saludables que te ayudan a ahorrar tiempo en la cocina"] },
         ],
       },
       // Carrito: nombres y botón según la decisión de Matías ("Carrito", "🛒 Agregar al carrito")
@@ -1608,7 +1609,7 @@ export const translations: Record<Lang, Dict> = {
           id: "presencial",
           title: "In-person guided training",
           desc: "1-on-1 sessions at the gym. Add as many as you want to the cart or ask me about a class pack. Before we start I'll send you the terms and conditions.",
-          price: 17600,
+          price: 24700,
           unit: "per session",
           cta: "Ask about a pack",
           message: "Hi Matías, I'd like to ask about a pack of in-person sessions.",
@@ -1619,10 +1620,11 @@ export const translations: Record<Lang, Dict> = {
         title: "Material to understand what you're doing.",
         intro: "Guides to keep learning on your own, between sessions.",
         unit: "one-time payment",
+        // Highest to lowest price (same order as Spanish)
         items: [
-          { id: "recetario", title: "Recipe book", price: 15800, items: ["10+ healthy recipes that help you save time in the kitchen"] },
           { id: "anatomia", title: "Muscle anatomy", price: 24700, items: ["Biomechanics and science-based training tips to improve your results"] },
           { id: "alimentacion", title: "Healthy eating", price: 24700, items: ["Eating and nutrition tips", "Supplementation theory", "Scientific theory", "Hormonal changes from diet"] },
+          { id: "recetario", title: "Recipe book", price: 15800, items: ["10+ healthy recipes that help you save time in the kitchen"] },
         ],
       },
       cart: {
