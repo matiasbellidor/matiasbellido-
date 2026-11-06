@@ -824,7 +824,7 @@ export const translations: Record<Lang, Dict> = {
                 id: "intensive",
                 name: "Intensive Pack",
                 highlight: "20 sesiones guiadas por mes",
-                price: 297000,
+                price: 395700,
                 items: [
                   "Asesoramiento personalizado 1 a 1",
                   "Rutina de entrenamiento personalizada",
@@ -840,7 +840,7 @@ export const translations: Record<Lang, Dict> = {
                 id: "discipline",
                 name: "Discipline Pack",
                 highlight: "15 sesiones guiadas por mes",
-                price: 248000,
+                price: 297300,
                 items: [
                   "Asesoramiento personalizado 1 a 1",
                   "Rutina de entrenamiento personalizada",
@@ -1504,7 +1504,7 @@ export const translations: Record<Lang, Dict> = {
                 id: "intensive",
                 name: "Intensive Pack",
                 highlight: "20 guided sessions a month",
-                price: 297000,
+                price: 395700,
                 items: [
                   "Personalized 1-on-1 coaching",
                   "Personalized training routine",
@@ -1520,7 +1520,7 @@ export const translations: Record<Lang, Dict> = {
                 id: "discipline",
                 name: "Discipline Pack",
                 highlight: "15 guided sessions a month",
-                price: 248000,
+                price: 297300,
                 items: [
                   "Personalized 1-on-1 coaching",
                   "Personalized training routine",
