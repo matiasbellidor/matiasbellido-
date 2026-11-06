@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useAnimation, useInView, useReducedMotion, typ
 import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, GitBranch, Newspaper, ArrowRight } from "lucide-react";
 import Section from "./Section";
 import AsesoramientoAnimation from "./AsesoramientoAnimation";
+import { useHasFinePointer } from "./Magnetic";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
 
@@ -109,6 +110,9 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstoc
   const ref = useRef<HTMLButtonElement>(null);
   const inView = useInView(ref);
   const reduced = !!useReducedMotion();
+  /* En el celular la tarjeta queda quieta al tocarla: sin escala de Framer
+     ni :hover pegado (pedido de Matías: el scroll se trababa sobre las tarjetas) */
+  const fine = useHasFinePointer();
   const shimmer = isAsesoramientos && !reduced;
   if (!hasUrl) return null;
 
@@ -132,11 +136,11 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstoc
           />
         )}
         <motion.button ref={ref} onClick={handleClick}
-          whileHover={reduced ? undefined : { scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={fine && !reduced ? { scale: 1.04 } : undefined}
+          whileTap={fine ? { scale: 0.97 } : undefined}
           transition={{ duration: 0.2, ease: "easeOut" }}
           // transition-all animaría también el transform que maneja Framer
-          className="relative overflow-hidden flex items-center gap-1.5 pl-3 pr-3.5 py-2 rounded-full bg-electric text-white text-xs font-semibold border border-white/25 shadow-[0_6px_20px_-6px_rgb(var(--accent-electric)/0.9)] hover:shadow-glow hover:brightness-110 transition-[box-shadow,filter] duration-200 touch-manipulation">
+          className="relative overflow-hidden flex items-center gap-1.5 pl-3 pr-3.5 py-2 rounded-full bg-electric text-white text-xs font-semibold border border-white/25 shadow-[0_6px_20px_-6px_rgb(var(--accent-electric)/0.9)] can-hover:hover:shadow-glow can-hover:hover:brightness-110 transition-[box-shadow,filter] duration-200 touch-manipulation">
           {shimmer && (
             <motion.span
               aria-hidden="true"
@@ -157,7 +161,7 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstoc
   // El resto de las propuestas: el estilo de siempre (translúcido, con borde) y link externo
   return (
     <button onClick={handleClick}
-      className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs hover:bg-electric/40 transition-all touch-manipulation">
+      className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs can-hover:hover:bg-electric/40 transition-all touch-manipulation">
       <FileText className="relative w-3.5 h-3.5" />
       <span className="relative">{label}</span>
       <ExternalLink className="relative w-3 h-3" />
@@ -238,6 +242,14 @@ export default function Projects() {
           md+ = grid que wrappea en 2 columnas, lg: 3 columnas.
           El wrapper de cada tarjeta es flex: la tarjeta se estira y todas
           quedan del mismo alto (en el carrusel y en cada fila del grid).
+          Scroll en el celular (bug: el gesto vertical se trababa sobre las
+          tarjetas): las que están a la derecha no "entran" en pantalla y
+          quedaban con la entrada pendiente (y: 30), así que la fila podía
+          scrollear 22 px en vertical y el navegador le daba el gesto a la fila
+          en vez de a la página. overflow-y-hidden: la fila nunca scrollea en
+          vertical; pb-8 -mb-6: la fila tiene lugar para esos 30 px (no sobra
+          nada que scrollear) y el espacio de abajo sigue siendo 8 px. Los
+          efectos de hover/toque van con can-hover: (solo con mouse).
           scroll-pl-* = mismo valor que px-*: el snap deja cada tarjeta
           alineada con el margen de la sección (sin él quedaba pegada al
           borde izquierdo de la pantalla). Ícono del título alineado a la
@@ -247,7 +259,7 @@ export default function Projects() {
           <Code2 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
           <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
         </div>
-        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
+        <div className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-8 -mb-6 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
           {digitalProjects.map((project, i) => (
             <div key={project.id} className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
               <ProjectCard
@@ -274,7 +286,7 @@ export default function Projects() {
           <Briefcase className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
           <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.businessSubtitle}</h3>
         </div>
-        <div className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
+        <div className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-8 -mb-6 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
           {businessProjects.map((project, i) => (
             <div key={project.id} className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
               <ProjectCard
@@ -488,7 +500,7 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
   const containedImage = containedImageIds.includes(project.id);
   return (
     <motion.article {...motionProps} onClick={onClick}
-      className="relative glass rounded-2xl overflow-hidden flex flex-col group flex-1 w-full cursor-pointer hover:shadow-glow transition-shadow touch-manipulation">
+      className="relative glass rounded-2xl overflow-hidden flex flex-col group flex-1 w-full cursor-pointer can-hover:hover:shadow-glow transition-shadow touch-manipulation">
       <ProposalButton projectId={project.id} url={project.proposalUrl} lang={lang} onAsesoramientosClick={onAsesoramientosClick} onNexstockClick={onNexstockClick} />
 
       {/* Ribbon "Coming Soon" — solo para Symbiosis. El candado hereda la
@@ -511,7 +523,7 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
             4 px con blur-sm, Matías lo pidió "un poquito más blurreado"); el
             ribbon y el degradé quedan nítidos por encima */}
         <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 767px) 80vw, (max-width: 1023px) 50vw, 33vw"
-          className={`${containedImage ? "object-contain" : "object-cover"} ${project.comingSoon ? "blur-[6px]" : ""} transition-transform duration-700 group-hover:scale-105`} />
+          className={`${containedImage ? "object-contain" : "object-cover"} ${project.comingSoon ? "blur-[6px]" : ""} transition-transform duration-700 can-hover:group-hover:scale-105`} />
         {/* El degradé oscuro solo va sobre las imágenes que llenan el recuadro
             (cover). Sobre las que van enteras (contain) con su color de fondo
             se vería como una sombra gris fea. */}
@@ -538,13 +550,13 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
           <div className="flex flex-wrap gap-2 pt-3">
             {project.links.github && (
               <a href={project.links.github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full bg-white/5 text-cyan border border-cyan/20 hover:border-cyan/60 hover:bg-cyan/10 transition-all">
+                className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full bg-white/5 text-cyan border border-cyan/20 can-hover:hover:border-cyan/60 can-hover:hover:bg-cyan/10 transition-all">
                 <GitBranch className="w-3 h-3" /><span>GitHub</span>
               </a>
             )}
             {project.links.review && (
               <a href={project.links.review} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full bg-white/5 text-cyan border border-cyan/20 hover:border-cyan/60 hover:bg-cyan/10 transition-all">
+                className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full bg-white/5 text-cyan border border-cyan/20 can-hover:hover:border-cyan/60 can-hover:hover:bg-cyan/10 transition-all">
                 <Newspaper className="w-3 h-3" /><span>Review</span>
               </a>
             )}

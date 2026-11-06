@@ -71,6 +71,12 @@ El botón "Propuesta" de la tarjeta Bellido Asesoramientos (`components/Projects
 ## Formulario después de pagar
 `PURCHASE_FORM_URL` (`shared.tsx`) es el link público de respuesta del Google Forms de Matías (`/viewform`). Nunca uses el link `/edit` que manda él: es el de edición y pide permisos.
 
+## Filas que se deslizan en horizontal (portfolio y /fitness)
+- Una fila con `overflow-x-auto` también scrollea en vertical (CSS pone `overflow-y: auto` solo) si algo se sale por abajo, por ejemplo tarjetas con la entrada pendiente (`y: 30` de Framer). Entonces el navegador le da el gesto vertical del dedo a la fila y la página no baja: fue el bug de las tarjetas de Proyectos y Experiencia en el celular (2026-11-06). Siempre: `overflow-y-hidden` y lugar abajo para el desplazamiento de la entrada (`pb-8 -mb-6` = 32 px de lugar y 8 px de espacio de siempre).
+- Efectos de hover o de toque sobre tarjetas: con `can-hover:` (variante de `tailwind.config.ts`, solo con mouse), así el celular no deja zoom ni brillo pegados. Las escalas de Framer (`whileHover`, `whileTap`), solo si `useHasFinePointer()`.
+- Ojo: `npm run dev` no toma los cambios de plugins de `tailwind.config.ts` hasta reiniciar. Probalo en una build de producción en una copia.
+- El gesto sintético `"touch"` de Playwright/CDP no scrollea en headless; usá `gestureSourceType: "default"` y un gesto vertical puro (el diagonal se traba en cualquier fila horizontal del emulador, incluso una vacía).
+
 ## Logos de botones
 Regla de Matías (2026-11-06): **un botón que lleva a una app usa SIEMPRE el logo PNG de esa app**, nunca un ícono genérico (sobre, teléfono, lucide), salvo que él pida otra cosa. Y tiene que ser el logo ACTUAL, el de la App Store. Todos van en un círculo blanco con fondo transparente, 144×144:
 - `node .claude/skills/bellido-fitness/scripts/icon-png.cjs <slug> <color> <salida.png> [versión]`: glifo de Simple Icons (CC0) en su color. Lo usan WhatsApp, LinkedIn y GitHub (`public/logos/`, `public/fitness/`). Necesita Playwright (ver "Verificar").

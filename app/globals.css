@@ -198,9 +198,12 @@ button:active {
   transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.4s ease;
 }
 
-.glass:hover {
-  border-color: var(--glass-hover-border);
-  box-shadow: 0 0 40px rgb(var(--accent-cyan) / 0.15);
+/* Solo con mouse: en el celular un toque dejaba el brillo pegado */
+@media (hover: hover) and (pointer: fine) {
+  .glass:hover {
+    border-color: var(--glass-hover-border);
+    box-shadow: 0 0 40px rgb(var(--accent-cyan) / 0.15);
+  }
 }
 
 /* ── Navbar: glassmorphism pronunciado ──

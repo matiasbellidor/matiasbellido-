@@ -190,10 +190,14 @@ export default function Experience() {
               mueve las tarjetas, swipe vertical baja la página. (pan-x solo
               dejaba el gesto vertical en tierra de nadie y se trababa.)
             - snap-proximity (no mandatory) → el snap no "agarra" el gesto.
+            - overflow-y-hidden + pb-6 -mb-4: las tarjetas que todavía no
+              entraron (y: 20) hacían que la fila scrolleara 12 px en vertical
+              y el gesto vertical del dedo se quedaba en la fila. Así no hay
+              nada que scrollear en vertical y el espacio de abajo sigue en 8 px.
             - scroll-pl-* = mismo valor que px-*: el snap alinea cada tarjeta
               con el margen de la sección (antes quedaba corrida en desktop). */}
         <div ref={carouselRef}
-          className="flex gap-6 overflow-x-auto snap-x snap-proximity no-scrollbar pb-2 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:-mx-16 md:px-16 md:scroll-pl-16"
+          className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-6 -mb-4 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:-mx-16 md:px-16 md:scroll-pl-16"
           style={{
             touchAction: "pan-x pan-y",
             overscrollBehaviorX: "contain",

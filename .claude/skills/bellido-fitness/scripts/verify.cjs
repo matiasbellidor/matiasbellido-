@@ -752,6 +752,38 @@ async function overflow(page) {
     await ctx.close();
   }
 
+  // 7b) Portfolio en el celular: el scroll vertical no se traba sobre las tarjetas (bug 2026-11-06).
+  // Las tarjetas que todavía no entraron (y: 30) hacían que la fila scrolleara en vertical y el gesto
+  // se quedaba en la fila. El toque tampoco deja efectos pegados (zoom, brillo).
+  {
+    const home = BASE.replace(/\/fitness\/?$/, "/");
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    await ctx.addInitScript(() => { try { localStorage.setItem("lang", "es"); sessionStorage.setItem("intro-seen", "1"); } catch {} });
+    const page = await ctx.newPage();
+    await page.goto(home, { waitUntil: "networkidle" });
+    await page.evaluate(() => document.querySelector("#projects article").scrollIntoView({ block: "center", behavior: "instant" }));
+    await page.waitForTimeout(1200);
+    const rows = await page.evaluate(() => [...document.querySelectorAll("#projects .snap-x, #experience .snap-x")].map((r) => ({ extra: r.scrollHeight - r.clientHeight, y: getComputedStyle(r).overflowY, top: r.scrollTop })));
+    log(rows.length === 3 && rows.every((r) => r.extra === 0 && r.y === "hidden" && r.top === 0), `celular: las filas de tarjetas no scrollean en vertical ${JSON.stringify(rows)}`);
+    // gesto vertical que empieza sobre una tarjeta ("default": el sintético "touch" no scrollea en headless)
+    const cdp = await ctx.newCDPSession(page);
+    const b = await page.evaluate(() => { const r = document.querySelector("#projects article").getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height * 0.4) }; });
+    const y0 = await page.evaluate(() => scrollY);
+    await cdp.send("Input.synthesizeScrollGesture", { x: b.x, y: b.y, xDistance: 0, yDistance: -300, speed: 1200, gestureSourceType: "default" });
+    await page.waitForTimeout(500);
+    const moved = Math.round((await page.evaluate(() => scrollY)) - y0);
+    log(moved >= 250, `celular: un gesto vertical sobre una tarjeta baja la página (${moved} px)`);
+    const card = page.locator("#projects article", { hasText: "ZIRA" }).first();
+    await card.evaluate((a) => a.scrollIntoView({ block: "center", inline: "start", behavior: "instant" }));
+    await page.waitForTimeout(600);
+    const cb = await card.boundingBox();
+    await page.touchscreen.tap(cb.x + cb.width / 2, cb.y + cb.height * 0.7);
+    await page.waitForTimeout(900);
+    const fx = await card.evaluate((a) => getComputedStyle(a.querySelector("img")).transform);
+    log(fx === "none", `celular: tocar una tarjeta no deja el zoom pegado (${fx})`);
+    await ctx.close();
+  }
+
   // 8) Tema: /fitness es SIEMPRE oscuro (pedido de Matías), con tema del sistema claro, guardado claro o sin guardar
   for (const [colorScheme, saveTheme, theme] of [["light", false, "dark"], ["dark", false, "dark"], ["light", true, "light"], ["light", true, "dark"]]) {
     const { ctx, page } = await open(browser, { colorScheme, saveTheme, theme, width: 375 });

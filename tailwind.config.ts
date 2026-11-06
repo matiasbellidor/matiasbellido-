@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: "class",
@@ -42,7 +43,15 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    /* can-hover: solo en equipos con mouse de verdad. En el celular un toque
+       deja el :hover "pegado" (zoom de la imagen, brillo) y esas transiciones
+       sobre las tarjetas se sentían como si el scroll se trabara. Uso:
+       can-hover:hover:shadow-glow, can-hover:group-hover:scale-105 */
+    plugin(({ addVariant }) => {
+      addVariant("can-hover", "@media (hover: hover) and (pointer: fine)");
+    }),
+  ],
 };
 
 export default config;
