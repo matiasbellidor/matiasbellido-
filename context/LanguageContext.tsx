@@ -658,8 +658,8 @@ export const translations: Record<Lang, Dict> = {
         links: [
           { id: "sobre-mi", label: "Quién soy" },
           { id: "resultados", label: "Resultados" },
-          { id: "empezar", label: "Cómo empezar" },
           { id: "metodo", label: "Método" },
+          { id: "empezar", label: "Cómo empezar" },
           { id: "planes", label: "Planes" },
           { id: "preguntas", label: "Preguntas" },
         ],
@@ -1339,8 +1339,8 @@ export const translations: Record<Lang, Dict> = {
         links: [
           { id: "sobre-mi", label: "About" },
           { id: "resultados", label: "Results" },
-          { id: "empezar", label: "How to start" },
           { id: "metodo", label: "Method" },
+          { id: "empezar", label: "How to start" },
           { id: "planes", label: "Plans" },
           { id: "preguntas", label: "FAQ" },
         ],

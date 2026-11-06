@@ -15,8 +15,8 @@ import logo from "@/app/icon.png";
 const SECTIONS_BY_LINK: Record<string, string[]> = {
   "sobre-mi": ["para-quien", "sobre-mi"],
   resultados: ["resultados"],
-  empezar: ["empezar"],
   metodo: ["metodo", "asimilacion"],
+  empezar: ["empezar"],
   planes: ["planes", "infoproductos", "afiliados"],
   preguntas: ["preguntas", "contacto"],
 };

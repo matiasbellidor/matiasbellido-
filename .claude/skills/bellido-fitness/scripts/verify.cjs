@@ -189,12 +189,12 @@ async function overflow(page) {
     const atMethod = await spy("metodo");
     const atFaq = await spy("preguntas");
     const atContact = await spy("contacto");
-    log(atMethod.current === "#metodo" && atMethod.done === 3, `en Método: activo ${atMethod.current}, ${atMethod.done} pasadas, barra ${atMethod.bar}`);
+    log(atMethod.current === "#metodo" && atMethod.done === 2, `en Método: activo ${atMethod.current}, ${atMethod.done} pasadas, barra ${atMethod.bar}`);
     // Preguntas va después de los precios (pedido de Matías): es el último link y el contacto cuenta como Preguntas
     log(atFaq.current === "#preguntas" && atFaq.done === 5 && atFaq.bar > atMethod.bar, `en Preguntas: activo ${atFaq.current}, ${atFaq.done} pasadas, barra ${atFaq.bar}`);
     log(atContact.current === "#preguntas" && atContact.bar > 0.9, `en Contacto: activo ${atContact.current}, barra ${atContact.bar}`);
-    const order = await page.evaluate(() => ["sobre-mi", "resultados", "empezar", "metodo", "planes", "infoproductos", "afiliados", "preguntas", "contacto"].map((id) => document.getElementById(id)?.getBoundingClientRect().top ?? NaN));
-    log(order.every((y, i) => i === 0 || y > order[i - 1]), `orden: quién soy → resultados → cómo empezar → método → planes → infoproductos → afiliados → preguntas → contacto (${order.map(Math.round).join(" < ")})`);
+    const order = await page.evaluate(() => ["sobre-mi", "resultados", "metodo", "asimilacion", "empezar", "planes", "infoproductos", "afiliados", "preguntas", "contacto"].map((id) => document.getElementById(id)?.getBoundingClientRect().top ?? NaN));
+    log(order.every((y, i) => i === 0 || y > order[i - 1]), `orden: quién soy → resultados → método → asimilación → cómo empezar → planes → infoproductos → afiliados → preguntas → contacto (${order.map(Math.round).join(" < ")})`);
     await page.evaluate(() => scrollTo({ top: document.getElementById("resultados").offsetTop, behavior: "instant" }));
     await page.waitForTimeout(600);
     await page.locator("header").screenshot({ path: path.join(OUT, "header-progreso-1280.png") });
