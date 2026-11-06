@@ -17,8 +17,8 @@ const BASE = process.env.BASE_URL || "http://localhost:3000/fitness";
 const results = [];
 const log = (ok, msg) => results.push(`${ok ? "OK  " : "FAIL"} ${msg}`);
 
-async function open(browser, { width = 1280, height = 900, theme = "dark", lang = "es", colorScheme = "dark", reducedMotion = "no-preference", saveTheme = true, url = BASE } = {}) {
-  const ctx = await browser.newContext({ viewport: { width, height }, colorScheme, reducedMotion });
+async function open(browser, { width = 1280, height = 900, theme = "dark", lang = "es", colorScheme = "dark", reducedMotion = "no-preference", saveTheme = true, url = BASE, touch = false } = {}) {
+  const ctx = await browser.newContext({ viewport: { width, height }, colorScheme, reducedMotion, hasTouch: touch, isMobile: touch });
   await ctx.addInitScript(({ theme, lang, saveTheme }) => {
     try {
       if (saveTheme) localStorage.setItem("theme", theme); else localStorage.removeItem("theme");
@@ -255,21 +255,31 @@ async function overflow(page) {
     log(p1.length === 4 && p1.some((v, i) => v !== p2[i]), `la barra se mueve sola: ${p1} → ${p2}`);
     const wrap = await page.$eval(".fit-marquee-wrap", (e) => { const r = e.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right), vw: document.documentElement.clientWidth }; });
     log(wrap.left <= 1 && wrap.right >= wrap.vw - 1, `el carrusel va de borde a borde: ${JSON.stringify(wrap)}`);
-    // Arrastrar: la barra va donde está el mouse y deja de moverse sola
+    // Arrastrar: mientras se sostiene, la barra está donde está el mouse; al soltar vuelve sola al recorrido
     const sl = page.locator("#resultados [role='slider']").first().locator("xpath=ancestor::div[contains(@class,'aspect-[4/5]')][1]");
     const sb = await sl.boundingBox();
     await page.mouse.move(sb.x + sb.width * 0.5, sb.y + sb.height * 0.6);
     await page.mouse.down();
     await page.mouse.move(sb.x + sb.width * 0.2, sb.y + sb.height * 0.6, { steps: 6 });
-    await page.mouse.up();
+    await page.waitForTimeout(600);
     const d1 = (await pos())[0];
-    await page.waitForTimeout(900);
+    await page.mouse.up();
+    await page.waitForTimeout(1200);
     const d2 = (await pos())[0];
-    log(Math.abs(d1 - 20) <= 2 && d1 === d2, `arrastre: barra en ${d1}% y queda quieta (${d2}%)`);
+    log(Math.abs(d1 - 20) <= 2 && Math.abs(d2 - d1) > 3, `arrastre: barra en ${d1}% mientras se sostiene y al soltar vuelve a moverse sola (${d2}%)`);
+    // Teclado: la flecha la mueve 5 y queda ahí hasta que el foco sale; después vuelve al recorrido
     await page.locator("#resultados [role='slider']").first().focus();
     await page.keyboard.press("ArrowRight");
-    const k = (await pos())[0];
-    log(k === d1 + 5, `teclado: flecha derecha ${d1} → ${k}`);
+    const k1 = (await pos())[0];
+    await page.keyboard.press("ArrowRight");
+    const k2 = (await pos())[0];
+    await page.waitForTimeout(900);
+    const k3 = (await pos())[0];
+    log(k2 === Math.min(100, k1 + 5) && k3 === k2, `teclado: flecha derecha ${k1} → ${k2} y queda quieta (${k3})`);
+    await page.evaluate(() => document.activeElement.blur());
+    await page.waitForTimeout(1200);
+    const k4 = (await pos())[0];
+    log(k4 !== k3, `teclado: al salir el foco vuelve a moverse sola (${k3} → ${k4})`);
     await page.locator("#resultados").screenshot({ path: path.join(OUT, "resultados-1280.png") });
     await ctx.close();
 
@@ -433,6 +443,60 @@ async function overflow(page) {
     }));
     log(st.anim === "none" && st.swipe && st.dups && !st.pause, `reducir movimiento: carrusel quieto y deslizable, sin botón de pausa: ${JSON.stringify(st)}`);
     await rm.ctx.close();
+  }
+
+  // 6e-bis) Celular (táctil): tocar y soltar NUNCA deja el carrusel ni la barra quietos para siempre
+  // (bug 2026-11-06: el toque le daba foco a la manija, el foco no se iba y el carrusel quedaba en pausa;
+  // y la barra dejaba de moverse sola para siempre después del primer toque)
+  {
+    const { ctx, page, errors } = await open(browser, { width: 390, height: 844, touch: true });
+    await page.locator("#resultados").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(800);
+    const tr = () => page.$eval(".fit-marquee", (e) => getComputedStyle(e).transform);
+    const moves = async () => { const a = await tr(); await page.waitForTimeout(1000); return a !== (await tr()); };
+    // la manija (accesible) más cerca del centro de la pantalla, con su marco
+    const target = () => page.evaluate(() => {
+      const knobs = [...document.querySelectorAll("#resultados [role='slider']")].map((k) => ({ k, r: k.getBoundingClientRect() }));
+      const { k, r } = knobs.sort((a, b) => Math.abs(a.r.left + a.r.width / 2 - innerWidth / 2) - Math.abs(b.r.left + b.r.width / 2 - innerWidth / 2))[0];
+      document.getElementById("tocada")?.removeAttribute("id");
+      k.closest("[class*='aspect-[4/5]']").id = "tocada";
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+    const barPos = () => page.$eval("#tocada", (e) => +e.style.getPropertyValue("--pos"));
+    // ¿la barra se mueve sola? Mira 2 s seguidos: el recorrido tiene una pausa en el medio de hasta 1,4 s
+    const barMoves = () => page.$eval("#tocada", (e) => new Promise((done) => {
+      const seen = [];
+      const id = setInterval(() => { seen.push(+e.style.getPropertyValue("--pos")); if (seen.length >= 20) { clearInterval(id); done(Math.max(...seen) - Math.min(...seen) > 0.5); } }, 100);
+    }));
+    const cdp = await ctx.newCDPSession(page);
+    const touch = (type, x, y) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y }] });
+
+    // 1) Un toque corto sobre la manija (le da foco): el carrusel y la barra siguen
+    let p = await target();
+    await page.touchscreen.tap(p.x, p.y);
+    await page.waitForTimeout(300);
+    const focusedKnob = await page.evaluate(() => document.activeElement?.getAttribute("role"));
+    const tapMarquee = await moves();
+    const tapBar = await barMoves();
+    log(tapMarquee && tapBar, `celular: después de tocar la manija (foco en ${focusedKnob}) el carrusel sigue (${tapMarquee}) y la barra sigue sola (${tapBar})`);
+
+    // 2) Apoyar, arrastrar y soltar: con el dedo apoyado se frena todo; al soltar sigue enseguida
+    p = await target();
+    await touch("touchStart", p.x, p.y);
+    await touch("touchMove", p.x - 50, p.y);
+    await page.waitForTimeout(250);
+    const heldMarquee = await moves();
+    const h1 = await barPos();
+    await page.waitForTimeout(500);
+    const heldBar = Math.abs((await barPos()) - h1) < 0.01;
+    await touch("touchEnd");
+    await page.waitForTimeout(150);
+    const afterMarquee = await moves();
+    const afterBar = await barMoves();
+    log(!heldMarquee && heldBar, `celular: con el dedo apoyado el carrusel se frena (${!heldMarquee}) y la barra sigue al dedo (${heldBar})`);
+    log(afterMarquee && afterBar, `celular: al soltar el carrusel sigue (${afterMarquee}) y la barra vuelve a moverse sola (${afterBar})`);
+    log(errors.length === 0, `celular: sin errores de consola ${errors.join(" || ")}`);
+    await ctx.close();
   }
 
   // 6f) Afiliados: código de descuento (se resta solo, sin decir el %) y quién recomendó

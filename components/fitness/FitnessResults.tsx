@@ -9,8 +9,11 @@ import { Reveal, SectionHeading, type FitnessAssets } from "./shared";
 
 /* Resultados: comparadores antes/después, centrados.
    La barra se mueve sola (centro → derecha → izquierda → centro, con una
-   pausa) mientras el comparador está en pantalla, hasta que la persona la
-   agarra: desde ahí la mueve con el dedo, el mouse o el teclado.
+   pausa) mientras el comparador está en pantalla. Mientras la persona la
+   sostiene con el dedo o el mouse, la barra sigue al puntero; al soltarla
+   vuelve suave al recorrido desde donde quedó (pedido de Matías: que nunca
+   se quede quieta para siempre). Con el teclado (flechas) queda donde la
+   dejan hasta que el foco sale de la manija.
    Rendimiento: la posición es una variable CSS (--pos) que se escribe
    desde requestAnimationFrame sin re-render de React, y todo se mueve con
    transform (la foto de "antes" se recorta con dos traslaciones opuestas),
@@ -27,6 +30,8 @@ const SWEEP: [number, number][] = [
   [1, 50],
 ];
 const SWEEP_MS = 6500;
+/* Al soltar la barra, vuelve al recorrido en hasta 0,7 s (proporcional a la distancia) */
+const GLIDE_MS = 700;
 
 /* Encuadre de las fotos de cada cliente. Matías no quiere ninguna cara y
    quiere ver el torso. Como el repo es público, las caras se cortan en el
@@ -92,20 +97,26 @@ export default function FitnessResults({ clients }: { clients: FitnessAssets["cl
 /* Carrusel como el de Vibear (.marquee): los comparadores corren solos de
    derecha a izquierda en loop. La lista está dos veces, así que -50 % cae
    donde empezó; cada "copia" se repite hasta pasar los 1800 px para que
-   nunca quede un hueco. Se frena (pausa) con el mouse encima, con el foco
-   adentro, mientras alguien toca una barra y fuera de pantalla; hay un
-   botón de pausa (WCAG 2.2.2). Con "reducir movimiento" no se mueve: es una
-   fila que se desliza con el dedo. Solo el primer juego es accesible: el
-   resto está aria-hidden y sin foco. Las animaciones están en fitness.css. */
+   nunca quede un hueco. Se frena (pausa) con el mouse encima, mientras un
+   dedo está apoyado (al soltarlo sigue en el acto), con el foco de TECLADO
+   adentro y fuera de pantalla; hay un botón de pausa (WCAG 2.2.2).
+   Ojo: tocar la manija con el dedo también le da foco, y en el celular ese
+   foco no se va nunca; por eso el foco que llega justo después de un toque
+   o clic NO pausa (antes el carrusel quedaba frenado para siempre).
+   Con "reducir movimiento" no se mueve: es una fila que se desliza con el
+   dedo. Solo el primer juego es accesible: el resto está aria-hidden y sin
+   foco. Las animaciones están en fitness.css. */
 const CARD_PX = 364; // 340 de tarjeta + 24 de separación (desde md)
 const MIN_COPY_PX = 1800;
 const SPEED_PX_S = 35;
+/* Un foco que llega hasta 800 ms después de tocar o hacer clic vino del puntero, no del teclado */
+const POINTER_FOCUS_MS = 800;
 
 function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
   const { t } = useLanguage();
   const r = t.fitness.results;
   const wrapRef = useRef<HTMLDivElement>(null);
-  const touchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const lastPointer = useRef(-Infinity);
   const [userPaused, setUserPaused] = useState(false);
   const [hover, setHover] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -119,21 +130,19 @@ function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  useEffect(() => () => clearTimeout(touchTimer.current), []);
 
   const repeats = Math.max(1, Math.ceil(MIN_COPY_PX / (clients.length * CARD_PX)));
   const style = { "--marquee": `${Math.round((clients.length * repeats * CARD_PX) / SPEED_PX_S)}s` } as CSSProperties;
   const playing = !userPaused && !hover && !focused && !touching && inView;
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    lastPointer.current = performance.now();
     if (e.pointerType === "mouse") return; // con mouse ya está en pausa por el hover
-    clearTimeout(touchTimer.current);
     setTouching(true);
   };
+  // Al soltar el dedo sigue en el acto (pedido de Matías: que nunca quede frenado)
   const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse") return;
-    clearTimeout(touchTimer.current);
-    touchTimer.current = setTimeout(() => setTouching(false), 2500); // sigue unos segundos después de soltar
+    if (e.pointerType !== "mouse") setTouching(false);
   };
 
   const renderSet = (copy: number) =>
@@ -185,7 +194,8 @@ function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        onFocusCapture={() => setFocused(true)}
+        onFocusCapture={() => setFocused(performance.now() - lastPointer.current > POINTER_FOCUS_MS)}
+        onKeyDownCapture={() => setFocused(true)}
         onBlurCapture={() => {
           setFocused(false);
           // el foco puede haber corrido el carrusel (overflow oculto): se vuelve al origen
@@ -249,15 +259,23 @@ function BeforeAfter({
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const knobRef = useRef<HTMLDivElement>(null);
+  const pos = useRef(50);
+  /* Momento del recorrido (0–1) donde va la barra: al volver del arrastre, de
+     fuera de pantalla o del teclado, sigue desde acá en vez de saltar */
+  const cycle = useRef(phase % 1);
+  // Refs: frenan el recorrido en el mismo evento; el estado lo reanuda después
   const dragging = useRef(false);
+  const keyboardRef = useRef(false);
   const reduced = !!useReducedMotion();
-  const [manual, setManual] = useState(false);
+  const [held, setHeld] = useState(false);
+  const [keyboard, setKeyboard] = useState(false);
   const [inView, setInView] = useState(false);
 
   const apply = useCallback((p: number) => {
-    const pos = Math.min(100, Math.max(0, p));
-    frameRef.current?.style.setProperty("--pos", pos.toFixed(2));
-    knobRef.current?.setAttribute("aria-valuenow", String(Math.round(pos)));
+    const v = Math.min(100, Math.max(0, p));
+    pos.current = v;
+    frameRef.current?.style.setProperty("--pos", v.toFixed(2));
+    knobRef.current?.setAttribute("aria-valuenow", String(Math.round(v)));
   }, []);
 
   useEffect(() => {
@@ -268,18 +286,32 @@ function BeforeAfter({
     return () => io.disconnect();
   }, []);
 
-  // Recorrido automático: solo en pantalla, sin "reducir movimiento" y hasta que la persona toma el control
+  /* Recorrido automático: solo en pantalla, sin "reducir movimiento" y
+     mientras nadie la sostiene ni la maneja con el teclado. Al (re)empezar
+     se desliza desde donde está la barra hasta su punto del recorrido y
+     sigue desde ahí: nunca salta. */
   useEffect(() => {
-    if (manual || reduced || !inView) return;
+    if (held || keyboard || reduced || !inView) return;
     let raf = 0;
-    const start = performance.now() - phase * SWEEP_MS;
+    const from = pos.current;
+    const begin = cycle.current;
+    const to = sweepAt(begin);
+    const glide = (Math.min(50, Math.abs(to - from)) / 50) * GLIDE_MS;
+    const t0 = performance.now();
     const tick = (now: number) => {
-      apply(sweepAt(((now - start) % SWEEP_MS) / SWEEP_MS));
+      if (dragging.current || keyboardRef.current) return; // tomaron el control en este mismo cuadro
+      const elapsed = now - t0;
+      if (elapsed < glide) {
+        apply(from + (to - from) * (0.5 - Math.cos(Math.PI * (elapsed / glide)) / 2));
+      } else {
+        cycle.current = (begin + (elapsed - glide) / SWEEP_MS) % 1;
+        apply(sweepAt(cycle.current));
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [manual, reduced, inView, phase, apply]);
+  }, [held, keyboard, reduced, inView, apply]);
 
   useEffect(() => {
     if (reduced) apply(50);
@@ -291,20 +323,33 @@ function BeforeAfter({
   };
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
-    setManual(true);
     dragging.current = true;
+    setHeld(true);
     e.currentTarget.setPointerCapture(e.pointerId);
     fromPointer(e);
   };
 
+  // Al soltar (o si el navegador se queda con el gesto para hacer scroll), vuelve al recorrido
+  const release = () => {
+    dragging.current = false;
+    setHeld(false);
+  };
+
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    const now = Number(knobRef.current?.getAttribute("aria-valuenow") ?? 50);
+    const now = Math.round(pos.current);
     const step = e.shiftKey ? 10 : 5;
     const next = { ArrowLeft: now - step, ArrowRight: now + step, Home: 0, End: 100 }[e.key];
     if (next === undefined) return;
     e.preventDefault();
-    setManual(true);
+    keyboardRef.current = true;
+    setKeyboard(true);
     apply(next);
+  };
+
+  // El teclado deja la barra quieta hasta que el foco sale de la manija
+  const onKnobBlur = () => {
+    keyboardRef.current = false;
+    setKeyboard(false);
   };
 
   return (
@@ -312,8 +357,9 @@ function BeforeAfter({
       ref={frameRef}
       onPointerDown={onPointerDown}
       onPointerMove={(e) => dragging.current && fromPointer(e)}
-      onPointerUp={() => (dragging.current = false)}
-      onPointerCancel={() => (dragging.current = false)}
+      onPointerUp={release}
+      onPointerCancel={release}
+      onLostPointerCapture={release}
       style={{ "--pos": "50" } as CSSProperties}
       className="relative aspect-[4/5] overflow-hidden rounded-3xl fit-surface select-none touch-pan-y cursor-ew-resize shadow-[0_24px_60px_-24px_rgb(0_0_0/0.6)]"
     >
@@ -354,7 +400,7 @@ function BeforeAfter({
           ref={knobRef}
           {...(decorative
             ? {}
-            : { role: "slider", tabIndex: 0, "aria-label": label, "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": 50, onKeyDown: onKey })}
+            : { role: "slider", tabIndex: 0, "aria-label": label, "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": 50, onKeyDown: onKey, onBlur: onKnobBlur })}
           // Vidrio con tinte oscuro fijo: va sobre una foto, en los dos temas
           className="liquid-glass fit-focus pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 place-items-center w-12 h-12 rounded-full !bg-black/35 !border-white/60 text-white cursor-grab active:cursor-grabbing"
         >

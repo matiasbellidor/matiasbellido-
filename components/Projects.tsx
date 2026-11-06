@@ -476,10 +476,11 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
         style={{ backgroundColor: project.imageBg ?? "#000000" }}
       >
         {/* sizes = ancho real de la tarjeta: carrusel 80vw, 2 columnas en md, 3 en lg */}
-        {/* Coming soon (Symbiosis): logo desenfocado a propósito; el ribbon
-            y el degradé quedan nítidos por encima */}
+        {/* Coming soon (Symbiosis): logo desenfocado a propósito (6 px; antes
+            4 px con blur-sm, Matías lo pidió "un poquito más blurreado"); el
+            ribbon y el degradé quedan nítidos por encima */}
         <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 767px) 80vw, (max-width: 1023px) 50vw, 33vw"
-          className={`${containedImage ? "object-contain" : "object-cover"} ${project.comingSoon ? "blur-sm" : ""} transition-transform duration-700 group-hover:scale-105`} />
+          className={`${containedImage ? "object-contain" : "object-cover"} ${project.comingSoon ? "blur-[6px]" : ""} transition-transform duration-700 group-hover:scale-105`} />
         {/* El degradé oscuro solo tiene sentido sobre fondo oscuro (imágenes
             cover). Sobre un imageBg claro se vería como una sombra gris fea,
             así que lo omitimos cuando hay un fondo personalizado. */}

@@ -1,8 +1,13 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { Mail } from "lucide-react";
+import Image from "next/image";
 import { useLanguage } from "@/context/LanguageContext";
+/* Importados (no "/logos/…" como texto): Next les pone una huella del
+   contenido en el link, así un logo nuevo con el mismo nombre se ve al toque
+   (next/image guarda 30 días cada link; pasó con el cambio de Outlook) */
+import gmailLogo from "@/public/logos/gmail.png";
+import outlookLogo from "@/public/logos/outlook.png";
 
 /* ═════════════════════════════════════════════════════════════
    CONTACT FORM — arma el email y lo abre en Gmail u Outlook
@@ -12,14 +17,21 @@ import { useLanguage } from "@/context/LanguageContext";
    persona solo tiene que tocar "Enviar" en su cuenta.
    ═════════════════════════════════════════════════════════════ */
 
+/* Cada proveedor con el logo PNG de su app (public/logos; regla de Matías:
+   siempre el logo de la app, no un ícono genérico de sobre). Son los íconos
+   ACTUALES de la App Store (Matías rechazó el glifo viejo de Outlook), en el
+   mismo círculo blanco que los demás: ver scripts/appstore-logo.py en la
+   skill bellido-fitness. */
 const PROVIDERS = {
   gmail: {
     label: "Gmail",
+    logo: gmailLogo,
     composeUrl: (to: string, subject: string, body: string) =>
       `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`,
   },
   outlook: {
     label: "Outlook",
+    logo: outlookLogo,
     composeUrl: (to: string, subject: string, body: string) =>
       `https://outlook.office.com/mail/deeplink/compose?to=${to}&subject=${subject}&body=${body}`,
   },
@@ -115,7 +127,10 @@ export default function ContactForm({ to }: { to: string }) {
       {/* Selector de proveedor (radios nativos con forma de pill: flechas
           del teclado incluidas) + botón. Mobile apilados; sm+ en una fila,
           ambos de 50px de alto. El activo usa el chip cyan del sitio (no
-          azul sólido) para que el único botón lleno sea el de enviar. */}
+          azul sólido) para que el único botón lleno sea el de enviar.
+          Pills simétricas como las del footer: logo en un círculo blanco a
+          la izquierda, nombre centrado y a la derecha un hueco del mismo
+          ancho que el círculo. */}
       <div>
         <p id="contact-provider" className={labelClass}>{f.providerLabel}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -130,19 +145,23 @@ export default function ContactForm({ to }: { to: string }) {
                   onChange={() => setProvider(key)}
                   className="peer sr-only"
                 />
-                <span className="block text-center px-4 py-2.5 rounded-full text-sm font-semibold text-fg-soft hover:text-cyan transition-all peer-checked:bg-cyan/15 peer-checked:text-cyan peer-checked:ring-1 peer-checked:ring-cyan/50 peer-focus-visible:ring-2 peer-focus-visible:ring-cyan/70">
-                  {PROVIDERS[key].label}
+                <span className="flex h-10 items-center px-1.5 rounded-full text-sm font-semibold text-fg-soft hover:text-cyan transition-all peer-checked:bg-cyan/15 peer-checked:text-cyan peer-checked:ring-1 peer-checked:ring-cyan/50 peer-focus-visible:ring-2 peer-focus-visible:ring-cyan/70">
+                  <Image src={PROVIDERS[key].logo} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full shadow-[0_1px_4px_rgb(0_0_0/0.25)]" />
+                  <span className="flex-1 text-center whitespace-nowrap">{PROVIDERS[key].label}</span>
+                  <span aria-hidden="true" className="w-7 shrink" />
                 </span>
               </label>
             ))}
           </div>
 
+          {/* Mismo patrón, con el logo del proveedor elegido */}
           <button
             type="submit"
-            className="w-full px-6 py-3 rounded-full border border-transparent bg-electric text-white font-medium hover:shadow-glow transition-all flex items-center justify-center gap-2 touch-manipulation"
+            className="w-full h-[50px] px-[6px] rounded-full border border-transparent bg-electric text-white font-medium hover:shadow-glow transition-all flex items-center touch-manipulation"
           >
-            <Mail className="w-4 h-4 shrink-0" />
-            {f.submit.replace("{provider}", providerLabel)}
+            <Image src={PROVIDERS[provider].logo} alt="" width={36} height={36} className="h-9 w-9 shrink-0 rounded-full shadow-[0_1px_4px_rgb(0_0_0/0.25)]" />
+            <span className="flex-1 text-center whitespace-nowrap">{f.submit.replace("{provider}", providerLabel)}</span>
+            <span aria-hidden="true" className="w-9 shrink" />
           </button>
         </div>
       </div>

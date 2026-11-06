@@ -3,13 +3,19 @@
 import { useCallback, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { Mail, MapPin, Linkedin, Github, Phone, ArrowUpRight, Copy, Check, FileText } from "lucide-react";
+import { Mail, MapPin, ArrowUpRight, Copy, Check, FileText } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Magnetic from "@/components/Magnetic";
 import CVModal from "@/components/CVModal";
 import ContactForm from "@/components/ContactForm";
 /* El mismo ícono del Header (y del favicon) cierra la página */
 import logo from "@/app/icon.png";
+/* Logos importados (no "/logos/…" como texto): el link lleva una huella del
+   contenido, así un logo nuevo con el mismo nombre se ve al toque (next/image
+   guarda 30 días cada link) */
+import linkedinLogo from "@/public/logos/linkedin.png";
+import githubLogo from "@/public/logos/github.png";
+import whatsappLogo from "@/public/logos/whatsapp.png";
 
 /* Curva de easing premium (la misma del Hero) */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -19,15 +25,26 @@ const MAILTO_URL = `mailto:${EMAIL}`;
 const MAPS_URL =
   "https://www.google.com/maps/place/Buenos+Aires/@-34.615796,-58.5156997,12z/data=!3m1!4b1!4m6!3m5!1s0x95bcca3b4ef90cbd:0xa0b3812e88e88e87!8m2!3d-34.6036739!4d-58.3821215!16zL20vMDFseTVt";
 
-/* Único lugar del sitio con las redes (el Hero ya no las repite) */
+/* Único lugar del sitio con las redes (el Hero ya no las repite).
+   Regla de Matías: los botones que llevan a una app usan SIEMPRE el logo
+   PNG de esa app (public/logos: el logo en su color sobre un círculo blanco,
+   como en Vibear y /fitness), no un ícono genérico. Cómo se generan: skill
+   bellido-fitness, scripts/icon-png.cjs y scripts/appstore-logo.py. */
 const SOCIAL_LINKS = [
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/matiasbellido", Icon: Linkedin },
-  { label: "GitHub", href: "https://github.com/matiasbellidor", Icon: Github },
-  { label: "WhatsApp", href: "https://wa.me/message/RRG5RHLSINR3M1", Icon: Phone },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/matiasbellido", logo: linkedinLogo },
+  { label: "GitHub", href: "https://github.com/matiasbellidor", logo: githubLogo },
+  { label: "WhatsApp", href: "https://wa.me/message/RRG5RHLSINR3M1", logo: whatsappLogo },
 ];
 
+/* Pill simétrica: el logo en un círculo pegado a la izquierda, el nombre en
+   el medio y, a la derecha, un hueco del mismo ancho que el círculo; así el
+   texto queda centrado en el botón. El hueco puede achicarse (a 320 px
+   "WhatsApp" no entraría) antes que cortar el nombre. px-[5px] + 1 px de
+   borde del vidrio = 6 px al costado, lo mismo que arriba y abajo. */
 const socialClass =
-  "w-full sm:w-auto glass px-5 py-3 rounded-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-fg-soft hover:text-cyan hover:shadow-glow transition-all touch-manipulation";
+  "w-full h-11 glass rounded-full flex items-center px-[5px] text-sm font-semibold text-fg-soft hover:text-cyan hover:shadow-glow transition-all touch-manipulation";
+const logoCircle = "h-8 w-8 shrink-0 rounded-full shadow-[0_1px_4px_rgb(0_0_0/0.25)]";
+const logoSpacer = <span aria-hidden="true" className="w-8 shrink" />;
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -149,23 +166,24 @@ export default function Footer() {
           </a>
         </motion.div>
 
-        {/* Redes + CV: un solo juego de enlaces, con ícono Y texto (antes
-            había una fila de íconos y otra de texto con los mismos links).
-            Mobile: grilla 2×2 simétrica; sm+: una fila centrada. */}
+        {/* Redes + CV: un solo juego de enlaces, con logo Y texto. Las 4
+            pills miden lo mismo: grilla 2×2 en mobile y una fila desde md. */}
         <motion.div
           variants={fadeUp}
-          className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-center"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto"
         >
-          {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-            <Magnetic key={label} strength={0.45} className="w-full sm:w-auto">
+          {SOCIAL_LINKS.map(({ label, href, logo: src }) => (
+            <Magnetic key={label} strength={0.45} className="w-full">
               <a href={href} target="_blank" rel="noopener noreferrer" className={socialClass}>
-                <Icon className="w-5 h-5 shrink-0" />
-                <span>{label}</span>
+                <Image src={src} alt="" width={32} height={32} className={logoCircle} />
+                <span className="flex-1 text-center whitespace-nowrap">{label}</span>
+                {logoSpacer}
               </a>
             </Magnetic>
           ))}
-          <Magnetic strength={0.45} className="w-full sm:w-auto">
-            {/* Abre el CV en un modal, sin salir de la página */}
+          <Magnetic strength={0.45} className="w-full">
+            {/* Abre el CV en un modal, sin salir de la página. No es una app:
+                lleva el ícono de documento en el mismo círculo blanco */}
             <button
               type="button"
               onClick={() => setCvOpen(true)}
@@ -173,8 +191,11 @@ export default function Footer() {
               aria-label="Curriculum Vitae"
               aria-haspopup="dialog"
             >
-              <FileText className="w-5 h-5 shrink-0" />
-              <span>CV</span>
+              <span className={`${logoCircle} grid place-items-center bg-white`}>
+                <FileText className="w-4 h-4 text-electric" aria-hidden="true" />
+              </span>
+              <span className="flex-1 text-center whitespace-nowrap">CV</span>
+              {logoSpacer}
             </button>
           </Magnetic>
         </motion.div>

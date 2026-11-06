@@ -56,7 +56,7 @@ Landing de entrenamiento personal de Matías dentro del portfolio. El objetivo d
   - Fotos ya cortadas desde el cuello (clientes 1 y 3): van sin zoom. El 1 se cortó en el archivo (los originales con cara no van al repo, que es público).
   - El resto (2 y 4): zoom de seguridad de 22 % anclado abajo, que recorta ~18 % de arriba. Un cliente nuevo cae acá por defecto.
   Para decidir, marcá líneas al 10/20/30 % sobre la foto y medí hasta dónde llega el mentón; después capturá los dos extremos de la barra (Inicio/Fin con el teclado y el carrusel pausado) en desktop y mobile.
-- Resultados es un carrusel como el de Vibear (`.fit-marquee` en `fitness.css`): la lista dos veces, `translateX(-50%)` en loop. Se frena con el mouse, el foco o el dedo, se pausa fuera de pantalla y tiene botón de pausa (WCAG 2.2.2); con "reducir movimiento" es una fila deslizable. Solo el primer juego es accesible: las copias van `aria-hidden` y sin foco (`decorative`). En tests, pausalo antes de interactuar: Playwright espera elementos quietos.
+- Resultados es un carrusel como el de Vibear (`.fit-marquee` en `fitness.css`): la lista dos veces, `translateX(-50%)` en loop. Se frena con el mouse encima, con el foco de TECLADO adentro y mientras un dedo está apoyado (al soltarlo sigue en el acto); se pausa fuera de pantalla y tiene botón de pausa (WCAG 2.2.2); con "reducir movimiento" es una fila deslizable. Ojo: tocar la manija le da foco y en el celular ese foco no se va nunca; si el foco pausara siempre, el carrusel quedaría frenado para siempre (bug del 2026-11-06). Por eso un foco que llega hasta 800 ms después de un toque o clic no pausa. La barra de cada comparador sigue al dedo mientras se sostiene y al soltarla vuelve suave al recorrido (nunca queda quieta para siempre); con las flechas del teclado queda quieta hasta que el foco sale. Solo el primer juego es accesible: las copias van `aria-hidden` y sin foco (`decorative`). En tests, pausalo antes de interactuar: Playwright espera elementos quietos.
 - Texto por cliente en `t.fitness.results.captions`, en el orden de los números de archivo: 16, 22, 12 y 28 semanas (clientes 1 a 4).
 - Fotos de clientes solo con consentimiento escrito; menores, nunca sin el de sus padres.
 
@@ -70,7 +70,11 @@ El botón "Propuesta" de la tarjeta Bellido Asesoramientos (`components/Projects
 `PURCHASE_FORM_URL` (`shared.tsx`) es el link público de respuesta del Google Forms de Matías (`/viewform`). Nunca uses el link `/edit` que manda él: es el de edición y pide permisos.
 
 ## Logos de botones
-`node .claude/skills/bellido-fitness/scripts/icon-png.cjs <slug> <color> <salida.png>` genera un PNG con fondo transparente (glifo de Simple Icons, CC0, en un círculo blanco), como `whatsapp-logo.png` y `gmail-logo.png`. Necesita Playwright (ver "Verificar").
+Regla de Matías (2026-11-06): **un botón que lleva a una app usa SIEMPRE el logo PNG de esa app**, nunca un ícono genérico (sobre, teléfono, lucide), salvo que él pida otra cosa. Y tiene que ser el logo ACTUAL, el de la App Store. Todos van en un círculo blanco con fondo transparente, 144×144:
+- `node .claude/skills/bellido-fitness/scripts/icon-png.cjs <slug> <color> <salida.png> [versión]`: glifo de Simple Icons (CC0) en su color. Lo usan WhatsApp, LinkedIn y GitHub (`public/logos/`, `public/fitness/`). Necesita Playwright (ver "Verificar").
+- `python .claude/skills/bellido-fitness/scripts/appstore-logo.py <id App Store> <salida.png> <lado>`: el ícono actual de la App Store, para apps con ícono de fondo blanco. Lo usan Outlook (`951937596`, lado 74) y Gmail (`422689480`, lado 78) en `public/logos/`. El glifo de Outlook de Simple Icons es el de 2019: Matías lo rechazó.
+- Pill simétrica (footer y formulario de contacto del portfolio): el círculo pegado a la izquierda, el nombre centrado y a la derecha un hueco del mismo ancho que el círculo (`flex` + `flex-1 text-center` + `w-8 shrink`). El margen del círculo es igual al costado y arriba (contando el borde de 1 px del vidrio).
+- Importá los logos (`import x from "@/public/logos/x.png"`), no los pongas como texto `"/logos/x.png"`: next/image guarda 30 días cada link, y un logo nuevo con el mismo nombre seguía viéndose viejo.
 
 ## Verificar (antes de dar algo por terminado)
 1. `npx tsc --noEmit` (el build ignora errores de TS).

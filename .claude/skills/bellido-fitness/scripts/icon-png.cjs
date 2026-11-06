@@ -1,18 +1,21 @@
 // Genera el logo de un botón (ej. WhatsApp, Gmail) en PNG con fondo transparente:
 // el glifo de Simple Icons (CC0) en su color, sobre un círculo blanco, 144×144.
-// Uso: PLAYWRIGHT_DIR=<node_modules con playwright> node icon-png.cjs <slug> <#color> <salida.png>
+// Uso: PLAYWRIGHT_DIR=<node_modules con playwright> node icon-png.cjs <slug> <#color> <salida.png> [versión]
 // Ej.:  node icon-png.cjs whatsapp "#25D366" public/fitness/whatsapp-logo.png
 //       node icon-png.cjs gmail "#EA4335" public/fitness/gmail-logo.png
+// Regla de Matías: SIEMPRE el logo PNG de la app en los botones que llevan a una app (no íconos genéricos).
+// Si el glifo de Simple Icons es viejo o no existe (Outlook: lo sacaron en la 12.5 y el de la 12.0 es el
+// de 2019, que Matías rechazó), usar el ícono actual de la App Store con appstore-logo.py.
 const path = require("node:path");
 
-const [slug, color, out] = process.argv.slice(2);
+const [slug, color, out, version] = process.argv.slice(2);
 if (!slug || !color || !out) {
-  console.error('Uso: node icon-png.cjs <slug> <"#color"> <salida.png>');
+  console.error('Uso: node icon-png.cjs <slug> <"#color"> <salida.png> [versión]');
   process.exit(1);
 }
 const req = (m) => require(process.env.PLAYWRIGHT_DIR ? path.join(process.env.PLAYWRIGHT_DIR, m) : m);
 const { chromium } = req("playwright");
-const VERSION = "13.21.0"; // la misma versión que los logos que ya están en public/fitness
+const VERSION = version || "13.21.0"; // por defecto, la misma versión que los logos que ya están en public/
 
 (async () => {
   const res = await fetch(`https://cdn.jsdelivr.net/npm/simple-icons@${VERSION}/icons/${slug}.svg`);
