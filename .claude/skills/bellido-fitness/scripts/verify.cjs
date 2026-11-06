@@ -17,8 +17,8 @@ const BASE = process.env.BASE_URL || "http://localhost:3000/fitness";
 const results = [];
 const log = (ok, msg) => results.push(`${ok ? "OK  " : "FAIL"} ${msg}`);
 
-async function open(browser, { width = 1280, height = 900, theme = "dark", lang = "es", colorScheme = "dark", reducedMotion = "no-preference", saveTheme = true, url = BASE, touch = false } = {}) {
-  const ctx = await browser.newContext({ viewport: { width, height }, colorScheme, reducedMotion, hasTouch: touch, isMobile: touch });
+async function open(browser, { width = 1280, height = 900, theme = "dark", lang = "es", colorScheme = "dark", reducedMotion = "no-preference", saveTheme = true, url = BASE, touch = false, userAgent } = {}) {
+  const ctx = await browser.newContext({ viewport: { width, height }, colorScheme, reducedMotion, hasTouch: touch, isMobile: touch, ...(userAgent && { userAgent }) });
   await ctx.addInitScript(({ theme, lang, saveTheme }) => {
     try {
       if (saveTheme) localStorage.setItem("theme", theme); else localStorage.removeItem("theme");
@@ -112,8 +112,8 @@ async function overflow(page) {
     const flat = info.text.replace(/\s+/g, " ");
     log(certs.every((c) => flat.includes(c.replace(" — ", " — "))) || certs.every((c) => flat.replace(/ — /g, "—").includes(c.replace(/ — /g, "—"))), `certificaciones textuales: ${certs.filter((c) => !flat.includes(c)).join(" | ") || "las 4"}`);
     log(!/24 ?h/i.test(info.text), `sin "atención 24 h"`);
-    const contact = await page.evaluate(() => ({ phone: /6830\s?0606/.test(document.getElementById("contacto").textContent), mail: !!document.querySelector('#contacto a[href^="mailto:"].fit-surface') }));
-    const extra = await page.evaluate(() => ({ p2p: /P2P/.test(document.querySelector("main").textContent), story: /2021/.test(document.getElementById("sobre-mi").textContent) && /Un año después/.test(document.getElementById("sobre-mi").textContent), gmail: (() => { const i = document.querySelector('#contacto a[href^="mailto:"] img'); return !!i && /gmail-logo/.test(i.currentSrc) && i.complete && i.naturalWidth > 0; })(), highlights: document.querySelectorAll("#planes article p.inline-flex").length }));
+    const contact = await page.evaluate(() => ({ phone: /6830\s?0606/.test(document.getElementById("contacto").textContent), mail: !!document.querySelector('#contacto a[href*="mail.google.com"].fit-surface') }));
+    const extra = await page.evaluate(() => ({ p2p: /P2P/.test(document.querySelector("main").textContent), story: /2021/.test(document.getElementById("sobre-mi").textContent) && /Un año después/.test(document.getElementById("sobre-mi").textContent), gmail: (() => { const i = document.querySelector('#contacto a[href*="mail.google.com"] img'); return !!i && /gmail-logo/.test(i.currentSrc) && i.complete && i.naturalWidth > 0; })(), highlights: document.querySelectorAll("#planes article p.inline-flex").length }));
     log(!extra.p2p && extra.story && extra.gmail && extra.highlights === 3, `copy: sin "P2P" (${!extra.p2p}), historia 2021 → un año después (${extra.story}), logo de Gmail (${extra.gmail}), diferencia destacada en ${extra.highlights} packs`);
     log(!contact.phone && contact.mail, `contacto: sin teléfono (${!contact.phone}), email como botón secundario (${contact.mail})`);
     console.log("secciones:", info.sections.join(" → "));
@@ -407,9 +407,39 @@ async function overflow(page) {
       // en los archivos (1, 2, 3 y 4), así que todo va sin zoom salvo el "después" del cliente 4 (1 / 0,7816 = 1,28).
       // Ver FRAMING en FitnessResults.tsx
       crop: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => { const m = getComputedStyle(i).transform; return m === "none" ? 1 : Math.round(+m.slice(7).split(",")[0] * 100) / 100; })) === JSON.stringify([1, 1, 1, 1, 1, 1, 1.28, 1]),
+      // encuadre horizontal: el "antes" del cliente 1 se ve desde el borde izquierdo (ahí está el torso); el resto, centrado
+      centerX: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => getComputedStyle(i).objectPosition)) === JSON.stringify(["50% 100%", "0% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%"]),
       withdrawal: !!document.querySelector("footer a[href*='wa.me'][href*='arrepent']"),
     }));
-    log(!c.trial && c.about && c.faq && c.crop && c.withdrawal, `contenido: ${JSON.stringify(c)}`);
+    log(!c.trial && c.about && c.faq && c.crop && c.centerX && c.withdrawal, `contenido: ${JSON.stringify(c)}`);
+    await ctx.close();
+  }
+
+  // 6c-ter) Botón de email → Gmail directo (pedido de Matías): sin el diálogo de "¿con qué app?" del mailto:
+  {
+    // Compu: Gmail web en una pestaña nueva; /fitness sigue abierta. (Gmail se intercepta: no se sale a internet)
+    const { ctx, page } = await open(browser, { width: 1280 });
+    await ctx.route("https://mail.google.com/**", (r) => r.fulfill({ status: 200, contentType: "text/html", body: "<title>Gmail (simulado)</title>" }));
+    const mail = page.locator("#contacto a", { hasText: "rbellidomatias@gmail.com" });
+    await mail.scrollIntoViewIfNeeded();
+    const attrs = await mail.evaluate((a) => ({ href: a.getAttribute("href"), target: a.target, rel: a.rel }));
+    const [tab] = await Promise.all([ctx.waitForEvent("page"), mail.click()]);
+    await tab.waitForLoadState();
+    const ok = attrs.href === "https://mail.google.com/mail/?view=cm&fs=1&to=rbellidomatias%40gmail.com" && attrs.target === "_blank" && /noopener/.test(attrs.rel);
+    log(ok && /mail\.google\.com\/mail\/\?view=cm/.test(tab.url()) && /\/fitness/.test(page.url()), `email en la compu: Gmail web en otra pestaña (${tab.url().slice(0, 60)}…), /fitness sigue abierta`);
+    await ctx.close();
+  }
+  for (const [name, ua, check] of [
+    ["Android", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
+      (h) => h.startsWith("intent:rbellidomatias@gmail.com#Intent;scheme=mailto;package=com.google.android.gm;action=android.intent.action.SENDTO;") && h.includes("S.browser_fallback_url=https%3A%2F%2Fmail.google.com%2Fmail%2F%3Fview%3Dcm") && h.endsWith(";end")],
+    ["iPhone", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+      (h) => h === "googlegmail:///co?to=rbellidomatias%40gmail.com"],
+  ]) {
+    const { ctx, page } = await open(browser, { width: 390, touch: true, userAgent: ua });
+    // el link del celular se pone al montar la página (el HTML del servidor trae el de la compu)
+    await page.waitForFunction(() => !document.querySelector("#contacto a.fit-surface")?.getAttribute("href")?.startsWith("https://"), null, { timeout: 8000 }).catch(() => {});
+    const href = await page.locator("#contacto a", { hasText: "rbellidomatias@gmail.com" }).getAttribute("href");
+    log(check(href || ""), `email en ${name}: abre la app de Gmail (${(href || "").slice(0, 70)}…)`);
     await ctx.close();
   }
 
@@ -652,6 +682,14 @@ async function overflow(page) {
     for (const theme of ["dark", "light"]) {
       const { ctx, page, errors } = await open(browser, { width: 1280, url: home, theme, colorScheme: theme });
       const t = `[${theme}]`;
+      // La propuesta de Bellido Asesoramientos se distingue de las demás: relleno sólido (no translúcido) y texto blanco
+      const btns = await page.$$eval("#projects article", (arts) => arts.map((a) => {
+        const b = [...a.querySelectorAll("button")].find((x) => /Propuesta/.test(x.textContent));
+        return b ? { card: a.querySelector("h3")?.textContent.trim(), bg: getComputedStyle(b).backgroundColor, color: getComputedStyle(b).color } : null;
+      }).filter(Boolean));
+      const ases = btns.find((b) => /Asesoramientos/.test(b.card));
+      const rest = btns.filter((b) => b !== ases);
+      log(!!ases && /^rgb\(/.test(ases.bg) && ases.color === "rgb(255, 255, 255)" && rest.length > 0 && rest.every((b) => /^rgba\(.*0\.2\)$/.test(b.bg)), `${t} botón Propuesta de Asesoramientos destacado (${ases?.bg}, texto ${ases?.color}); las otras ${rest.length} translúcidas`);
       await openServices(page);
       await page.waitForTimeout(600);
       const info = await page.$$eval(SVG, (els) => els.map((svg) => ({

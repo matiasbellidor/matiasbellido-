@@ -99,9 +99,13 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstoc
   const isNexstock = projectId === "nexstock";
   const hasUrl = isAsesoramientos || isNexstock || url !== "";
 
-  /* Solo Bellido Asesoramientos lleva el brillo en loop + hover con escala
-     y glow (es la que lleva a la landing de /fitness). El brillo corre
-     mientras el botón está en pantalla y se apaga con "reducir movimiento". */
+  /* Bellido Asesoramientos es la propuesta distinta (lleva a sus servicios y
+     a la landing de /fitness): Matías pidió que se note sí o sí, sin molestar.
+     Por eso es la única con relleno sólido del color de acción (texto blanco:
+     4,8:1 en oscuro y 7,1:1 en claro), sombra de color, el brillo que la
+     recorre y un halo que se expande y se desvanece cada ~4 s. El brillo y el
+     halo corren solo con el botón en pantalla y se apagan con "reducir
+     movimiento". Flecha en vez de link externo: abre un modal, no otra pestaña. */
   const ref = useRef<HTMLButtonElement>(null);
   const inView = useInView(ref);
   const reduced = !!useReducedMotion();
@@ -115,29 +119,49 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstoc
     else window.open(url, "_blank");
   };
 
+  if (isAsesoramientos) {
+    return (
+      <div className="absolute top-3 right-3 z-30">
+        {shimmer && (
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-full border-2 border-electric"
+            initial={{ opacity: 0, scale: 1 }}
+            animate={inView ? { opacity: [0.6, 0], scale: [1, 1.3] } : { opacity: 0, scale: 1 }}
+            transition={inView ? { duration: 1.6, ease: "easeOut", repeat: Infinity, repeatDelay: 2.4 } : { duration: 0 }}
+          />
+        )}
+        <motion.button ref={ref} onClick={handleClick}
+          whileHover={reduced ? undefined : { scale: 1.04 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          // transition-all animaría también el transform que maneja Framer
+          className="relative overflow-hidden flex items-center gap-1.5 pl-3 pr-3.5 py-2 rounded-full bg-electric text-white text-xs font-semibold border border-white/25 shadow-[0_6px_20px_-6px_rgb(var(--accent-electric)/0.9)] hover:shadow-glow hover:brightness-110 transition-[box-shadow,filter] duration-200 touch-manipulation">
+          {shimmer && (
+            <motion.span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+              initial={{ x: "-150%" }}
+              animate={inView ? { x: "250%" } : { x: "-150%" }}
+              transition={inView ? { duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 2.6 } : { duration: 0 }}
+            />
+          )}
+          <FileText className="relative w-3.5 h-3.5" aria-hidden="true" />
+          <span className="relative">{label}</span>
+          <ArrowRight className="relative w-3.5 h-3.5" aria-hidden="true" />
+        </motion.button>
+      </div>
+    );
+  }
+
+  // El resto de las propuestas: el estilo de siempre (translúcido, con borde) y link externo
   return (
-    <motion.button ref={ref} onClick={handleClick}
-      whileHover={isAsesoramientos && !reduced ? { scale: 1.03 } : undefined}
-      whileTap={isAsesoramientos ? { scale: 0.97 } : undefined}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      // transition-all animaría también el transform que maneja Framer → en
-      // la animada solo transicionan fondo y sombra
-      className={`absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs hover:bg-electric/40 touch-manipulation ${
-        isAsesoramientos ? "overflow-hidden hover:shadow-glow transition-[background-color,box-shadow] duration-200" : "transition-all"
-      }`}>
-      {shimmer && (
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-cyan/30 dark:via-white/40 to-transparent"
-          initial={{ x: "-150%" }}
-          animate={inView ? { x: "250%" } : { x: "-150%" }}
-          transition={inView ? { duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 2.2 } : { duration: 0 }}
-        />
-      )}
+    <button onClick={handleClick}
+      className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs hover:bg-electric/40 transition-all touch-manipulation">
       <FileText className="relative w-3.5 h-3.5" />
       <span className="relative">{label}</span>
       <ExternalLink className="relative w-3 h-3" />
-    </motion.button>
+    </button>
   );
 }
 

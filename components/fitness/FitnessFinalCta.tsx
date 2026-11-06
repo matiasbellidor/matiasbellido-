@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
-import { BrandName, Reveal, WhatsAppButton, whatsappUrl } from "./shared";
+import { BrandName, Reveal, WhatsAppButton, useGmailLink, whatsappUrl } from "./shared";
 import logo from "@/app/icon.png";
 
 /* Contacto (PDF): el único momento centrado de la página. El objetivo es
@@ -15,6 +15,8 @@ export default function FitnessFinalCta() {
   const { t } = useLanguage();
   const f = t.fitness;
   const c = f.contact;
+  // Abre Gmail directo: web en otra pestaña en la compu, la app en el celular (ver useGmailLink)
+  const gmail = useGmailLink(c.email);
 
   return (
     <>
@@ -28,7 +30,7 @@ export default function FitnessFinalCta() {
             {/* Misma forma que el de WhatsApp (logo en círculo a la izquierda),
                 más chico y neutro: es la segunda opción, no compite */}
             <a
-              href={`mailto:${c.email}`}
+              {...gmail}
               aria-label={c.emailLabel}
               className="fit-surface fit-focus inline-flex max-w-full h-10 items-center gap-2 rounded-full pl-1 pr-4 text-sm font-medium text-fg-soft transition-colors hover:text-fg hover:border-cyan/40 touch-manipulation"
             >

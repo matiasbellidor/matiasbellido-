@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -17,6 +17,60 @@ export const WHATSAPP_NUMBER = "5491168300606";
 
 export const whatsappUrl = (message: string) =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+/* Email → directo a Gmail, sin el diálogo de "¿con qué app abrir?" que da
+   un mailto: en la compu (pedido de Matías, 2026-11-06):
+   - Compu: Gmail web listo para escribir, en una pestaña nueva; /fitness
+     queda abierta.
+   - Android: la app de Gmail (intent de Chrome al paquete
+     com.google.android.gm, acción SENDTO). Si no la tiene, Chrome abre Gmail
+     web (browser_fallback_url).
+   - iPhone/iPad: la app de Gmail (esquema googlegmail://). Si a los 2 s la
+     página sigue visible y con foco (no tiene la app), abre su app de mail
+     con mailto:.
+   El HTML del servidor trae el link de la compu; en el celular se cambia al
+   montar la página. Los de celular no se pueden probar sin un teléfono real:
+   si cambian, probarlos en uno. */
+export const gmailWebUrl = (to: string) => `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}`;
+
+type MailPlatform = "desktop" | "android" | "ios";
+
+function mailPlatform(): MailPlatform {
+  const ua = navigator.userAgent;
+  if (/Android/i.test(ua)) return "android";
+  // iPadOS se presenta como Mac: se lo reconoce por la pantalla táctil
+  if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return "ios";
+  return "desktop";
+}
+
+export function useGmailLink(to: string) {
+  const [platform, setPlatform] = useState<MailPlatform>("desktop");
+  useEffect(() => setPlatform(mailPlatform()), []);
+  const web = gmailWebUrl(to);
+
+  if (platform === "android") {
+    return {
+      href: `intent:${to}#Intent;scheme=mailto;package=com.google.android.gm;action=android.intent.action.SENDTO;S.browser_fallback_url=${encodeURIComponent(web)};end`,
+    };
+  }
+  if (platform === "ios") {
+    const app = `googlegmail:///co?to=${encodeURIComponent(to)}`;
+    return {
+      href: app,
+      onClick: (e: MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        const fallback = setTimeout(() => {
+          if (document.visibilityState === "visible" && document.hasFocus()) window.location.href = `mailto:${to}`;
+        }, 2000);
+        const cancel = () => clearTimeout(fallback);
+        document.addEventListener("visibilitychange", cancel, { once: true });
+        window.addEventListener("pagehide", cancel, { once: true });
+        window.location.href = app;
+      },
+    };
+  }
+  return { href: web, target: "_blank", rel: "noopener noreferrer" };
+}
 
 /* Logo de WhatsApp en PNG con fondo transparente (glifo de Simple Icons,
    CC0, el mismo de Vibear, en el verde de WhatsApp sobre un círculo blanco).

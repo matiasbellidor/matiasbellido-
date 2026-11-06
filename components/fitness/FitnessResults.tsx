@@ -44,13 +44,22 @@ const GLIDE_MS = 700;
    de las clavículas al elástico). Un cliente nuevo cae en SAFE_FRAMING (zoom
    de seguridad: oculta el 18 % de arriba), por si sube fotos sin cortar.
    La cuenta supone fotos más anchas que el marco 4:5 (se ajustan al alto);
-   con una más angosta, revisarla en una captura. */
+   con una más angosta, revisarla en una captura.
+   `x` (opcional, 0–100): qué parte del ancho se ve (object-position
+   horizontal; por defecto 50, el centro). Cliente 1: en el "antes" el
+   torso está a la izquierda de la foto (línea media al 35 % del ancho) y
+   con el centro quedaba corrido, con el marco del espejo a la derecha;
+   con x = 0 queda centrado como el "después" (pedido de Matías). Sin
+   zoom: las dos fotos ya tienen la misma escala y agrandar una exageraría
+   el cambio. */
 const PRE_CROPPED_CLIENTS = new Set([1, 2, 3]);
-type Framing = { start: number; end: number };
+type Framing = { start: number; end: number; x?: number };
 type ClientFraming = { before: Framing; after: Framing };
 const SAFE: Framing = { start: 0.18, end: 1 };
 const SAFE_FRAMING: ClientFraming = { before: SAFE, after: SAFE };
 const FRAMING: Record<number, ClientFraming> = {
+  // antes: el borde izquierdo de la foto, así el torso queda en el centro del marco
+  1: { before: { start: 0, end: 1, x: 0 }, after: { start: 0, end: 1 } },
   // antes: cortada al 17 % (sin zoom); después: cortada al 13 % y vista hasta el 78 % de lo que queda
   4: { before: { start: 0, end: 1 }, after: { start: 0, end: 0.7816 } },
 };
@@ -447,7 +456,10 @@ function Photo({ src, alt, pending, framing }: { src: string | null; alt: string
       draggable={false}
       sizes="(max-width: 639px) 260px, (max-width: 767px) 300px, 340px"
       className="object-cover object-bottom pointer-events-none"
-      style={framing ? { transform: `scale(${zoom.toFixed(4)})`, transformOrigin: `50% ${originY.toFixed(2)}%` } : undefined}
+      style={{
+        ...(zoom > 1 && { transform: `scale(${zoom.toFixed(4)})`, transformOrigin: `50% ${originY.toFixed(2)}%` }),
+        ...(framing?.x !== undefined && { objectPosition: `${framing.x}% 100%` }),
+      }}
     />
   );
 }
