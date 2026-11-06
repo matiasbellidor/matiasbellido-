@@ -248,7 +248,8 @@ export default function Experience() {
               key={i}
               onClick={() => scrollToCard(i)}
               aria-label={`Go to experience ${i + 1}`}
-              className="touch-manipulation p-1.5 group"
+              // min 24×24 px de zona táctil (WCAG 2.5.8): el punto apagado solo medía 20 px de ancho
+              className="touch-manipulation p-1.5 group inline-flex min-h-6 min-w-6 items-center justify-center"
             >
               {/* w-8 en mobile: con las 6 llenas la fila entra en 335px (con w-10 medía 352) */}
               <div

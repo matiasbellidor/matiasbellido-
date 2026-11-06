@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, useAnimation, type MotionProps } from "framer-motion";
-import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, GitBranch, Newspaper } from "lucide-react";
+import Link from "next/link";
+import { motion, AnimatePresence, useAnimation, useInView, useReducedMotion, type MotionProps } from "framer-motion";
+import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, GitBranch, Newspaper, ArrowRight } from "lucide-react";
 import Section from "./Section";
+import AsesoramientoAnimation from "./AsesoramientoAnimation";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
 
@@ -15,8 +17,15 @@ const BUDGENTS_PROPOSAL_URL = "/projects/Imagenes/Budgents.pdf";
 const NUTRIOPS_PROPOSAL_URL = "/projects/Imagenes/NutriOps.pdf";
 const ONEIRIC_PROPOSAL_URL = "/projects/Imagenes/OneiricAi.pdf";
 const IMPORTS_PROPOSAL_URL = "/projects/Imagenes/Importaciones.pdf";
-const ASESORAMIENTOS_FITNESS_URL = "/projects/Imagenes/Bellido-Asesoramientos-Fitness.pdf";
+// Fitness ya no abre el PDF: lleva a la landing propia (app/fitness)
+const ASESORAMIENTOS_FITNESS_PAGE = "/fitness";
 const ASESORAMIENTOS_EDUCATION_URL = "/projects/Imagenes/Bellido-Asesoramientos-Educativo.pdf";
+
+// Tarjetas del modal "Mis Asesoramientos": las dos con la misma forma, centradas
+const SERVICE_CARD =
+  "group flex flex-col overflow-hidden rounded-2xl border border-cyan/30 bg-cyan/[0.05] text-center transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-cyan/70 hover:shadow-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
+const SERVICE_CTA =
+  "mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-electric px-5 py-2.5 text-sm font-semibold text-white transition-shadow group-hover:shadow-glow";
 
 // NexStock (BootCamp ITBA) — el botón "Propuesta" abre un modal con estos dos archivos
 const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
@@ -46,9 +55,10 @@ const digitalProjectsMeta = [
   { id: "budgents", image: "/projects/Imagenes/agents.webp", proposalUrl: BUDGENTS_PROPOSAL_URL },
 ];
 
+// Bellido Asesoramientos va primero (pedido de Matías, 2026-11-06)
 const businessProjectsMeta = [
-  { id: "imports", image: "/projects/Imagenes/Imports.webp", proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#252629" },
   { id: "asesoramientos", image: "/projects/Imagenes/asesoramientos.webp", proposalUrl: "" },
+  { id: "imports", image: "/projects/Imagenes/Imports.webp", proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#272a2c" },
 ];
 
 // Proyectos cuya imagen es un mockup/logo con fondo propio → object-contain.
@@ -83,6 +93,14 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstoc
   const isAsesoramientos = projectId === "asesoramientos";
   const isNexstock = projectId === "nexstock";
   const hasUrl = isAsesoramientos || isNexstock || url !== "";
+
+  /* Solo Bellido Asesoramientos lleva el brillo en loop + hover con escala
+     y glow (es la que lleva a la landing de /fitness). El brillo corre
+     mientras el botón está en pantalla y se apaga con "reducir movimiento". */
+  const ref = useRef<HTMLButtonElement>(null);
+  const inView = useInView(ref);
+  const reduced = !!useReducedMotion();
+  const shimmer = isAsesoramientos && !reduced;
   if (!hasUrl) return null;
 
   const handleClick = (e: React.MouseEvent) => {
@@ -93,12 +111,28 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onNexstoc
   };
 
   return (
-    <button onClick={handleClick}
-      className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs hover:bg-electric/40 transition-all touch-manipulation">
-      <FileText className="w-3.5 h-3.5" />
-      <span>{label}</span>
-      <ExternalLink className="w-3 h-3" />
-    </button>
+    <motion.button ref={ref} onClick={handleClick}
+      whileHover={isAsesoramientos && !reduced ? { scale: 1.03 } : undefined}
+      whileTap={isAsesoramientos ? { scale: 0.97 } : undefined}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      // transition-all animaría también el transform que maneja Framer → en
+      // la animada solo transicionan fondo y sombra
+      className={`absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs hover:bg-electric/40 touch-manipulation ${
+        isAsesoramientos ? "overflow-hidden hover:shadow-glow transition-[background-color,box-shadow] duration-200" : "transition-all"
+      }`}>
+      {shimmer && (
+        <motion.span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-cyan/30 dark:via-white/40 to-transparent"
+          initial={{ x: "-150%" }}
+          animate={inView ? { x: "250%" } : { x: "-150%" }}
+          transition={inView ? { duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 2.2 } : { duration: 0 }}
+        />
+      )}
+      <FileText className="relative w-3.5 h-3.5" />
+      <span className="relative">{label}</span>
+      <ExternalLink className="relative w-3 h-3" />
+    </motion.button>
   );
 }
 
@@ -311,32 +345,45 @@ export default function Projects() {
 
       <AnimatePresence>
         {canvaModalOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCanvaModalOpen(false)} className="fixed inset-0 z-[80] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} transition={{ type: "spring", duration: 0.5 }} onClick={(e) => e.stopPropagation()} className="relative glass rounded-2xl p-6 md:p-8 max-w-md w-full shadow-glow-lg">
-              <button onClick={() => setCanvaModalOpen(false)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"><X className="w-5 h-5 text-fg-soft" /></button>
-              <h3 className="font-display text-2xl md:text-3xl font-bold text-center mb-6 text-cyan">{lang === "es" ? "Mis Asesoramientos" : "My Services"}</h3>
-              <div className="space-y-4">
-                <a href={ASESORAMIENTOS_FITNESS_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-cyan/[0.06] border border-cyan/25 hover:border-cyan/60 hover:bg-cyan/[0.12] transition-all group">
-                  <div className="shrink-0 w-11 h-11 rounded-lg bg-cyan/10 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-cyan" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCanvaModalOpen(false)} className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} transition={{ type: "spring", duration: 0.5 }} onClick={(e) => e.stopPropagation()}
+              className="relative modal-surface rounded-2xl p-5 sm:p-8 max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-glow-lg">
+              <button onClick={() => setCanvaModalOpen(false)} aria-label={lang === "es" ? "Cerrar" : "Close"} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"><X className="w-5 h-5 text-fg-soft" /></button>
+              {/* Opaco (modal-surface), no vidrio: sobre el fondo oscuro del overlay el vidrio
+                  quedaba gris en tema claro y el texto oscuro no se leía. px-10: no choca con la X */}
+              <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 px-8 sm:px-10 text-cyan">{lang === "es" ? "Mis Asesoramientos" : "My Services"}</h3>
+              {/* Dos tarjetas iguales y centradas (lado a lado desde sm). Arriba, una
+                  franja oscura con la animación del mismo personaje en cada
+                  servicio (AsesoramientoAnimation); abajo, nombre, bajada y
+                  botón. Se levantan y brillan con el hover. */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Navegación interna (misma pestaña). Cierra el modal al salir
+                    para que no quede el scroll trabado ni el Header oculto. */}
+                <Link href={ASESORAMIENTOS_FITNESS_PAGE} onClick={() => setCanvaModalOpen(false)} className={SERVICE_CARD}>
+                  <div aria-hidden="true" className="relative h-[240px] sm:h-[280px] overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
+                    <AsesoramientoAnimation variant="fitness" className="absolute inset-0 h-full w-full" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-base font-semibold text-fg">{lang === "es" ? "Asesoramientos Fitness" : "Fitness Coaching"}</p>
-                    <p className="text-xs text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
+                  <div className="flex flex-1 flex-col items-center px-5 pb-5 pt-4">
+                    <p className="font-display text-lg sm:text-xl font-bold text-fg">{lang === "es" ? "Asesoramientos Fitness" : "Fitness Coaching"}</p>
+                    <p className="mt-1 mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver planes y cómo trabajo" : "See plans and how I work"}</p>
+                    <span className={SERVICE_CTA}>
+                      {lang === "es" ? "Ver la página" : "Open the page"}
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                    </span>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-cyan/60 group-hover:text-cyan shrink-0" />
-                </a>
-                <a href={ASESORAMIENTOS_EDUCATION_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-cyan/[0.06] border border-cyan/25 hover:border-cyan/60 hover:bg-cyan/[0.12] transition-all group">
-                  <div className="shrink-0 w-11 h-11 rounded-lg bg-cyan/10 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-cyan" />
+                </Link>
+                <a href={ASESORAMIENTOS_EDUCATION_URL} target="_blank" rel="noopener noreferrer" className={SERVICE_CARD}>
+                  <div aria-hidden="true" className="relative h-[240px] sm:h-[280px] overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
+                    <AsesoramientoAnimation variant="educativo" className="absolute inset-0 h-full w-full" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-base font-semibold text-fg">{lang === "es" ? "Asesoramientos Educativos" : "Educational Tutoring"}</p>
-                    <p className="text-xs text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
+                  <div className="flex flex-1 flex-col items-center px-5 pb-5 pt-4">
+                    <p className="font-display text-lg sm:text-xl font-bold text-fg">{lang === "es" ? "Asesoramientos Educativos" : "Educational Tutoring"}</p>
+                    <p className="mt-1 mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
+                    <span className={SERVICE_CTA}>
+                      {lang === "es" ? "Abrir la propuesta" : "Open the proposal"}
+                      <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                    </span>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-cyan/60 group-hover:text-cyan shrink-0" />
                 </a>
               </div>
             </motion.div>
@@ -429,8 +476,10 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
         style={{ backgroundColor: project.imageBg ?? "#000000" }}
       >
         {/* sizes = ancho real de la tarjeta: carrusel 80vw, 2 columnas en md, 3 en lg */}
+        {/* Coming soon (Symbiosis): logo desenfocado a propósito; el ribbon
+            y el degradé quedan nítidos por encima */}
         <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 767px) 80vw, (max-width: 1023px) 50vw, 33vw"
-          className={`${containedImage ? "object-contain" : "object-cover"} transition-transform duration-700 group-hover:scale-105`} />
+          className={`${containedImage ? "object-contain" : "object-cover"} ${project.comingSoon ? "blur-sm" : ""} transition-transform duration-700 group-hover:scale-105`} />
         {/* El degradé oscuro solo tiene sentido sobre fondo oscuro (imágenes
             cover). Sobre un imageBg claro se vería como una sombra gris fea,
             así que lo omitimos cuando hay un fondo personalizado. */}

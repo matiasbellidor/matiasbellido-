@@ -60,6 +60,9 @@ export default function IntroLoader() {
     const finish = () => {
       root.removeEventListener("animationend", onEnd);
       document.body.style.overflow = prevOverflow;
+      /* Marca la sesión también en el <html> ya cargado: si se navega con
+         <Link> a otra ruta que monta la intro (/fitness), no se repite. */
+      document.documentElement.classList.add(INTRO_KEY);
       setDone(true);
     };
     root.addEventListener("animationend", onEnd);

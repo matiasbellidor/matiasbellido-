@@ -1,0 +1,237 @@
+/* ═════════════════════════════════════════════════════════════
+   /fitness — material Liquid Glass y piezas propias de la landing
+
+   Tres superficies, cada una con un trabajo:
+   - .liquid-glass → SOLO elementos funcionales: header y su menú,
+     selector de planes y tarjetas de planes.
+   - .liquid-cta   → botón principal (el único color de acción).
+   - .fit-surface  → todo lo demás: plano, sin desenfoque, para que
+     el vidrio marque qué se puede tocar.
+   Aproximación en CSS (blur + saturación + luz superior interna +
+   reflejo especular + sombra suave). Sin filtros SVG de refracción:
+   solo andan en Chromium y cuestan caro al scrollear.
+   Todo usa los tokens del tema (globals.css): claro y oscuro.
+   ═════════════════════════════════════════════════════════════ */
+
+/* Tipografía de marca: Cinzel, capitales romanas como el logo de Bellido
+   Asesoramientos. Solo para "BELLIDO", nunca para texto corrido.
+   Cinzel © Natanael Gama, SIL Open Font License 1.1. Fuente variable: un
+   archivo cubre del 400 al 900. Se sirve desde public/fitness/fonts con un
+   nombre FIJO: con next/font el nombre lleva un hash, y si el .next del dev
+   se desincroniza (pasó el 2026-11-06), el HTML y el CSS quedan con hashes
+   distintos y "BELLIDO" sale en otra fuente. Así no depende de eso.
+   El archivo latin se precarga en app/fitness/layout.tsx. */
+@font-face {
+  font-family: "Bellido Cinzel";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fitness/fonts/cinzel-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Bellido Cinzel";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fitness/fonts/cinzel-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+.font-brand {
+  font-family: "Bellido Cinzel", "Trajan Pro", Georgia, serif;
+}
+
+/* Fondo con color para que el vidrio tenga algo que mostrar.
+   Estático: se pinta una vez, cero costo por cuadro. */
+.fit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60vmax 40vmax at 88% -8%, rgb(var(--accent-electric) / 0.3), transparent 62%),
+    radial-gradient(50vmax 36vmax at -12% 38%, rgb(var(--accent-cyan) / 0.13), transparent 62%),
+    radial-gradient(55vmax 40vmax at 108% 88%, rgb(var(--accent-electric) / 0.18), transparent 62%),
+    #06080c;
+}
+
+html:not(.dark) .fit-backdrop {
+  background:
+    radial-gradient(60vmax 40vmax at 88% -8%, rgb(var(--accent-cyan) / 0.16), transparent 62%),
+    radial-gradient(50vmax 36vmax at -12% 38%, rgb(var(--accent-cyan) / 0.08), transparent 62%),
+    radial-gradient(55vmax 40vmax at 108% 88%, rgb(var(--accent-electric) / 0.1), transparent 62%),
+    #f6f7f9;
+}
+
+/* Posición por defecto con especificidad 0 (:where): este archivo carga
+   después de Tailwind, y un `.liquid-glass { position: relative }` común
+   pisaba `fixed`/`absolute` (el carrito flotante y su panel quedaban en el
+   flujo de la página). Así cualquier utilidad de posición gana. */
+:where(.liquid-glass, .liquid-cta) {
+  position: relative;
+}
+
+/* ── Vidrio ── */
+.liquid-glass {
+  isolation: isolate;
+  /* Tinte de base: el texto encima siempre tiene contraste, aunque
+     detrás pase una foto clara */
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.1) 0%, rgb(255 255 255 / 0.03) 100%), rgb(12 14 20 / 0.55);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.3),
+    inset 0 -1px 0 rgb(255 255 255 / 0.05),
+    0 12px 32px -12px rgb(0 0 0 / 0.6);
+}
+
+/* Reflejo especular: una luz que entra desde arriba a la izquierda */
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 15% -20%, rgb(255 255 255 / 0.18), transparent 55%),
+    radial-gradient(80% 50% at 100% 120%, rgb(255 255 255 / 0.05), transparent 60%);
+}
+
+html:not(.dark) .liquid-glass {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.82) 0%, rgb(255 255 255 / 0.62) 100%);
+  border-color: rgb(255 255 255 / 0.9);
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    0 0 0 1px rgb(15 23 42 / 0.06),
+    0 12px 32px -12px rgb(15 23 42 / 0.22);
+}
+
+html:not(.dark) .liquid-glass::before {
+  background: radial-gradient(120% 70% at 15% -20%, rgb(255 255 255 / 0.9), transparent 55%);
+}
+
+/* Sin backdrop-filter: vidrio casi opaco, el texto sigue legible */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass {
+    background: rgb(16 18 24 / 0.94);
+  }
+  html:not(.dark) .liquid-glass {
+    background: rgb(255 255 255 / 0.96);
+  }
+}
+
+/* ── Botón principal: vidrio teñido con el color de acción ──
+   El brillo superior se apaga antes de la mitad del alto, así el
+   texto blanco queda sobre el color pleno (contraste AA). */
+.liquid-cta {
+  isolation: isolate;
+  overflow: hidden;
+  color: #ffffff;
+  background: linear-gradient(180deg, rgb(var(--accent-electric) / 0.9) 0%, rgb(var(--accent-electric)) 60%);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    inset 0 -3px 8px rgb(0 0 0 / 0.18),
+    0 8px 24px -8px rgb(var(--accent-electric) / 0.7);
+  transition:
+    box-shadow 0.2s ease,
+    filter 0.2s ease,
+    transform 0.2s ease;
+}
+
+.liquid-cta::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px 55% 1px;
+  z-index: -1;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0));
+}
+
+.liquid-cta:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 -3px 8px rgb(0 0 0 / 0.18),
+    0 12px 32px -8px rgb(var(--accent-electric) / 0.85);
+}
+
+.liquid-cta:active {
+  transform: scale(0.97);
+  filter: brightness(0.96);
+}
+
+.liquid-cta[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Foco visible para todo lo interactivo de la landing */
+.fit-focus:focus-visible,
+.liquid-cta:focus-visible {
+  outline: 2px solid rgb(var(--accent-cyan));
+  outline-offset: 3px;
+}
+
+/* ── Superficie plana (el resto de la página) ── */
+.fit-surface {
+  background: rgb(var(--accent-cyan) / 0.035);
+  border: 1px solid rgb(var(--accent-cyan) / 0.14);
+}
+
+html:not(.dark) .fit-surface {
+  background: #ffffff;
+  border-color: rgb(15 23 42 / 0.08);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+/* ── Carrusel de resultados (mismo mecanismo que el .marquee de Vibear) ──
+   La lista va dos veces dentro de la pista: al llegar a -50 % está donde
+   empezó. Se pausa con data-playing="false" (mouse encima, foco, toque,
+   fuera de pantalla o el botón de pausa). Con "reducir movimiento" no hay
+   animación: es una fila que se desliza con el dedo y solo se ve el primer juego. */
+.fit-marquee-wrap {
+  overflow-x: hidden;
+}
+
+.fit-marquee {
+  animation: fit-marquee var(--marquee, 60s) linear infinite;
+  will-change: transform;
+}
+
+.fit-marquee-wrap[data-playing="false"] .fit-marquee {
+  animation-play-state: paused;
+}
+
+@keyframes fit-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Bordes que se desvanecen: las tarjetas entran y salen sin corte seco */
+.fit-marquee-fade {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fit-marquee-wrap {
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+  .fit-marquee {
+    animation: none;
+  }
+  .fit-marquee-dup {
+    display: none;
+  }
+  .fit-marquee-wrap [role="listitem"] {
+    scroll-snap-align: center;
+  }
+}

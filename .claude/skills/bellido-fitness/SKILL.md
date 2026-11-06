@@ -1,0 +1,82 @@
+---
+name: bellido-fitness
+description: Cómo editar la landing /fitness de Bellido Asesoramientos (app/fitness, components/fitness, t.fitness en LanguageContext) sin romper lo que ya funciona y aplicando las reglas de Matías (UX/UI, copy claro, Liquid Glass solo en lo funcional, un solo color de acción, Argentina). Usala SIEMPRE que se toque /fitness o "la propuesta fitness" - textos, planes, packs, precios, carrito, cobros con Mercado Pago o QR, fotos de portada o de clientes, antes/después, header, tipografía de marca, botones de WhatsApp o email, secciones nuevas - aunque el pedido no diga "skill" ni "fitness" y solo hable de "la página de asesoramientos", "la landing de entrenamiento", "el carrito" o "las fotos de los clientes".
+---
+
+# Landing /fitness (Bellido Asesoramientos)
+
+Landing de entrenamiento personal de Matías dentro del portfolio. El objetivo de la página es uno solo: que la persona le escriba por WhatsApp. Todo lo demás (diseño, copy, orden) existe para que eso sea fácil y creíble.
+
+## Antes de empezar
+1. Leé en el vault de Matías `proyectos/portfoliobellido.md` (decisiones y registro) y `aprendizajes/errores-de-claude-code.md`. Muchas de las reglas de abajo salieron de errores reales ahí anotados.
+2. Si el pedido toca copy, oferta o diseño, aplicá también `reutilizable/visual-design-system.md`, `reutilizable/persuasion-offer-copy-framework.md` y `reutilizable/legal-ux-master-guidelines.md` del vault.
+3. Si falta un dato (precio, condición, testimonio), no lo inventes: dejá el campo vacío con su texto de respaldo y preguntá. Si un pedido choca con una decisión anterior, preguntá con 2–3 opciones y una recomendada.
+
+## Mapa
+- `app/fitness/page.tsx`: componente de servidor. Detecta las fotos en `public/fitness/` y las pasa a la landing. No hay que tocar código para sumar fotos. Cada link lleva `?v=<fecha del archivo>`: next/image guarda las optimizadas 30 días por link, y sin eso una foto reemplazada con el mismo nombre se seguía viendo vieja.
+- `app/fitness/layout.tsx`: metadata de la ruta y precarga de la fuente de marca.
+- Fuente de marca: Cinzel servida desde `public/fitness/fonts/` con `@font-face "Bellido Cinzel"` en `fitness.css` (OFL 1.1). No vuelvas a `next/font` para esta fuente: el nombre con hash se desincronizó en el dev y "BELLIDO" salió en otra tipografía; Matías lo notó dos veces.
+- `app/fitness/fitness.css`: materiales (`.liquid-glass`, `.liquid-cta`, `.fit-surface`) y `.font-brand`.
+- `components/fitness/`: una sección por archivo. `FitnessLanding.tsx` fija el orden; `shared.tsx` tiene `BrandName`, `WhatsAppButton`, `SectionHeading`, `Reveal`, `FitnessSection`.
+- `context/LanguageContext.tsx`: todo el copy en `t.fitness`, bloques `es` y `en`. Si cambiás uno, cambiá el otro (voseo en español).
+- Fuente del contenido: `public/projects/Imagenes/Bellido-Asesoramientos-Fitness.pdf` (servicios, método, FAQ, afiliados, contacto). El PDF no tiene precios.
+
+## Reglas de diseño (y por qué)
+- **Un solo color de acción.** Todos los CTA son el mismo `WhatsAppButton` (vidrio teñido `.liquid-cta` + logo PNG). Si dos botones distintos compiten en la misma pantalla, la persona duda; repetir el mismo botón a lo largo de la página está bien.
+- **Liquid Glass solo en lo que se toca:** header y su menú, selector y tarjetas de planes, CTA. El resto va en `.fit-surface` (plano). Si todo es vidrio, nada se destaca. El vidrio lleva un tinte de base para que el texto encima tenga contraste aunque pase una foto clara detrás.
+- **Marca:** `BrandName` es el logotipo del portfolio: "BELLIDO" en Cinzel y "ASESORAMIENTOS" en Inter con las letras repartidas al mismo ancho. Cinzel se usa solo ahí; el texto corrido va en Inter. Máximo dos familias.
+- **Tamaños que dependen de la columna, no de la pantalla.** El hero usa una grilla de dos columnas: un `vw` puro deja el texto gigante en una columna angosta. Medí el texto en em con la fuente real cargada (`document.fonts.ready`) y calculá por breakpoint (ver el comentario del h1 en `FitnessHero.tsx`). El `overflow-wrap: break-word` global parte palabras que no entran.
+- **Escala de 4/8 px** (Tailwind 1, 2, 3, 4, 6, 8, 12, 16, 24), más aire entre secciones que dentro. Texto de párrafo en `text-fg-soft`, nunca negro puro sobre blanco.
+- **Movimiento:** solo `transform`/`opacity`; todo respeta `prefers-reduced-motion` (`MotionConfig reducedMotion="user"` y `motion-reduce:`). Lo que se mueve solo se pausa fuera de pantalla.
+- **Tema:** sin elección guardada, `/fitness` sigue `prefers-color-scheme`; el portfolio queda oscuro por defecto. Revisá siempre claro y oscuro.
+- **Header:** secciones centradas (grilla 1fr · auto · 1fr), píldora en la activa, puntos de progreso y barra de lectura. Si agregás o movés una sección, actualizá `SECTIONS_BY_LINK` en `FitnessHeader.tsx` y `nav.links` en el diccionario, en el orden de la página.
+
+## Reglas de copy
+- Habla de dolores concretos (meses sin progreso, sin plan, dietas que no se sostienen). Nada de "transformá tu vida", "tu mejor versión" ni "resultados garantizados".
+- Palabras claras antes que jerga del PDF: "asesoramiento personalizado 1 a 1" en vez de "P2P", "sesiones guiadas" en vez de "entrenamientos asesorados". Los nombres de los planes (Intensive Pack, Plan Black…) se respetan.
+- Packs = con sesiones guiadas por mes; Planes online = entrenás por tu cuenta. Cada plan muestra su diferencia en `highlight` antes de la lista. Sin "recomendado": el PDF no marca ninguno.
+- Las 4 certificaciones van textuales (`t.fitness.about.certs`): no agregar otras.
+- No publicar "atención 24 h". El teléfono no se repite en contacto (ya está detrás del botón); el email va como botón secundario chico.
+
+## Carrito y cobros
+- Se vende todo desde el carrito: packs y planes (pago mensual: el cobro es el primer mes), clases presenciales (por clase, se elige cuántas) e infoproductos (pago único). Estado en `components/fitness/cart.tsx`; panel y stepper en `FitnessCart.tsx`.
+- Botón y nombre fijados por Matías: "🛒 Agregar al carrito" y "Carrito". Total siempre a la vista, sin cuenta ni registro, "Quitar" en rojo, stepper Carrito → Pago → Formulario.
+- Cobro: transferencia por Mercado Pago a la cuenta de Matías (`MERCADO_PAGO` en `shared.tsx`: link, alias, CVU, titular). El QR (`public/fitness/mercadopago-qr.svg`) codifica el link. Si el link cambia, regenerá el QR y leelo con un decodificador (zxing) antes de publicarlo: un QR equivocado manda plata a otro lado.
+- No hay confirmación automática del pago: la persona toca "Ya pagué" y completa el formulario (`PURCHASE_FORM_URL`; vacío = pide el comprobante por WhatsApp). El carrito se guarda en `localStorage` (`bellido-fitness-cart-v1`): si la persona estaba pagando, al volver se abre en ese paso.
+- Precios en `t.fitness` como número en pesos (`formatARS` los muestra "$ 297.000"). Los ids de producto (`id`) son estables: no los cambies aunque cambie el nombre, o se pierden los carritos guardados.
+- Ventas online en Argentina: el pie lleva el "Botón de arrepentimiento" (Res. 424/2020). Faltan términos y condiciones: no los inventes, pedíselos a Matías.
+- Código de descuento (sección Afiliados, `FitnessOffers.tsx`): los códigos válidos están en `DISCOUNT_CODES` (`shared.tsx`; hoy `BELLIDO25OFF` = 25 %). Se restan solos del primer mes de planes y packs (lo mensual), no de clases presenciales ni infoproductos. Matías pidió que la página no diga el porcentaje: el carrito muestra "Descuento · CÓDIGO" y el monto en pesos, nunca "25 %". Un código inválido muestra error y no se guarda; uno inventado en `localStorage` se descarta al cargar. Ojo: el código está en el bundle y el repo es público.
+- "Afiliado": la persona escribe quién la recomendó. Ese nombre y el código viajan en el mensaje del comprobante por WhatsApp (`{extras}` en `receiptMessage`). Los textos que escribe la persona van con `fill()` (función de reemplazo), no con `.replace(str, str)`, para que un "$&" no se interprete.
+- CSS de la ruta: `fitness.css` carga después de Tailwind. Cualquier `position` u otra propiedad que choque con una utilidad va con especificidad 0 (`:where(...)`); un `position: relative` común dejó el carrito flotante en el flujo de la página.
+
+## Fotos
+- Portada: `public/fitness/portada*.jpg`. Quién soy: `public/fitness/quien-soy*.jpg` o `sobre-mi*.jpg`. Clientes: `public/fitness/clients/clientes N antes.jpg` y `clientes N despues.jpg` (también sirve `client-0N-before/after`). Se muestran solo los clientes con fotos.
+- Después de cambiar una foto de Matías, corré `node scripts/fitness-photos.mjs` (desde la raíz del repo): regenera la copia `-hd` (nitidez, contraste, JPEG 92 %) sin tocar el original. La página usa la `-hd` solo si es más nueva que el original, así que una vieja nunca tapa una foto nueva.
+- Antes de usar fotos nuevas, miralas (hoja de contacto con Pillow): encuadre, resolución y si se ve la cara de un cliente. Matías no quiere ninguna cara, y quiere ver el torso (no la cintura). Encuadre por cliente en `FitnessResults.tsx` (`PRE_CROPPED_CLIENTS`, `SAFE_FRAMING`, `FRAMING`): qué franja de cada foto se ve (de `start` a `end`, por separado para antes y después, así se alinean los torsos). Cliente 4: antes 17–100 %, después 13–81 %. Simulá la franja con Pillow antes de tocar el código. Casos:
+  - Fotos ya cortadas desde el cuello (clientes 1 y 3): van sin zoom. El 1 se cortó en el archivo (los originales con cara no van al repo, que es público).
+  - El resto (2 y 4): zoom de seguridad de 22 % anclado abajo, que recorta ~18 % de arriba. Un cliente nuevo cae acá por defecto.
+  Para decidir, marcá líneas al 10/20/30 % sobre la foto y medí hasta dónde llega el mentón; después capturá los dos extremos de la barra (Inicio/Fin con el teclado y el carrusel pausado) en desktop y mobile.
+- Resultados es un carrusel como el de Vibear (`.fit-marquee` en `fitness.css`): la lista dos veces, `translateX(-50%)` en loop. Se frena con el mouse, el foco o el dedo, se pausa fuera de pantalla y tiene botón de pausa (WCAG 2.2.2); con "reducir movimiento" es una fila deslizable. Solo el primer juego es accesible: las copias van `aria-hidden` y sin foco (`decorative`). En tests, pausalo antes de interactuar: Playwright espera elementos quietos.
+- Texto por cliente en `t.fitness.results.captions`, en el orden de los números de archivo: 16, 22, 12 y 28 semanas (clientes 1 a 4).
+- Fotos de clientes solo con consentimiento escrito; menores, nunca sin el de sus padres.
+
+## Fuera de /fitness: el modal "Mis Asesoramientos" (home)
+El botón "Propuesta" de la tarjeta Bellido Asesoramientos (`components/Projects.tsx`, primera de "Operaciones de negocio") abre un modal con dos tarjetas iguales (Fitness → `/fitness`, Educativos → PDF). Arriba de cada una, `components/AsesoramientoAnimation.tsx`: el MISMO personaje minimalista (line art blanco, acentos celestes) en las dos, con movimiento continuo. Matías rechazó los sprite sheets porque eran "fotos que cambian": quiere una persona que se mueve.
+- Esqueleto SVG con grupos anidados (hombro → codo, cadera → rodilla) y una línea de tiempo de poses (`SEQUENCES`) interpolada con easing; Framer Motion da el reloj (`useAnimationFrame`), la pausa fuera de pantalla (`useInView`) y "reducir movimiento" (quieto en la pose final). Cada cuadro escribe `transform` directo en el DOM.
+- Fitness: curl pesado (tiembla, transpira) → curl fácil → press en V → saca bíceps. Educativo: se agarra la cabeza → lamparita → escribe → festeja con el "A+".
+- Para cambiar una pose, mirá un loop entero en capturas (una cada ~0,3 s): las mancuernas no tienen que pisar la cara ni el torso.
+
+## Formulario después de pagar
+`PURCHASE_FORM_URL` (`shared.tsx`) es el link público de respuesta del Google Forms de Matías (`/viewform`). Nunca uses el link `/edit` que manda él: es el de edición y pide permisos.
+
+## Logos de botones
+`node .claude/skills/bellido-fitness/scripts/icon-png.cjs <slug> <color> <salida.png>` genera un PNG con fondo transparente (glifo de Simple Icons, CC0, en un círculo blanco), como `whatsapp-logo.png` y `gmail-logo.png`. Necesita Playwright (ver "Verificar").
+
+## Verificar (antes de dar algo por terminado)
+1. `npx tsc --noEmit` (el build ignora errores de TS).
+2. Mirá el log del `npm run dev`: solo cuentan las líneas posteriores a tu último cambio (los errores de un estado intermedio entre dos ediciones no son bugs).
+3. Nunca levantes un segundo `next dev` en esta carpeta mientras corre el de Matías: comparten `.next` y se desincroniza (los hashes de las clases de `next/font` dejan de coincidir y "BELLIDO" sale en Inter). Para probar producción, copiá el repo al scratchpad con un junction a `node_modules`, `next build` + `next start -p 3007` y corré el script con `BASE_URL=http://localhost:3007/fitness`. Al terminar: `cmd /c rmdir` del junction antes de borrar la copia.
+4. Playwright no está en este repo: usá el de otro proyecto con `PLAYWRIGHT_DIR=<carpeta node_modules con playwright y @axe-core/playwright> node .claude/skills/bellido-fitness/scripts/verify.cjs`. Chequea layout de 320 a 1920 px en claro, oscuro e inglés, contenido, WhatsApp, header, planes, comparadores, acordeón, tema y axe. Si cambiaste a propósito algo que el script cuenta (cantidad de links, planes, clientes, textos), actualizá esa aserción.
+5. Responsive de todo el sitio: `audit-responsive.cjs` (13 anchos, claro/oscuro, es/en, home y `/fitness`): scroll horizontal, elementos que se salen, texto cortado y zonas táctiles de menos de 24 px.
+6. Mirá las capturas por sección que deja el script, también las de blanco y negro. Los tests no ven el diseño.
+7. Registrá lo hecho en el vault (`proyectos/portfoliobellido.md`, nota diaria, errores y buenas prácticas).

@@ -49,6 +49,226 @@ type EducationItem = {
   longDesc: string;
 };
 
+/* ── Landing de /fitness (Bellido Asesoramientos) ──
+   Contenido tomado del PDF de la propuesta (public/projects/Imagenes/
+   Bellido-Asesoramientos-Fitness.pdf). Lo que el PDF no trae (precios,
+   datos de clientes) queda vacío y la página muestra un texto de respaldo. */
+type FitnessPlan = {
+  /** Identificador estable para el carrito (no cambiar aunque cambie el nombre) */
+  id: string;
+  name: string;
+  /** La diferencia principal del plan, en una línea (se muestra destacada) */
+  highlight: string;
+  /** Lo que incluye (contenido del PDF, con palabras claras) */
+  items: string[];
+  /** Precio en pesos argentinos, sin decimales. null → se muestra plans.priceFallback y no va al carrito */
+  price: number | null;
+};
+
+/* Textos del carrito y del pago con Mercado Pago (ver components/fitness/FitnessCart.tsx) */
+type FitnessCartDict = {
+  add: string;
+  inCart: string;
+  open: string;
+  title: string;
+  close: string;
+  steps: string[];
+  empty: string;
+  emptyCta: string;
+  remove: string;
+  less: string;
+  more: string;
+  total: string;
+  monthNote: string;
+  toPay: string;
+  payTitle: string;
+  payIntro: string;
+  payButton: string;
+  qrLabel: string;
+  aliasLabel: string;
+  cvuLabel: string;
+  nameLabel: string;
+  copy: string;
+  copied: string;
+  paid: string;
+  back: string;
+  doneTitle: string;
+  doneDesc: string;
+  formButton: string;
+  formPending: string;
+  receipt: string;
+  /** {items}, {total} y {extras} se reemplazan; va precargado en WhatsApp */
+  receiptMessage: string;
+  finish: string;
+  /* Código de descuento y quién recomendó (se cargan en la sección Afiliados).
+     El código se resta solo; el porcentaje no se muestra en ningún texto. */
+  codeLabel: string;
+  referrerLabel: string;
+  removeExtra: string;
+  subtotal: string;
+  discount: string;
+  /** Marca de las líneas mensuales a las que se aplicó el descuento */
+  discountChip: string;
+  /** El código está cargado pero no hay planes ni packs en el carrito */
+  codeNoPlans: string;
+  /** Se suman al mensaje del comprobante. Empiezan con un espacio. {code} / {name} */
+  extrasCode: string;
+  extrasReferrer: string;
+  units: { month: string; once: string };
+};
+
+type FitnessDict = {
+  /** Mensaje precargado de los botones generales de WhatsApp */
+  whatsappMessage: string;
+  nav: {
+    links: { id: string; label: string }[];
+    cta: string;
+    menu: string;
+    close: string;
+    home: string;
+  };
+  hero: {
+    tagline: string;
+    who: string;
+    /** El método en tres chips */
+    method: string[];
+    cta: string;
+    ctaSecondary: string;
+    photoAlt: string;
+    /** Las tres palabras del chip sobre la foto */
+    loop: string[];
+  };
+  audience: {
+    eyebrow: string;
+    title: string;
+    whoTitle: string;
+    who: string[];
+    problemsTitle: string;
+    problems: { title: string; desc: string }[];
+    closing: string;
+  };
+  about: {
+    eyebrow: string;
+    title: string;
+    paragraphs: string[];
+    photoAlt: string;
+    facts: { label: string; value: string }[];
+    certsTitle: string;
+    /** Textuales, "Entidad — Título". No agregar otras. */
+    certs: string[];
+  };
+  start: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    freeCall: string;
+    stepLabel: string;
+    steps: { title: string; desc: string; when: string }[];
+    cta: string;
+  };
+  method: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    items: { title: string; desc: string }[];
+    sheet: {
+      label: string;
+      note: string;
+      columns: string[];
+      rows: { exercise: string; values: string[] }[];
+    };
+  };
+  assimilation: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    monthLabel: string;
+    months: string[];
+  };
+  results: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    before: string;
+    after: string;
+    clientLabel: string;
+    pending: string;
+    /** Una por cliente, en el mismo orden que las fotos (client-01, client-02…). Vacía → no se muestra */
+    captions: string[];
+    disclaimer: string;
+    /** Cómo se usa el comparador (en tamaño de texto, no como etiqueta chica) */
+    hint: string;
+    /** Nombre del control para lectores de pantalla ("Cliente 01: …") */
+    compare: string;
+    /** El carrusel que se mueve solo: nombre para lectores de pantalla y botón de pausa */
+    carouselLabel: string;
+    pause: string;
+    play: string;
+  };
+  faq: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    groups: { title: string; items: { q: string; a: string }[] }[];
+  };
+  plans: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    tabsLabel: string;
+    priceFallback: string;
+    billing: string;
+    includes: string;
+    cta: string;
+    /** {plan} se reemplaza por el nombre del plan */
+    message: string;
+    /** label = nombre corto de la pestaña; sublabel = en qué se diferencia (en la pestaña) */
+    groups: { id: string; label: string; sublabel: string; desc: string; plans: FitnessPlan[] }[];
+    /** Clases presenciales: se compran por unidad (el carrito deja elegir cuántas) */
+    inPerson: { id: string; title: string; desc: string; price: number; unit: string; cta: string; message: string };
+  };
+  infoproducts: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    unit: string;
+    items: { id: string; title: string; price: number; items: string[] }[];
+  };
+  cart: FitnessCartDict;
+  affiliates: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    firstValue: string;
+    firstLabel: string;
+    afterValue: string;
+    afterLabel: string;
+    payout: string;
+    example: string;
+    cta: string;
+    message: string;
+    /** Dos bloques chicos: código de descuento y quién te recomendó. Quedan en el carrito. */
+    referral: {
+      code: { title: string; desc: string; label: string; placeholder: string; applied: string; invalid: string };
+      referrer: { title: string; desc: string; label: string; placeholder: string };
+      save: string;
+      saved: string;
+      clear: string;
+    };
+  };
+  contact: {
+    title: string;
+    desc: string;
+    cta: string;
+    freeCall: string;
+    /** Nombre del botón de email para lectores de pantalla (el visible es la dirección) */
+    emailLabel: string;
+    email: string;
+  };
+  /** withdrawal = "Botón de arrepentimiento" (Res. 424/2020, obligatorio en ventas online en Argentina) */
+  footer: { back: string; health: string; rights: string; withdrawal: string; withdrawalMessage: string };
+};
+
 type Dict = {
   nav: {
     home: string;
@@ -136,6 +356,7 @@ type Dict = {
       emailLine: string;
     };
   };
+  fitness: FitnessDict;
 };
 
 export const translations: Record<Lang, Dict> = {
@@ -427,6 +648,410 @@ export const translations: Record<Lang, Dict> = {
         emailLine: "Mi email:",
       },
     },
+
+    // ───────────────── LANDING /fitness (Bellido Asesoramientos) ─────────────────
+    // Fuente: PDF "Bellido Asesoramientos Fitness". Solo contenido de entrenamiento.
+    fitness: {
+      whatsappMessage: "Hola Matías, vi la página de Bellido Asesoramientos. Mi objetivo es: ",
+      nav: {
+        // En el orden de la página: el header marca en cuál estás y cuáles ya pasaste
+        links: [
+          { id: "sobre-mi", label: "Quién soy" },
+          { id: "empezar", label: "Cómo empezar" },
+          { id: "metodo", label: "Método" },
+          { id: "resultados", label: "Resultados" },
+          { id: "preguntas", label: "Preguntas" },
+          { id: "planes", label: "Planes" },
+        ],
+        cta: "Escribime",
+        menu: "Abrir menú",
+        close: "Cerrar menú",
+        home: "Ir al inicio de la página",
+      },
+      hero: {
+        tagline: "Entrenamiento con criterio real.",
+        who: "Para quienes quieren mejorar su composición corporal, su rendimiento o su técnica y no logran sostener el progreso.",
+        method: ["Mesociclos según tu progreso", "Alimentación sin prohibiciones", "Seguimiento por WhatsApp"],
+        cta: "Escribime por WhatsApp",
+        ctaSecondary: "Ver planes",
+        photoAlt: "Matías Bellido entrenando",
+        loop: ["Planificar", "Ajustar", "Progresar"],
+      },
+      audience: {
+        eyebrow: "Para quién es",
+        title: "Para quien entrena y no ve el progreso que busca.",
+        whoTitle: "Te sirve si querés",
+        who: ["Mejorar tu composición corporal", "Rendir más en cada entrenamiento", "Mejorar tu técnica", "Ser constante"],
+        problemsTitle: "Lo que suele frenar el progreso",
+        problems: [
+          { title: "Falta de planificación", desc: "Entrenás lo que sale ese día. Sin un plan por etapas, el cuerpo no tiene motivo para seguir adaptándose." },
+          { title: "Estancamiento", desc: "Las cargas y el espejo no se mueven hace meses, aunque no faltes al gimnasio." },
+          { title: "Dietas restrictivas", desc: "Planes que te prohíben todo, que dejás a las pocas semanas y te devuelven al punto de partida." },
+          { title: "Lesiones por mala técnica", desc: "Ejecuciones que nadie corrigió y que terminan en molestias o en lesiones que cortan la continuidad." },
+          { title: "Falta de seguimiento", desc: "Nadie te pregunta cómo te fue ni ajusta el plan cuando algo no funciona." },
+        ],
+        closing: "Por eso trabajo con un plan por etapas, que se ajusta a tu respuesta y que se sigue de cerca.",
+      },
+      about: {
+        eyebrow: "Quién soy",
+        title: "Empecé ayudando a otros a dar sus primeros pasos en el gimnasio.",
+        paragraphs: [
+          // Texto de Matías (2026-11-06), con tildes y erratas corregidas
+          "Soy Matías Bellido. En 2021 empecé a entrenar y me obsesioné con ganar músculo, verme bien y ser más fuerte. Entrené día tras día. Un año después, ya viendo resultados, iba al gimnasio y veía a chicos que recién arrancaban y me recordaban a mí cuando recién empezaba: con ganas, pero sin saber por dónde empezar.",
+          "El fitness me apasiona: llevar una buena alimentación y seguir rutinas en base a un objetivo. Eso me llevó a darles una mano: los ayudaba con sus primeras rutinas y a entender qué hacían y para qué.",
+          "Con el tiempo decidí especializarme en musculación, fuerza y distintos métodos de entrenamiento, para ayudar a personas a alcanzar su objetivo.",
+          "Hoy, junto a Bellido Asesoramientos, lidero un equipo que me ayuda a seguir de cerca a cada persona, en modalidad virtual o presencial.",
+        ],
+        photoAlt: "Matías Bellido",
+        facts: [
+          { label: "Entrenando desde", value: "2021" },
+          { label: "Con clientes desde", value: "2023" },
+          { label: "Modalidad", value: "Virtual o presencial" },
+        ],
+        certsTitle: "Certificaciones",
+        certs: [
+          "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
+          "IFBB — Strength and Power",
+          "IFBB — HIIT",
+          "ISSA — Certified Personal Trainer",
+        ],
+      },
+      start: {
+        eyebrow: "Cómo empezar",
+        title: "De este mensaje a tu primera sesión.",
+        intro: "Esto es lo que pasa después de que me escribís, paso por paso.",
+        freeCall: "Antes de decidir, si querés, charlamos gratis 1 a 1 sobre tu situación.",
+        stepLabel: "Paso",
+        steps: [
+          { title: "Formulario inicial", desc: "Te mando un formulario corto con tus datos, tu historial y tus horarios. Es el requisito para armar un plan hecho para vos.", when: "Apenas me escribís" },
+          { title: "Definimos tu objetivo", desc: "Con tus respuestas fijamos qué querés lograr y desde dónde arrancás: tu objetivo y tu estado físico actual.", when: "Con el formulario" },
+          { title: "Rutina y alimentación", desc: "Recibís tu rutina de entrenamiento y tu programa de alimentación personalizados.", when: "En unos 2 días" },
+          { title: "Seguimiento por WhatsApp", desc: "Cada vez que entrenás, alguien del equipo o yo te escribimos para saber cómo te fue y ajustar lo que haga falta.", when: "Después de cada entrenamiento" },
+        ],
+        cta: "Escribime por WhatsApp",
+      },
+      method: {
+        eyebrow: "Mi método",
+        title: "Planificado, medido y ajustado a tu respuesta.",
+        intro: "Antes de empezar es importante que entiendas cómo trabajo, para que no haya malentendidos.",
+        items: [
+          { title: "Mesociclos", desc: "Divido tu entrenamiento en bloques y ajusto el volumen y la intensidad según tu respuesta física y el análisis de tu progreso." },
+          { title: "Alimentación sin prohibiciones", desc: "No prohíbo ningún alimento: te informo y te aconsejo lo más favorable para tu situación. Si querés sumar algo que te gusta, lo incorporamos." },
+          { title: "Seguimiento por WhatsApp", desc: "Después de cada entrenamiento te escribimos para saber cómo te fue, mejorar tu rendimiento y que tengas ganas de seguir." },
+          { title: "Virtual, con honestidad", desc: "En la modalidad virtual es más difícil corregir la ejecución. Por eso podés escribirme cuando quieras y te mando un video que la explica." },
+        ],
+        sheet: {
+          label: "Ejemplo de un bloque",
+          note: "Ejemplo ilustrativo: así sube la carga semana a semana dentro de un mesociclo.",
+          columns: ["Ejercicio", "Sem 1", "Sem 2", "Sem 3", "Sem 4"],
+          rows: [
+            { exercise: "Sentadilla · kg", values: ["60", "62,5", "65", "67,5"] },
+            { exercise: "Remo · kg", values: ["40", "42,5", "42,5", "45"] },
+            { exercise: "Plancha · seg", values: ["30", "40", "45", "60"] },
+          ],
+        },
+      },
+      assimilation: {
+        eyebrow: "Asimilación del deportista",
+        title: "Tus primeros tres meses, etapa por etapa.",
+        intro: "El entrenamiento personal es un servicio de mediano o largo plazo. Así se organizan los primeros meses, para que sepas exactamente qué hacemos y por qué.",
+        monthLabel: "Mes",
+        months: [
+          "Entendemos tu objetivo y tu estado físico actual, y mejoramos la técnica de los ejercicios para que el progreso siguiente sea más eficiente y rápido.",
+          "Con tu situación más clara, detectamos tus puntos débiles para pulirlos, subimos las cargas y ajustamos tu dieta según tu rendimiento.",
+          "Empezamos a intercalar bloques de fuerza e hipertrofia para mejorar tu rendimiento y tu composición corporal, evitando el estancamiento y posibles lesiones.",
+        ],
+      },
+      results: {
+        eyebrow: "Resultados",
+        title: "Progresos de personas que entrenan conmigo.",
+        intro: "Fotos de antes y después de clientes, publicadas con su autorización.",
+        before: "Antes",
+        after: "Después",
+        clientLabel: "Cliente",
+        pending: "Foto pendiente",
+        // Tiempo del cambio de cada cliente (dato de Matías, 2026-11-06). Vacío = no se muestra.
+        captions: ["16 semanas", "22 semanas", "12 semanas", "28 semanas"],
+        disclaimer: "Fotos publicadas con autorización de cada persona. Los resultados dependen del punto de partida, la constancia y el tiempo de cada uno.",
+        hint: "Arrastrá la barra para comparar el antes y el después.",
+        compare: "comparar antes y después",
+        carouselLabel: "Resultados de clientes: antes y después",
+        pause: "Pausar el carrusel",
+        play: "Reanudar el carrusel",
+      },
+      faq: {
+        eyebrow: "Preguntas frecuentes",
+        title: "Lo que suelen preguntarme.",
+        intro: "Si algo no queda claro, preguntame las veces que sea necesario.",
+        groups: [
+          {
+            title: "Entrenamiento",
+            items: [
+              { q: "¿Qué hago si un ejercicio no me sale bien?", a: "Escribime y te mando un video explicativo para ayudarte." },
+              { q: "¿Y si no quiero o no puedo ir al gimnasio?", a: "Contame el motivo y te armo una rutina que se adapte a tus necesidades." },
+              { q: "¿Cuántos días por semana tengo que entrenar?", a: "Los decidís vos." },
+              { q: "¿Puedo preguntar todas las veces que quiera?", a: "Sí. Si algo no quedó claro, preguntame las veces que sea necesario." },
+            ],
+          },
+          {
+            title: "Alimentación",
+            items: [
+              { q: "¿Me vas a prohibir comidas o el alcohol?", a: "No. Te doy recomendaciones y seguirlas es tu decisión." },
+              { q: "¿La dieta puede incluir suplementos?", a: "Sí, si me lo pedís: armo tu dieta incluyendo la suplementación natural como recurso." },
+              { q: "¿Tengo comidas libres?", a: "Sí. No hay un número fijo: lo charlamos y vemos qué se alinea mejor con tus objetivos." },
+            ],
+          },
+        ],
+      },
+      plans: {
+        eyebrow: "Servicios",
+        title: "Elegí cómo querés entrenar.",
+        intro: "Hay dos formas de trabajar conmigo. Si querés entrenar acompañado, elegí un pack: suma sesiones guiadas cada mes. Si preferís entrenar por tu cuenta con un plan hecho para vos, elegí un plan online.",
+        tabsLabel: "Tipo de servicio",
+        priceFallback: "Consultá el valor",
+        billing: "por mes",
+        includes: "Incluye",
+        cta: "Consultar por WhatsApp",
+        message: "Hola Matías, me interesa el {plan}. Mi objetivo es: ",
+        groups: [
+          {
+            id: "packs",
+            label: "Packs",
+            sublabel: "Con sesiones guiadas",
+            desc: "Asesoramiento personalizado más sesiones de entrenamiento guiadas cada mes, virtuales o presenciales. Los packs se diferencian por la cantidad de sesiones.",
+            plans: [
+              {
+                id: "intensive",
+                name: "Intensive Pack",
+                highlight: "20 sesiones guiadas por mes",
+                price: 297000,
+                items: [
+                  "Asesoramiento personalizado 1 a 1",
+                  "Rutina de entrenamiento personalizada",
+                  "Programa de alimentación personalizado",
+                  "20 sesiones de entrenamiento guiadas, virtuales o presenciales",
+                  "Acceso anticipado a productos y servicios nuevos",
+                  "Videollamadas semanales (opcionales)",
+                  "Acompañamiento motivacional",
+                  "Recetario de regalo",
+                ],
+              },
+              {
+                id: "discipline",
+                name: "Discipline Pack",
+                highlight: "15 sesiones guiadas por mes",
+                price: 248000,
+                items: [
+                  "Asesoramiento personalizado 1 a 1",
+                  "Rutina de entrenamiento personalizada",
+                  "Programa de alimentación personalizado",
+                  "15 sesiones de entrenamiento guiadas, virtuales o presenciales",
+                  "Acceso anticipado a productos y servicios nuevos",
+                  "Videollamadas semanales (opcionales)",
+                  "Acompañamiento motivacional",
+                  "Recetario de regalo",
+                ],
+              },
+              {
+                id: "inicial",
+                name: "Inicial Pack",
+                highlight: "8 sesiones guiadas por mes",
+                price: 181000,
+                items: [
+                  "Asesoramiento personalizado 1 a 1",
+                  "8 sesiones de entrenamiento guiadas, virtuales o presenciales",
+                  "Rutina de entrenamiento y programa de alimentación personalizados",
+                ],
+              },
+            ],
+          },
+          {
+            id: "planes",
+            label: "Planes online",
+            sublabel: "Entrenás por tu cuenta",
+            desc: "Recibís tu plan personalizado y entrenás por tu cuenta, sin sesiones guiadas. Van del más completo al más simple.",
+            plans: [
+              {
+                id: "premium",
+                name: "Asesoramiento Premium",
+                highlight: "Videollamada semanal + 1 entrenamiento juntos por semana",
+                price: 36120,
+                items: [
+                  "Asesoramiento personalizado 1 a 1",
+                  "Rutina de entrenamiento personalizada",
+                  "Programa de alimentación personalizado",
+                  "Videollamadas semanales",
+                  "1 entrenamiento por semana juntos en mi gimnasio, si querés (no se acumula; sujeto a disponibilidad)",
+                  "Recetario de regalo",
+                  "5% de descuento al renovar el mes siguiente",
+                ],
+              },
+              {
+                id: "black",
+                name: "Asesoramiento Black",
+                highlight: "Rutina y alimentación + videollamada semanal",
+                price: 31730,
+                items: [
+                  "Asesoramiento personalizado 1 a 1",
+                  "Rutina de entrenamiento personalizada",
+                  "Programa de alimentación personalizado",
+                  "Videollamadas semanales",
+                  "Recetario de regalo",
+                  "2,3% de descuento al renovar el mes siguiente",
+                ],
+              },
+              {
+                id: "avanzado",
+                name: "Asesoramiento Avanzado",
+                highlight: "Rutina y alimentación personalizadas",
+                price: 29360,
+                items: [
+                  "Asesoramiento personalizado 1 a 1",
+                  "Rutina de entrenamiento personalizada",
+                  "Programa de alimentación personalizado",
+                  "Recetario de regalo",
+                ],
+              },
+              {
+                id: "rutina-alimentacion",
+                name: "Rutina y Programa de alimentación",
+                highlight: "Rutina o alimentación: elegís una",
+                price: 26770,
+                items: [
+                  "Asesoramiento personalizado 1 a 1",
+                  "Rutina de entrenamiento o programa de alimentación personalizado (elegís uno)",
+                  "Recetario de regalo",
+                ],
+              },
+              {
+                id: "rutinas-medida",
+                name: "Rutinas a medida",
+                highlight: "Rutina básica, la opción más económica",
+                price: 22180,
+                items: ["Rutina de entrenamiento básica según tu objetivo", "Asesoramiento personalizado 1 a 1"],
+              },
+            ],
+          },
+        ],
+        inPerson: {
+          id: "presencial",
+          title: "Entrenamiento asesorado presencial",
+          desc: "Clases 1 a 1 en el gimnasio. Sumá al carrito las que quieras o consultame por un pack de clases. Antes de empezar te paso los términos y condiciones.",
+          price: 17600,
+          unit: "por clase",
+          cta: "Consultar por un pack",
+          message: "Hola Matías, quiero consultar por un pack de clases presenciales.",
+        },
+      },
+      infoproducts: {
+        eyebrow: "Infoproductos",
+        title: "Material para entender lo que hacés.",
+        intro: "Guías para seguir aprendiendo por tu cuenta, entre sesión y sesión.",
+        unit: "pago único",
+        items: [
+          { id: "recetario", title: "Recetario", price: 15800, items: ["Más de 10 recetas saludables que te ayudan a ahorrar tiempo en la cocina"] },
+          { id: "anatomia", title: "Anatomía muscular", price: 24700, items: ["Biomecánica y tips de entrenamiento fundamentados por la ciencia para mejorar tus resultados"] },
+          {
+            id: "alimentacion",
+            title: "Alimentación saludable",
+            price: 24700,
+            items: ["Tips de alimentación y nutrición", "Teoría de suplementación", "Teoría científica", "Alteración hormonal por alimentación"],
+          },
+        ],
+      },
+      // Carrito: nombres y botón según la decisión de Matías ("Carrito", "🛒 Agregar al carrito")
+      cart: {
+        add: "🛒 Agregar al carrito",
+        inCart: "En el carrito · Ver",
+        open: "Ver carrito",
+        title: "Carrito",
+        close: "Cerrar carrito",
+        steps: ["Carrito", "Pago", "Formulario"],
+        empty: "Tu carrito está vacío.",
+        emptyCta: "Ver planes y packs",
+        remove: "Quitar",
+        less: "Una clase menos",
+        more: "Una clase más",
+        total: "Total",
+        monthNote: "Los planes y packs son mensuales: este pago es el primer mes.",
+        toPay: "Ir a pagar",
+        payTitle: "Pagá con Mercado Pago",
+        payIntro: "Transferí exactamente el total a Matías Rodrigo Bellido. Después volvé a esta página y tocá \"Ya pagué\".",
+        payButton: "Pagar con Mercado Pago",
+        qrLabel: "O escaneá el QR con la app de Mercado Pago",
+        aliasLabel: "Alias",
+        cvuLabel: "CVU",
+        nameLabel: "Titular",
+        copy: "Copiar",
+        copied: "Copiado",
+        paid: "Ya pagué",
+        back: "Volver al carrito",
+        doneTitle: "¡Gracias por tu compra!",
+        doneDesc: "Último paso: completá el formulario para que pueda armar tu plan y enviarte lo que compraste.",
+        formButton: "Completar el formulario",
+        formPending: "El formulario va a estar acá muy pronto. Mientras tanto, mandame el comprobante por WhatsApp y te lo paso.",
+        receipt: "Enviar comprobante por WhatsApp",
+        receiptMessage: "Hola Matías, ya pagué por Mercado Pago. Compré: {items}. Total: {total}.{extras} Te mando el comprobante.",
+        finish: "Terminar",
+        codeLabel: "Código de descuento",
+        referrerLabel: "Te recomendó",
+        removeExtra: "Quitar",
+        subtotal: "Subtotal",
+        discount: "Descuento",
+        discountChip: "Primer mes con descuento",
+        codeNoPlans: "El código se aplica a los planes y packs: agregá uno para usarlo.",
+        extrasCode: " Código de descuento: {code}.",
+        extrasReferrer: " Me recomendó: {name}.",
+        units: { month: "por mes", once: "pago único" },
+      },
+      affiliates: {
+        eyebrow: "Afiliados",
+        title: "Recomendá el servicio y llevate una comisión.",
+        intro: "Por cada persona que contrate el servicio online por tu recomendación, te llevás una parte del valor de su plan.",
+        firstValue: "25%",
+        firstLabel: "del valor del primer mes",
+        afterValue: "20%",
+        afterLabel: "de los meses siguientes, como ingreso residual",
+        payout: "Lo cobrás en tu cuenta o se descuenta de tu próximo pago, así el servicio te puede salir gratis.",
+        example: "Ejemplo: si recomendás un plan de $100, el primer mes te llevás $25.",
+        cta: "Quiero ser afiliado",
+        message: "Hola Matías, quiero sumarme al programa de afiliados de Bellido Asesoramientos.",
+        referral: {
+          code: {
+            title: "Código de descuento",
+            desc: "Si tenés un código, anotalo acá. Se descuenta solo de tu primer mes de plan o pack y lo ves reflejado en el carrito.",
+            label: "Tu código",
+            placeholder: "Escribilo acá",
+            applied: "Código aplicado",
+            invalid: "Ese código no es válido. Revisalo y probá de nuevo.",
+          },
+          referrer: {
+            title: "Afiliado",
+            desc: "¿Te recomendó alguien? Escribí su nombre y queda anotado junto a tu compra, así puedo reconocer su recomendación.",
+            label: "Nombre de quien te recomendó",
+            placeholder: "Nombre y apellido",
+          },
+          save: "Guardar",
+          saved: "Guardado en tu compra",
+          clear: "Quitar",
+        },
+      },
+      contact: {
+        title: "Contame tu objetivo y armamos tu punto de partida.",
+        desc: "Escribime por WhatsApp con tu situación. Te respondo con honestidad si te puedo ayudar y qué plan te conviene.",
+        cta: "Escribime por WhatsApp",
+        freeCall: "La primera charla 1 a 1 es gratis.",
+        emailLabel: "Escribir por email a rbellidomatias@gmail.com",
+        email: "rbellidomatias@gmail.com",
+      },
+      footer: {
+        back: "← Volver al portfolio",
+        health: "El entrenamiento no reemplaza la consulta médica. Si tenés una lesión o un dolor persistente, consultá primero con un profesional de la salud. Menores de 18 años, con autorización de un adulto responsable.",
+        rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
+        withdrawal: "Botón de arrepentimiento",
+        withdrawalMessage: "Hola Matías, quiero arrepentirme de mi compra (botón de arrepentimiento). Mi nombre es: ",
+      },
+    },
   },
 
   // ==========================================================================
@@ -705,6 +1330,391 @@ export const translations: Record<Lang, Dict> = {
         subject: "Inquiry from your portfolio",
         greeting: "Hi Matías,",
         emailLine: "My email:",
+      },
+    },
+
+    fitness: {
+      whatsappMessage: "Hi Matías, I saw the Bellido Asesoramientos page. My goal is: ",
+      nav: {
+        links: [
+          { id: "sobre-mi", label: "About" },
+          { id: "empezar", label: "How to start" },
+          { id: "metodo", label: "Method" },
+          { id: "resultados", label: "Results" },
+          { id: "preguntas", label: "FAQ" },
+          { id: "planes", label: "Plans" },
+        ],
+        cta: "Message me",
+        menu: "Open menu",
+        close: "Close menu",
+        home: "Go to the top of the page",
+      },
+      hero: {
+        tagline: "Training with real criteria.",
+        who: "For people who want to improve their body composition, performance or technique and can't keep their progress going.",
+        method: ["Mesocycles based on your progress", "No banned foods", "Follow-up on WhatsApp"],
+        cta: "Message me on WhatsApp",
+        ctaSecondary: "See plans",
+        photoAlt: "Matías Bellido training",
+        loop: ["Plan", "Adjust", "Progress"],
+      },
+      audience: {
+        eyebrow: "Who it's for",
+        title: "For people who train and don't see the progress they want.",
+        whoTitle: "It's for you if you want to",
+        who: ["Improve your body composition", "Perform better in every session", "Improve your technique", "Be consistent"],
+        problemsTitle: "What usually holds progress back",
+        problems: [
+          { title: "No planning", desc: "You train whatever comes up that day. Without a plan in stages, your body has no reason to keep adapting." },
+          { title: "Plateaus", desc: "Your loads and the mirror haven't moved in months, even though you never skip the gym." },
+          { title: "Restrictive diets", desc: "Plans that ban everything, that you drop after a few weeks and that take you back to square one." },
+          { title: "Injuries from poor technique", desc: "Form nobody corrected, ending in aches or injuries that break your consistency." },
+          { title: "No follow-up", desc: "Nobody asks how it went or adjusts the plan when something isn't working." },
+        ],
+        closing: "That's why I work with a plan in stages, adjusted to how you respond and followed closely.",
+      },
+      about: {
+        eyebrow: "About me",
+        title: "I started by helping others take their first steps at the gym.",
+        paragraphs: [
+          "I'm Matías Bellido. I started training in 2021 and got obsessed with building muscle, looking good and getting stronger. I trained day after day. A year later, already seeing results, I'd go to the gym and see guys who were just starting out and reminded me of myself when I began: motivated, but not knowing where to start.",
+          "I'm passionate about fitness: eating well and following routines built around a goal. That led me to give them a hand: I helped them with their first routines and with understanding what they were doing and why.",
+          "Over time I decided to specialize in bodybuilding, strength and different training methods, to help people reach their goals.",
+          "Today, with Bellido Asesoramientos, I lead a team that helps me follow each person closely, online or in person.",
+        ],
+        photoAlt: "Matías Bellido",
+        facts: [
+          { label: "Training since", value: "2021" },
+          { label: "Coaching clients since", value: "2023" },
+          { label: "Format", value: "Online or in person" },
+        ],
+        certsTitle: "Certifications",
+        certs: [
+          "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
+          "IFBB — Strength and Power",
+          "IFBB — HIIT",
+          "ISSA — Certified Personal Trainer",
+        ],
+      },
+      start: {
+        eyebrow: "How to start",
+        title: "From this message to your first session.",
+        intro: "This is what happens after you message me, step by step.",
+        freeCall: "Before you decide, we can have a free 1-on-1 call about your situation if you'd like.",
+        stepLabel: "Step",
+        steps: [
+          { title: "Intake form", desc: "I send you a short form with your details, your history and your schedule. It's what I need to build a plan made for you.", when: "Right after you message me" },
+          { title: "We set your goal", desc: "With your answers we define what you want to achieve and where you're starting from: your goal and your current fitness.", when: "With the form" },
+          { title: "Routine and nutrition", desc: "You get your personalized training routine and nutrition program.", when: "In about 2 days" },
+          { title: "Follow-up on WhatsApp", desc: "Every time you train, someone from the team or I message you to ask how it went and adjust whatever's needed.", when: "After every session" },
+        ],
+        cta: "Message me on WhatsApp",
+      },
+      method: {
+        eyebrow: "My method",
+        title: "Planned, measured and adjusted to how you respond.",
+        intro: "Before we start, it's important that you understand how I work, so there are no misunderstandings.",
+        items: [
+          { title: "Mesocycles", desc: "I split your training into blocks and adjust volume and intensity based on your physical response and the analysis of your progress." },
+          { title: "No banned foods", desc: "I don't ban any food: I inform you and advise what's best for your situation. If you want to add something you like, we work it in." },
+          { title: "Follow-up on WhatsApp", desc: "After every session we message you to ask how it went, improve your performance and keep you wanting to continue." },
+          { title: "Online, honestly", desc: "Online, correcting your form is harder. That's why you can message me anytime and I'll send you a video that explains it." },
+        ],
+        sheet: {
+          label: "Sample block",
+          note: "Illustrative example: this is how the load goes up week by week within a mesocycle.",
+          columns: ["Exercise", "Wk 1", "Wk 2", "Wk 3", "Wk 4"],
+          rows: [
+            { exercise: "Squat · kg", values: ["60", "62.5", "65", "67.5"] },
+            { exercise: "Row · kg", values: ["40", "42.5", "42.5", "45"] },
+            { exercise: "Plank · sec", values: ["30", "40", "45", "60"] },
+          ],
+        },
+      },
+      assimilation: {
+        eyebrow: "Athlete assimilation",
+        title: "Your first three months, stage by stage.",
+        intro: "Personal training is a medium to long-term service. This is how the first months are organized, so you know exactly what we do and why.",
+        monthLabel: "Month",
+        months: [
+          "We understand your goal and your current fitness, and improve your exercise technique so the progress that follows is more efficient and faster.",
+          "With your situation clearer, we spot your weak points to polish them, increase the loads and adjust your diet based on your performance.",
+          "We start alternating strength and hypertrophy blocks to improve your performance and body composition, avoiding plateaus and possible injuries.",
+        ],
+      },
+      results: {
+        eyebrow: "Results",
+        title: "Progress from people who train with me.",
+        intro: "Before and after photos from clients, published with their permission.",
+        before: "Before",
+        after: "After",
+        clientLabel: "Client",
+        pending: "Photo coming soon",
+        // How long each client's change took (from Matías, 2026-11-06). Empty = hidden.
+        captions: ["16 weeks", "22 weeks", "12 weeks", "28 weeks"],
+        disclaimer: "Photos published with each person's permission. Results depend on each person's starting point, consistency and time.",
+        hint: "Drag the bar to compare before and after.",
+        compare: "compare before and after",
+        carouselLabel: "Client results: before and after",
+        pause: "Pause the carousel",
+        play: "Resume the carousel",
+      },
+      faq: {
+        eyebrow: "FAQ",
+        title: "What people usually ask me.",
+        intro: "If something isn't clear, ask me as many times as you need.",
+        groups: [
+          {
+            title: "Training",
+            items: [
+              { q: "What if I can't get an exercise right?", a: "Message me and I'll send you an explanatory video to help you." },
+              { q: "What if I don't want to or can't go to the gym?", a: "Tell me why and I'll build a routine that fits your needs." },
+              { q: "How many days a week do I have to train?", a: "You decide." },
+              { q: "Can I ask as many questions as I want?", a: "Yes. If something wasn't clear, ask me as many times as you need." },
+            ],
+          },
+          {
+            title: "Nutrition",
+            items: [
+              { q: "Will you ban foods or alcohol?", a: "No. I give you recommendations, and following them is your decision." },
+              { q: "Can the diet include supplements?", a: "Yes, if you ask me: I build your diet including natural supplementation as a resource." },
+              { q: "Do I get cheat meals?", a: "Yes. There's no fixed number: we talk it through and see what fits your goals best." },
+            ],
+          },
+        ],
+      },
+      plans: {
+        eyebrow: "Services",
+        title: "Choose how you want to train.",
+        intro: "There are two ways to work with me. If you want to train with guidance, choose a pack: it adds guided sessions every month. If you'd rather train on your own with a plan made for you, choose an online plan.",
+        tabsLabel: "Service type",
+        priceFallback: "Ask for the price",
+        billing: "per month",
+        includes: "Includes",
+        cta: "Ask on WhatsApp",
+        message: "Hi Matías, I'm interested in the {plan}. My goal is: ",
+        groups: [
+          {
+            id: "packs",
+            label: "Packs",
+            sublabel: "With guided sessions",
+            desc: "Personalized coaching plus guided training sessions every month, online or in person. The packs differ in the number of sessions.",
+            plans: [
+              {
+                id: "intensive",
+                name: "Intensive Pack",
+                highlight: "20 guided sessions a month",
+                price: 297000,
+                items: [
+                  "Personalized 1-on-1 coaching",
+                  "Personalized training routine",
+                  "Personalized nutrition program",
+                  "20 guided training sessions, online or in person",
+                  "Early access to new products and services",
+                  "Weekly video calls (optional)",
+                  "Motivational support",
+                  "Free recipe book",
+                ],
+              },
+              {
+                id: "discipline",
+                name: "Discipline Pack",
+                highlight: "15 guided sessions a month",
+                price: 248000,
+                items: [
+                  "Personalized 1-on-1 coaching",
+                  "Personalized training routine",
+                  "Personalized nutrition program",
+                  "15 guided training sessions, online or in person",
+                  "Early access to new products and services",
+                  "Weekly video calls (optional)",
+                  "Motivational support",
+                  "Free recipe book",
+                ],
+              },
+              {
+                id: "inicial",
+                name: "Inicial Pack",
+                highlight: "8 guided sessions a month",
+                price: 181000,
+                items: [
+                  "Personalized 1-on-1 coaching",
+                  "8 guided training sessions, online or in person",
+                  "Personalized training routine and nutrition program",
+                ],
+              },
+            ],
+          },
+          {
+            id: "planes",
+            label: "Online plans",
+            sublabel: "You train on your own",
+            desc: "You get your personalized plan and train on your own, without guided sessions. They go from the most complete to the simplest.",
+            plans: [
+              {
+                id: "premium",
+                name: "Premium Coaching",
+                highlight: "Weekly video call + 1 session together a week",
+                price: 36120,
+                items: [
+                  "Personalized 1-on-1 coaching",
+                  "Personalized training routine",
+                  "Personalized nutrition program",
+                  "Weekly video calls",
+                  "1 session a week together at my gym, if you want (doesn't carry over; subject to availability)",
+                  "Free recipe book",
+                  "5% off when you renew for the next month",
+                ],
+              },
+              {
+                id: "black",
+                name: "Black Coaching",
+                highlight: "Routine and nutrition + weekly video call",
+                price: 31730,
+                items: [
+                  "Personalized 1-on-1 coaching",
+                  "Personalized training routine",
+                  "Personalized nutrition program",
+                  "Weekly video calls",
+                  "Free recipe book",
+                  "2.3% off when you renew for the next month",
+                ],
+              },
+              {
+                id: "avanzado",
+                name: "Advanced Coaching",
+                highlight: "Personalized routine and nutrition",
+                price: 29360,
+                items: ["Personalized 1-on-1 coaching", "Personalized training routine", "Personalized nutrition program", "Free recipe book"],
+              },
+              {
+                id: "rutina-alimentacion",
+                name: "Routine and Nutrition Program",
+                highlight: "Routine or nutrition: you choose one",
+                price: 26770,
+                items: ["Personalized 1-on-1 coaching", "Personalized training routine or nutrition program (you choose one)", "Free recipe book"],
+              },
+              {
+                id: "rutinas-medida",
+                name: "Custom Routines",
+                highlight: "Basic routine, the most affordable option",
+                price: 22180,
+                items: ["Basic training routine for your goal", "Personalized 1-on-1 coaching"],
+              },
+            ],
+          },
+        ],
+        inPerson: {
+          id: "presencial",
+          title: "In-person guided training",
+          desc: "1-on-1 sessions at the gym. Add as many as you want to the cart or ask me about a class pack. Before we start I'll send you the terms and conditions.",
+          price: 17600,
+          unit: "per session",
+          cta: "Ask about a pack",
+          message: "Hi Matías, I'd like to ask about a pack of in-person sessions.",
+        },
+      },
+      infoproducts: {
+        eyebrow: "Infoproducts",
+        title: "Material to understand what you're doing.",
+        intro: "Guides to keep learning on your own, between sessions.",
+        unit: "one-time payment",
+        items: [
+          { id: "recetario", title: "Recipe book", price: 15800, items: ["10+ healthy recipes that help you save time in the kitchen"] },
+          { id: "anatomia", title: "Muscle anatomy", price: 24700, items: ["Biomechanics and science-based training tips to improve your results"] },
+          { id: "alimentacion", title: "Healthy eating", price: 24700, items: ["Eating and nutrition tips", "Supplementation theory", "Scientific theory", "Hormonal changes from diet"] },
+        ],
+      },
+      cart: {
+        add: "🛒 Add to cart",
+        inCart: "In your cart · View",
+        open: "View cart",
+        title: "Cart",
+        close: "Close cart",
+        steps: ["Cart", "Payment", "Form"],
+        empty: "Your cart is empty.",
+        emptyCta: "See plans and packs",
+        remove: "Remove",
+        less: "One session less",
+        more: "One more session",
+        total: "Total",
+        monthNote: "Plans and packs are monthly: this payment covers the first month.",
+        toPay: "Go to payment",
+        payTitle: "Pay with Mercado Pago",
+        payIntro: "Transfer exactly the total to Matías Rodrigo Bellido. Then come back to this page and tap \"I've paid\".",
+        payButton: "Pay with Mercado Pago",
+        qrLabel: "Or scan the QR code with the Mercado Pago app",
+        aliasLabel: "Alias",
+        cvuLabel: "CVU",
+        nameLabel: "Account holder",
+        copy: "Copy",
+        copied: "Copied",
+        paid: "I've paid",
+        back: "Back to cart",
+        doneTitle: "Thanks for your purchase!",
+        doneDesc: "Last step: fill in the form so I can build your plan and send you what you bought.",
+        formButton: "Fill in the form",
+        formPending: "The form will be here very soon. Meanwhile, send me the receipt on WhatsApp and I'll pass it on.",
+        receipt: "Send receipt on WhatsApp",
+        receiptMessage: "Hi Matías, I've paid with Mercado Pago. I bought: {items}. Total: {total}.{extras} Sending you the receipt.",
+        finish: "Done",
+        codeLabel: "Discount code",
+        referrerLabel: "Recommended by",
+        removeExtra: "Remove",
+        subtotal: "Subtotal",
+        discount: "Discount",
+        discountChip: "First month discounted",
+        codeNoPlans: "The code applies to plans and packs: add one to use it.",
+        extrasCode: " Discount code: {code}.",
+        extrasReferrer: " Recommended by: {name}.",
+        units: { month: "per month", once: "one-time payment" },
+      },
+      affiliates: {
+        eyebrow: "Affiliates",
+        title: "Recommend the service and earn a commission.",
+        intro: "For every person who signs up for the online service on your recommendation, you get part of the price of their plan.",
+        firstValue: "25%",
+        firstLabel: "of the first month's price",
+        afterValue: "20%",
+        afterLabel: "of the following months, as residual income",
+        payout: "You get it paid into your account or taken off your next payment, so the service can end up free for you.",
+        example: "Example: if you recommend a $100 plan, you get $25 for the first month.",
+        cta: "I want to be an affiliate",
+        message: "Hi Matías, I'd like to join the Bellido Asesoramientos affiliate program.",
+        referral: {
+          code: {
+            title: "Discount code",
+            desc: "If you have a code, enter it here. It is taken off your first month of a plan or pack automatically, and you see it in your cart.",
+            label: "Your code",
+            placeholder: "Type it here",
+            applied: "Code applied",
+            invalid: "That code is not valid. Check it and try again.",
+          },
+          referrer: {
+            title: "Affiliate",
+            desc: "Did someone recommend this service to you? Write their name and it is noted with your purchase, so I can credit their recommendation.",
+            label: "Name of the person who recommended you",
+            placeholder: "First and last name",
+          },
+          save: "Save",
+          saved: "Saved with your purchase",
+          clear: "Remove",
+        },
+      },
+      contact: {
+        title: "Tell me your goal and we'll set your starting point.",
+        desc: "Message me on WhatsApp with your situation. I'll tell you honestly whether I can help and which plan fits you.",
+        cta: "Message me on WhatsApp",
+        freeCall: "The first 1-on-1 call is free.",
+        emailLabel: "Email rbellidomatias@gmail.com",
+        email: "rbellidomatias@gmail.com",
+      },
+      footer: {
+        back: "← Back to portfolio",
+        health: "Training does not replace medical advice. If you have an injury or persistent pain, check with a health professional first. Under 18: with permission from a parent or guardian.",
+        rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
+        withdrawal: "Cancel my purchase",
+        withdrawalMessage: "Hi Matías, I want to cancel my purchase (botón de arrepentimiento). My name is: ",
       },
     },
   },
