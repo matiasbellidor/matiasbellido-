@@ -162,6 +162,25 @@ button:active {
   transition: background 0.4s ease, border-color 0.3s ease;
 }
 
+/* Franja con la animación de cada tarjeta del modal "Mis Asesoramientos".
+   En el celular las dos tarjetas van una abajo de la otra: la franja se
+   achica según el alto de la pantalla para que entren las dos enteras y
+   ninguna quede con más peso que la otra (pedido de Matías).
+   92svh = el alto máximo del modal (svh: con las barras del navegador
+   visibles); 352px = todo lo que no es franja (título, textos, botones,
+   márgenes), medido en 375–412 px de ancho. Entre 72 y 160 px: en un
+   iPhone SE (553 px visibles) da ~78 y en un iPhone 14 (664) ~129.
+   Desde sm van lado a lado y la franja vuelve a 280px. */
+.service-band {
+  height: 280px;
+}
+@media (max-width: 639.98px) {
+  .service-band {
+    height: 112px; /* navegadores sin svh */
+    height: clamp(72px, calc((92svh - 352px) / 2), 160px);
+  }
+}
+
 /* Overlay detrás del modal: oscuro en dark, gris translúcido en
    light (para no tapar con negro puro sobre fondo claro). */
 .modal-overlay {

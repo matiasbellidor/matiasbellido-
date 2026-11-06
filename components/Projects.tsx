@@ -25,7 +25,7 @@ const ASESORAMIENTOS_EDUCATION_URL = "/projects/Imagenes/Bellido-Asesoramientos-
 const SERVICE_CARD =
   "group flex flex-col overflow-hidden rounded-2xl border border-cyan/30 bg-cyan/[0.05] text-center transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-cyan/70 hover:shadow-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
 const SERVICE_CTA =
-  "mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-electric px-5 py-2.5 text-sm font-semibold text-white transition-shadow group-hover:shadow-glow";
+  "mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-electric px-5 py-2 sm:py-2.5 text-sm font-semibold text-white transition-shadow group-hover:shadow-glow";
 
 // NexStock (BootCamp ITBA) — el botón "Propuesta" abre un modal con estos dos archivos
 const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
@@ -47,12 +47,17 @@ const ZIRA_REVIEW_URL = ""; // TODO: pegar la URL del post/review
 // en LanguageContext.tsx — el grid de esa categoría se reacomoda solo.
 // ============================================================================
 const digitalProjectsMeta = [
-  { id: "symbiosis", image: "/projects/Imagenes/symbiosis.webp", proposalUrl: "", comingSoon: true },
-  { id: "zira", image: "/projects/Imagenes/zira-cover.webp", proposalUrl: ZIRA_GITHUB_URL, links: { github: "", review: ZIRA_REVIEW_URL } },
-  { id: "oneiric", image: "/projects/Imagenes/OneiricAi.png", proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05060E" },
-  { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL },
-  { id: "nexstock", image: "/projects/Imagenes/NexStock.webp", proposalUrl: "", imageBg: "#FFFFFF" },
-  { id: "budgents", image: "/projects/Imagenes/agents.webp", proposalUrl: BUDGENTS_PROPOSAL_URL },
+  /* imageBg = el color del borde de cada imagen (promedio del 2 % de cada lado,
+     medido con Pillow el 2026-11-06), así las bandas que quedan alrededor
+     (tarjetas con object-contain, la vista ampliada, el halo del desenfoque)
+     se funden con la imagen. Si el borde cambia de arriba a abajo, va un
+     degradé con esos dos colores. Si cambiás una imagen, volvé a medirlo. */
+  { id: "symbiosis", image: "/projects/Imagenes/symbiosis.webp", proposalUrl: "", comingSoon: true, imageBg: "linear-gradient(#161b20, #020305)" },
+  { id: "zira", image: "/projects/Imagenes/zira-cover.webp", proposalUrl: ZIRA_GITHUB_URL, links: { github: "", review: ZIRA_REVIEW_URL }, imageBg: "#020203" },
+  { id: "oneiric", image: "/projects/Imagenes/OneiricAi.png", proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05091a" },
+  { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL, imageBg: "#edebe9" },
+  { id: "nexstock", image: "/projects/Imagenes/NexStock.webp", proposalUrl: "", imageBg: "#f6f8f8" },
+  { id: "budgents", image: "/projects/Imagenes/agents.webp", proposalUrl: BUDGENTS_PROPOSAL_URL, imageBg: "linear-gradient(#212327, #0d0e12)" },
 ];
 
 // Bellido Asesoramientos va primero (pedido de Matías, 2026-11-06)
@@ -280,7 +285,7 @@ export default function Projects() {
                   </button>
                 </div>
                 <div className="overflow-y-auto">
-                  <div className="relative w-full aspect-video max-h-[70vh] overflow-hidden flex items-center justify-center" style={{ backgroundColor: expandedProject.imageBg ?? "#000000" }}>
+                  <div className="relative w-full aspect-video max-h-[70vh] overflow-hidden flex items-center justify-center" style={{ background: expandedProject.imageBg ?? "#000000" }}>
                     <Image src={expandedProject.image} alt={expandedProject.title} fill quality={90} sizes="(max-width: 1024px) 100vw, 1024px" className="object-contain" priority />
                   </div>
                   <div className="p-6 md:p-12">
@@ -347,25 +352,27 @@ export default function Projects() {
         {canvaModalOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCanvaModalOpen(false)} className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm">
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} transition={{ type: "spring", duration: 0.5 }} onClick={(e) => e.stopPropagation()}
-              className="relative modal-surface rounded-2xl p-5 sm:p-8 max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-glow-lg">
+              className="relative modal-surface rounded-2xl p-4 sm:p-8 max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-glow-lg">
               <button onClick={() => setCanvaModalOpen(false)} aria-label={lang === "es" ? "Cerrar" : "Close"} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"><X className="w-5 h-5 text-fg-soft" /></button>
               {/* Opaco (modal-surface), no vidrio: sobre el fondo oscuro del overlay el vidrio
                   quedaba gris en tema claro y el texto oscuro no se leía. px-10: no choca con la X */}
-              <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 px-8 sm:px-10 text-cyan">{lang === "es" ? "Mis Asesoramientos" : "My Services"}</h3>
+              <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6 px-8 sm:px-10 text-cyan">{lang === "es" ? "Mis Asesoramientos" : "My Services"}</h3>
               {/* Dos tarjetas iguales y centradas (lado a lado desde sm). Arriba, una
                   franja oscura con la animación del mismo personaje en cada
                   servicio (AsesoramientoAnimation); abajo, nombre, bajada y
-                  botón. Se levantan y brillan con el hover. */}
-              <div className="grid gap-4 sm:grid-cols-2">
+                  botón. Se levantan y brillan con el hover. En el celular van una
+                  abajo de la otra, más compactas: la franja (.service-band en
+                  globals.css) se achica para que entren las dos en la pantalla. */}
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                 {/* Navegación interna (misma pestaña). Cierra el modal al salir
                     para que no quede el scroll trabado ni el Header oculto. */}
                 <Link href={ASESORAMIENTOS_FITNESS_PAGE} onClick={() => setCanvaModalOpen(false)} className={SERVICE_CARD}>
-                  <div aria-hidden="true" className="relative h-[240px] sm:h-[280px] overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
+                  <div aria-hidden="true" className="service-band relative overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
                     <AsesoramientoAnimation variant="fitness" className="absolute inset-0 h-full w-full" />
                   </div>
-                  <div className="flex flex-1 flex-col items-center px-5 pb-5 pt-4">
+                  <div className="flex flex-1 flex-col items-center px-5 pb-4 pt-3 sm:pb-5 sm:pt-4">
                     <p className="font-display text-lg sm:text-xl font-bold text-fg">{lang === "es" ? "Asesoramientos Fitness" : "Fitness Coaching"}</p>
-                    <p className="mt-1 mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver planes y cómo trabajo" : "See plans and how I work"}</p>
+                    <p className="mt-0.5 mb-3 sm:mt-1 sm:mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver planes y cómo trabajo" : "See plans and how I work"}</p>
                     <span className={SERVICE_CTA}>
                       {lang === "es" ? "Ver la página" : "Open the page"}
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
@@ -373,12 +380,12 @@ export default function Projects() {
                   </div>
                 </Link>
                 <a href={ASESORAMIENTOS_EDUCATION_URL} target="_blank" rel="noopener noreferrer" className={SERVICE_CARD}>
-                  <div aria-hidden="true" className="relative h-[240px] sm:h-[280px] overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
+                  <div aria-hidden="true" className="service-band relative overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
                     <AsesoramientoAnimation variant="educativo" className="absolute inset-0 h-full w-full" />
                   </div>
-                  <div className="flex flex-1 flex-col items-center px-5 pb-5 pt-4">
+                  <div className="flex flex-1 flex-col items-center px-5 pb-4 pt-3 sm:pb-5 sm:pt-4">
                     <p className="font-display text-lg sm:text-xl font-bold text-fg">{lang === "es" ? "Asesoramientos Educativos" : "Educational Tutoring"}</p>
-                    <p className="mt-1 mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
+                    <p className="mt-0.5 mb-3 sm:mt-1 sm:mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
                     <span className={SERVICE_CTA}>
                       {lang === "es" ? "Abrir la propuesta" : "Open the proposal"}
                       <ExternalLink className="w-4 h-4" aria-hidden="true" />
@@ -473,7 +480,7 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
 
       <div
         className="relative aspect-[16/9] overflow-hidden flex items-center justify-center"
-        style={{ backgroundColor: project.imageBg ?? "#000000" }}
+        style={{ background: project.imageBg ?? "#000000" }}
       >
         {/* sizes = ancho real de la tarjeta: carrusel 80vw, 2 columnas en md, 3 en lg */}
         {/* Coming soon (Symbiosis): logo desenfocado a propósito (6 px; antes
@@ -481,10 +488,10 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onN
             ribbon y el degradé quedan nítidos por encima */}
         <Image src={project.image} alt={project.title} fill quality={80} loading="lazy" sizes="(max-width: 767px) 80vw, (max-width: 1023px) 50vw, 33vw"
           className={`${containedImage ? "object-contain" : "object-cover"} ${project.comingSoon ? "blur-[6px]" : ""} transition-transform duration-700 group-hover:scale-105`} />
-        {/* El degradé oscuro solo tiene sentido sobre fondo oscuro (imágenes
-            cover). Sobre un imageBg claro se vería como una sombra gris fea,
-            así que lo omitimos cuando hay un fondo personalizado. */}
-        {!project.imageBg && (
+        {/* El degradé oscuro solo va sobre las imágenes que llenan el recuadro
+            (cover). Sobre las que van enteras (contain) con su color de fondo
+            se vería como una sombra gris fea. */}
+        {!containedImage && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         )}
       </div>

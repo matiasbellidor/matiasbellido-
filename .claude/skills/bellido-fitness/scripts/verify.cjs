@@ -190,8 +190,11 @@ async function overflow(page) {
     const atFaq = await spy("preguntas");
     const atContact = await spy("contacto");
     log(atMethod.current === "#metodo" && atMethod.done === 2, `en Método: activo ${atMethod.current}, ${atMethod.done} pasadas, barra ${atMethod.bar}`);
-    log(atFaq.current === "#preguntas" && atFaq.done === 4 && atFaq.bar > atMethod.bar, `en Preguntas: activo ${atFaq.current}, ${atFaq.done} pasadas, barra ${atFaq.bar}`);
-    log(atContact.current === "#planes" && atContact.bar > 0.9, `en Contacto: activo ${atContact.current}, barra ${atContact.bar}`);
+    // Preguntas va después de los precios (pedido de Matías): es el último link y el contacto cuenta como Preguntas
+    log(atFaq.current === "#preguntas" && atFaq.done === 5 && atFaq.bar > atMethod.bar, `en Preguntas: activo ${atFaq.current}, ${atFaq.done} pasadas, barra ${atFaq.bar}`);
+    log(atContact.current === "#preguntas" && atContact.bar > 0.9, `en Contacto: activo ${atContact.current}, barra ${atContact.bar}`);
+    const order = await page.evaluate(() => ["resultados", "planes", "infoproductos", "afiliados", "preguntas", "contacto"].map((id) => document.getElementById(id)?.getBoundingClientRect().top ?? NaN));
+    log(order.every((y, i) => i === 0 || y > order[i - 1]), `orden: resultados → planes → infoproductos → afiliados → preguntas → contacto (${order.map(Math.round).join(" < ")})`);
     await page.evaluate(() => scrollTo({ top: document.getElementById("resultados").offsetTop, behavior: "instant" }));
     await page.waitForTimeout(600);
     await page.locator("header").screenshot({ path: path.join(OUT, "header-progreso-1280.png") });
@@ -398,6 +401,30 @@ async function overflow(page) {
       withdrawal: !!document.querySelector("footer a[href*='wa.me'][href*='arrepent']"),
     }));
     log(!c.trial && c.about && c.faq && c.crop && c.withdrawal, `contenido: ${JSON.stringify(c)}`);
+    await ctx.close();
+  }
+
+  // 6c-bis) Pie de página: centrado en el celular (pedido de Matías), en fila desde md
+  for (const width of [320, 375, 768, 1280]) {
+    const { ctx, page } = await open(browser, { width });
+    await page.locator("footer").last().scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+    const f = await page.evaluate(() => {
+      const foot = [...document.querySelectorAll("footer")].pop();
+      const box = foot.firstElementChild.getBoundingClientRect();
+      const mid = box.left + box.width / 2;
+      // La marca (logo + nombre) y el link se miden por su caja; los textos, por el texto
+      // (un <p> ocupa todo el ancho aunque el texto esté a la izquierda)
+      const boxes = [foot.querySelector("img").parentElement, foot.querySelector("a[href='/']")];
+      const texts = [...foot.querySelectorAll(":scope > div > p, :scope > div > a[href*='wa.me']")];
+      return [...boxes.map((el) => el.getBoundingClientRect()), ...texts.map((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return range.getBoundingClientRect();
+      })].map((t) => ({ off: Math.round(t.left + t.width / 2 - mid) }));
+    });
+    const centered = f.every((x) => Math.abs(x.off) <= 2);
+    log(width < 768 ? centered : !centered, `pie a ${width}px: ${width < 768 ? "centrado" : "en fila"} (desvíos ${f.map((x) => x.off).join(", ")})`);
     await ctx.close();
   }
 

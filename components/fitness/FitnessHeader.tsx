@@ -17,8 +17,8 @@ const SECTIONS_BY_LINK: Record<string, string[]> = {
   empezar: ["empezar"],
   metodo: ["metodo", "asimilacion"],
   resultados: ["resultados"],
-  preguntas: ["preguntas"],
-  planes: ["planes", "infoproductos", "afiliados", "contacto"],
+  planes: ["planes", "infoproductos", "afiliados"],
+  preguntas: ["preguntas", "contacto"],
 };
 
 /* Header flotante en Liquid Glass. Desktop (lg+): logo a la izquierda,

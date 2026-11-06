@@ -26,7 +26,10 @@ const PROFILE_PHOTO = "/projects/Imagenes/profile.webp";
 /* Landing de /fitness (Bellido Asesoramientos), 100 % entrenamiento.
    Orden: propuesta de valor (hero, para quién, quién soy) y después la
    estructura del PDF: cómo empezar, método, asimilación, (resultados),
-   preguntas, servicios, infoproductos, afiliados y contacto.
+   servicios con precios, infoproductos, afiliados, preguntas y contacto.
+   Las preguntas van DESPUÉS de los precios (pedido de Matías: el objetivo
+   es que compre): primero ve la oferta y, justo antes del contacto, se le
+   resuelven las dudas que le quedan.
    MotionConfig "user": con "reducir movimiento" Framer saca los
    desplazamientos y deja solo los fundidos. */
 export default function FitnessLanding({ assets }: { assets: FitnessAssets }) {
@@ -73,10 +76,10 @@ export default function FitnessLanding({ assets }: { assets: FitnessAssets }) {
           <FitnessMethod />
           <FitnessAssimilation />
           <FitnessResults clients={assets.clients} />
-          <FitnessFaq />
           <FitnessPlans />
           <FitnessInfoproducts />
           <FitnessAffiliates />
+          <FitnessFaq />
           <FitnessFinalCta />
         </div>
         {/* Carrito: botón flotante + panel de compra con Mercado Pago */}

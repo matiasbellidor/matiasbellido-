@@ -46,20 +46,23 @@ export default function FitnessFinalCta() {
         </Reveal>
       </section>
 
+      {/* Pie: centrado en el celular (pedido de Matías); desde md, la marca a
+          la izquierda y la vuelta al portfolio a la derecha, con los textos
+          alineados a la izquierda */}
       <footer className="px-4 sm:px-6 md:px-16 pb-12">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto text-center md:text-left">
           <div className="h-px bg-gradient-to-r from-transparent via-cyan/40 to-transparent" />
-          <div className="pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="pt-8 flex flex-col items-center md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
             <div className="flex items-center gap-3">
               <Image src={logo} alt="" width={32} height={32} className="w-8 h-8 object-contain" />
               <BrandName className="text-[1.75rem]" sub={0.38} />
             </div>
             {/* min-h-11: 44 px de zona táctil (en el celular medía 20 px de alto) */}
-            <Link href="/" className="fit-focus inline-flex min-h-11 items-center rounded text-sm font-medium text-cyan hover:underline underline-offset-4 self-start md:self-center">
+            <Link href="/" className="fit-focus inline-flex min-h-11 items-center rounded text-sm font-medium text-cyan hover:underline underline-offset-4">
               {f.footer.back}
             </Link>
           </div>
-          <p className="mt-6 text-sm text-fg-soft">{f.footer.rights}</p>
+          <p className="mt-4 md:mt-6 text-sm text-fg-soft">{f.footer.rights}</p>
           {/* Botón de arrepentimiento (Res. 424/2020): obligatorio en ventas
               online en Argentina; abre WhatsApp con el pedido precargado */}
           <a
@@ -70,7 +73,7 @@ export default function FitnessFinalCta() {
           >
             {f.footer.withdrawal}
           </a>
-          <p className="mt-4 text-xs text-fg-muted leading-relaxed max-w-3xl">{f.footer.health}</p>
+          <p className="mt-4 text-xs text-fg-muted leading-relaxed max-w-3xl mx-auto md:mx-0">{f.footer.health}</p>
         </div>
       </footer>
     </>
