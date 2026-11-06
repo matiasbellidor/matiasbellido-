@@ -28,7 +28,7 @@ Landing de entrenamiento personal de Matías dentro del portfolio. El objetivo d
 - **Tamaños que dependen de la columna, no de la pantalla.** El hero usa una grilla de dos columnas: un `vw` puro deja el texto gigante en una columna angosta. Medí el texto en em con la fuente real cargada (`document.fonts.ready`) y calculá por breakpoint (ver el comentario del h1 en `FitnessHero.tsx`). El `overflow-wrap: break-word` global parte palabras que no entran.
 - **Escala de 4/8 px** (Tailwind 1, 2, 3, 4, 6, 8, 12, 16, 24), más aire entre secciones que dentro. Texto de párrafo en `text-fg-soft`, nunca negro puro sobre blanco.
 - **Movimiento:** solo `transform`/`opacity`; todo respeta `prefers-reduced-motion` (`MotionConfig reducedMotion="user"` y `motion-reduce:`). Lo que se mueve solo se pausa fuera de pantalla.
-- **Tema:** sin elección guardada, `/fitness` sigue `prefers-color-scheme`; el portfolio queda oscuro por defecto. Revisá siempre claro y oscuro.
+- **Tema:** `/fitness` es SIEMPRE oscuro (pedido de Matías, 2026-11-06: en claro, sobre todo en el celular, se veía raro), aunque el sistema o el tema guardado sean claros. Lo fuerzan el script del `<head>` en `app/layout.tsx` y un efecto en `FitnessLanding.tsx` (que al salir restaura el tema guardado; el portfolio sigue con su botón claro/oscuro). Ya no hay que revisar `/fitness` en claro; los estilos `html:not(.dark)` de `fitness.css` quedan sin uso.
 - **Header:** secciones centradas (grilla 1fr · auto · 1fr), píldora en la activa, puntos de progreso y barra de lectura. Si agregás o movés una sección, actualizá `SECTIONS_BY_LINK` en `FitnessHeader.tsx` y `nav.links` en el diccionario, en el orden de la página.
 
 ## Reglas de copy

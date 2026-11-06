@@ -592,11 +592,37 @@ async function overflow(page) {
     await ctx.close();
   }
 
-  // 8) Tema: sin elección guardada sigue al sistema; con elección guardada, la respeta
-  for (const [colorScheme, saveTheme, theme, expectDark] of [["light", false, "dark", false], ["dark", false, "dark", true], ["light", true, "dark", true]]) {
-    const { ctx, page } = await open(browser, { colorScheme, saveTheme, theme });
+  // 8) Tema: /fitness es SIEMPRE oscuro (pedido de Matías), con tema del sistema claro, guardado claro o sin guardar
+  for (const [colorScheme, saveTheme, theme] of [["light", false, "dark"], ["dark", false, "dark"], ["light", true, "light"], ["light", true, "dark"]]) {
+    const { ctx, page } = await open(browser, { colorScheme, saveTheme, theme, width: 375 });
     const dark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
-    log(dark === expectDark, `tema: sistema=${colorScheme}, guardado=${saveTheme ? theme : "no"} → ${dark ? "oscuro" : "claro"}`);
+    log(dark, `tema: sistema=${colorScheme}, guardado=${saveTheme ? theme : "no"} → ${dark ? "oscuro" : "CLARO (mal)"}`);
+    await ctx.close();
+  }
+  {
+    // Desde el portfolio en claro, entrar a /fitness con el link del modal (<Link>, sin recargar) deja oscuro,
+    // y al volver con "Volver al portfolio" se restaura el tema claro guardado
+    const home = BASE.replace(/\/fitness\/?$/, "/");
+    const { ctx, page } = await open(browser, { width: 1280, url: home, theme: "light", colorScheme: "light" });
+    const isDark = () => page.evaluate(() => document.documentElement.classList.contains("dark"));
+    const homeLight = !(await isDark());
+    for (let i = 0; i < 3; i++) {
+      try {
+        const card = page.locator("article", { hasText: "Asesoramientos" }).last();
+        await card.scrollIntoViewIfNeeded({ timeout: 5000 });
+        await card.getByRole("button", { name: /Propuesta/ }).click({ timeout: 5000 });
+        break;
+      } catch (e) { if (i === 2) throw e; await page.waitForTimeout(800); }
+    }
+    await page.getByRole("link", { name: /Asesoramientos Fitness/ }).click();
+    await page.waitForURL(/\/fitness/);
+    await page.waitForTimeout(700);
+    const fitDark = await isDark();
+    await page.getByRole("link", { name: /Volver al portfolio/ }).click();
+    await page.waitForURL((u) => !/\/fitness/.test(u.pathname));
+    await page.waitForTimeout(900);
+    const backLight = !(await isDark());
+    log(homeLight && fitDark && backLight, `tema: portfolio claro (${homeLight}) → /fitness oscuro (${fitDark}) → vuelve claro (${backLight})`);
     await ctx.close();
   }
 

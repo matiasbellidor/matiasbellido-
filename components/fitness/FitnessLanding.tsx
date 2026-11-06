@@ -36,22 +36,23 @@ export default function FitnessLanding({ assets }: { assets: FitnessAssets }) {
   const heroPhoto = assets.hero ?? PROFILE_PHOTO;
   const aboutPhoto = assets.about ?? (assets.hero ? PROFILE_PHOTO : null);
 
-  /* Sin tema guardado, /fitness sigue al sistema y cambia en vivo si el
-     usuario cambia el modo del sistema (el script del layout raíz ya lo
-     aplica antes del primer paint; acá cubre la navegación con <Link>). */
+  /* /fitness es siempre oscuro, sin importar el tema guardado ni el del
+     sistema (en claro se veía raro, sobre todo en el celular). El script del
+     layout raíz ya lo aplica antes del primer paint; acá cubre la navegación
+     con <Link> desde el portfolio (que puede estar en claro). Al salir se
+     restaura el tema guardado; el Header del portfolio también lo hace al
+     montarse, así que no hay parpadeo al volver. */
   useEffect(() => {
-    let saved: string | null = null;
-    try {
-      saved = localStorage.getItem("theme");
-    } catch {
-      /* storage bloqueado: seguimos al sistema */
-    }
-    if (saved) return;
-    const mq = window.matchMedia("(prefers-color-scheme: light)");
-    const apply = () => document.documentElement.classList.toggle("dark", !mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
+    document.documentElement.classList.add("dark");
+    return () => {
+      let saved: string | null = null;
+      try {
+        saved = localStorage.getItem("theme");
+      } catch {
+        /* storage bloqueado: oscuro, el valor por defecto */
+      }
+      document.documentElement.classList.toggle("dark", saved !== "light");
+    };
   }, []);
 
   return (
