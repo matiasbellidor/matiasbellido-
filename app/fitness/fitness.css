@@ -192,8 +192,10 @@ html:not(.dark) .fit-surface {
 
 /* ── Carrusel de resultados (mismo mecanismo que el .marquee de Vibear) ──
    La lista va dos veces dentro de la pista: al llegar a -50 % está donde
-   empezó. Se pausa con data-playing="false" (mouse encima, foco, toque,
-   fuera de pantalla o el botón de pausa). Con "reducir movimiento" no hay
+   empezó. Con el mouse encima va más lento (updatePlaybackRate desde
+   FitnessResults.tsx, no se frena). Se pausa con data-playing="false"
+   (tarjeta apretada con el dedo o el mouse, foco de teclado, fuera de
+   pantalla o el botón de pausa). Con "reducir movimiento" no hay
    animación: es una fila que se desliza con el dedo y solo se ve el primer juego. */
 .fit-marquee-wrap {
   overflow-x: hidden;

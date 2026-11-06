@@ -97,9 +97,13 @@ export default function FitnessResults({ clients }: { clients: FitnessAssets["cl
 /* Carrusel como el de Vibear (.marquee): los comparadores corren solos de
    derecha a izquierda en loop. La lista está dos veces, así que -50 % cae
    donde empezó; cada "copia" se repite hasta pasar los 1800 px para que
-   nunca quede un hueco. Se frena (pausa) con el mouse encima, mientras un
-   dedo está apoyado (al soltarlo sigue en el acto), con el foco de TECLADO
-   adentro y fuera de pantalla; hay un botón de pausa (WCAG 2.2.2).
+   nunca quede un hueco. Con el mouse encima NO se frena: sigue más lento
+   (HOVER_RATE, como el .marquee de Vibear; pedido de Matías), con
+   updatePlaybackRate, que cambia la velocidad sin saltar de posición. Se
+   frena (pausa) mientras un dedo o el mouse aprietan una tarjeta (para
+   arrastrar la barra sin que se corra; al soltar sigue en el acto), con el
+   foco de TECLADO adentro y fuera de pantalla; hay un botón de pausa
+   (WCAG 2.2.2).
    Ojo: tocar la manija con el dedo también le da foco, y en el celular ese
    foco no se va nunca; por eso el foco que llega justo después de un toque
    o clic NO pausa (antes el carrusel quedaba frenado para siempre).
@@ -108,7 +112,9 @@ export default function FitnessResults({ clients }: { clients: FitnessAssets["cl
    foco. Las animaciones están en fitness.css. */
 const CARD_PX = 364; // 340 de tarjeta + 24 de separación (desde md)
 const MIN_COPY_PX = 1800;
-const SPEED_PX_S = 35;
+const SPEED_PX_S = 55; // antes 35; Matías lo pidió más rápido (2026-11-06)
+/* Con el mouse encima va al 40 % de la velocidad (Vibear usa 0,3) */
+const HOVER_RATE = 0.4;
 /* Un foco que llega hasta 800 ms después de tocar o hacer clic vino del puntero, no del teclado */
 const POINTER_FOCUS_MS = 800;
 
@@ -116,11 +122,12 @@ function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
   const { t } = useLanguage();
   const r = t.fitness.results;
   const wrapRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const lastPointer = useRef(-Infinity);
   const [userPaused, setUserPaused] = useState(false);
   const [hover, setHover] = useState(false);
   const [focused, setFocused] = useState(false);
-  const [touching, setTouching] = useState(false);
+  const [holding, setHolding] = useState(false);
   const [inView, setInView] = useState(true);
 
   useEffect(() => {
@@ -133,17 +140,22 @@ function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
 
   const repeats = Math.max(1, Math.ceil(MIN_COPY_PX / (clients.length * CARD_PX)));
   const style = { "--marquee": `${Math.round((clients.length * repeats * CARD_PX) / SPEED_PX_S)}s` } as CSSProperties;
-  const playing = !userPaused && !hover && !focused && !touching && inView;
+  const playing = !userPaused && !focused && !holding && inView;
 
-  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+  // Mouse encima: más lento, sin frenar ni saltar (la animación CSS sigue en el compositor)
+  useEffect(() => {
+    for (const anim of listRef.current?.getAnimations() ?? []) {
+      if ((anim as CSSAnimation).animationName === "fit-marquee") anim.updatePlaybackRate(hover ? HOVER_RATE : 1);
+    }
+  }, [hover]);
+
+  // Apretar una tarjeta (dedo o mouse) la frena para arrastrar la barra sin que se corra
+  const onPointerDown = () => {
     lastPointer.current = performance.now();
-    if (e.pointerType === "mouse") return; // con mouse ya está en pausa por el hover
-    setTouching(true);
+    setHolding(true);
   };
-  // Al soltar el dedo sigue en el acto (pedido de Matías: que nunca quede frenado)
-  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "mouse") setTouching(false);
-  };
+  // Al soltar sigue en el acto (pedido de Matías: que nunca quede frenado)
+  const onPointerUp = () => setHolding(false);
 
   const renderSet = (copy: number) =>
     Array.from({ length: repeats }, (_, rep) =>
@@ -203,7 +215,7 @@ function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
         }}
         className="fit-marquee-wrap fit-marquee-fade mx-auto max-w-[1800px]"
       >
-        <div role="list" className="fit-marquee flex w-max" style={style}>
+        <div ref={listRef} role="list" className="fit-marquee flex w-max" style={style}>
           {renderSet(0)}
           <div className="fit-marquee-dup flex" aria-hidden="true">
             {renderSet(1)}

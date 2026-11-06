@@ -259,16 +259,25 @@ async function overflow(page) {
     const wrap = await page.$eval(".fit-marquee-wrap", (e) => { const r = e.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right), vw: document.documentElement.clientWidth }; });
     log(wrap.left <= 1 && wrap.right >= wrap.vw - 1, `el carrusel va de borde a borde: ${JSON.stringify(wrap)}`);
     // Arrastrar: mientras se sostiene, la barra está donde está el mouse; al soltar vuelve sola al recorrido
-    const sl = page.locator("#resultados [role='slider']").first().locator("xpath=ancestor::div[contains(@class,'aspect-[4/5]')][1]");
-    const sb = await sl.boundingBox();
-    await page.mouse.move(sb.x + sb.width * 0.5, sb.y + sb.height * 0.6);
+    // (el carrusel se mueve, también con el mouse encima: se toma la tarjeta más cerca del centro
+    // y se mide de nuevo después de apretar, que es cuando se frena)
+    await page.evaluate(() => {
+      const frames = [...document.querySelectorAll("#resultados [role='slider']")].map((k) => k.closest("[class*='aspect-[4/5]']"));
+      const mid = (f) => Math.abs(f.getBoundingClientRect().left + f.getBoundingClientRect().width / 2 - innerWidth / 2);
+      frames.sort((a, b) => mid(a) - mid(b))[0].id = "arrastre";
+    });
+    const sl = page.locator("#arrastre");
+    const barAt = () => sl.evaluate((e) => Math.round(+e.style.getPropertyValue("--pos")));
+    const sb0 = await sl.boundingBox();
+    await page.mouse.move(sb0.x + sb0.width * 0.5, sb0.y + sb0.height * 0.6);
     await page.mouse.down();
+    const sb = await sl.boundingBox();
     await page.mouse.move(sb.x + sb.width * 0.2, sb.y + sb.height * 0.6, { steps: 6 });
     await page.waitForTimeout(600);
-    const d1 = (await pos())[0];
+    const d1 = await barAt();
     await page.mouse.up();
     await page.waitForTimeout(1200);
-    const d2 = (await pos())[0];
+    const d2 = await barAt();
     log(Math.abs(d1 - 20) <= 2 && Math.abs(d2 - d1) > 3, `arrastre: barra en ${d1}% mientras se sostiene y al soltar vuelve a moverse sola (${d2}%)`);
     // Teclado: la flecha la mueve 5 y queda ahí hasta que el foco sale; después vuelve al recorrido
     await page.locator("#resultados [role='slider']").first().focus();
@@ -446,12 +455,34 @@ async function overflow(page) {
     log(await moves(), "carrusel: se mueve solo");
     log((await page.getByRole("slider").count()) === 4, "carrusel: 4 sliders accesibles, uno por cliente (las copias no son controles)");
     log((await page.$$eval(".fit-marquee [aria-hidden='true'] [tabindex], .fit-marquee [aria-hidden='true'][tabindex]", (e) => e.length)) === 0, "carrusel: sin foco dentro de las copias aria-hidden");
+    // Velocidad de la pista en px/s (mide 1 s; si justo dio la vuelta, vuelve a medir)
+    const speed = async () => {
+      const x = () => page.$eval(".fit-marquee", (e) => new DOMMatrix(getComputedStyle(e).transform).m41);
+      for (let i = 0; i < 3; i++) {
+        const a = await x();
+        await page.waitForTimeout(1000);
+        const b = await x();
+        if (b <= a) return Math.round(a - b);
+      }
+      return 0;
+    };
+    const free = await speed();
+    log(free >= 45 && free <= 70, `carrusel: va a ~55 px/s (más rápido que antes, 35): ${free} px/s`);
     await page.mouse.move(640, 480);
     await page.waitForTimeout(400);
-    log(!(await moves()), "carrusel: se frena con el mouse encima");
+    const slow = await speed();
+    log(slow >= 8 && slow <= free * 0.6, `carrusel: con el mouse encima sigue, más lento: ${slow} px/s (sin mouse ${free})`);
+    await page.mouse.down();
+    await page.waitForTimeout(200);
+    const held = await speed();
+    await page.mouse.up();
+    await page.waitForTimeout(200);
+    const released = await speed();
+    log(held <= 1 && released >= 8, `carrusel: apretando una tarjeta con el mouse se frena (${held} px/s) y al soltar sigue (${released} px/s)`);
     await page.mouse.move(640, 40);
     await page.waitForTimeout(300);
-    log(await moves(), "carrusel: retoma al sacar el mouse");
+    const back = await speed();
+    log(back >= free * 0.8, `carrusel: al sacar el mouse vuelve a su velocidad: ${back} px/s`);
     await page.getByRole("button", { name: "Pausar el carrusel" }).click();
     await page.mouse.move(640, 40);
     await page.waitForTimeout(300);
