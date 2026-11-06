@@ -24,9 +24,11 @@ import type { FitnessAssets } from "./shared";
 const PROFILE_PHOTO = "/projects/Imagenes/profile.webp";
 
 /* Landing de /fitness (Bellido Asesoramientos), 100 % entrenamiento.
-   Orden: propuesta de valor (hero, para quién, quién soy) y después la
-   estructura del PDF: cómo empezar, método, asimilación, (resultados),
-   servicios con precios, infoproductos, afiliados, preguntas y contacto.
+   Orden: propuesta de valor (hero, para quién, quién soy), resultados
+   (pedido de Matías: la prueba de que funciona, antes de explicar cómo se
+   empieza) y después la estructura del PDF: cómo empezar, método,
+   asimilación, servicios con precios, infoproductos, afiliados, preguntas
+   y contacto.
    Las preguntas van DESPUÉS de los precios (pedido de Matías: el objetivo
    es que compre): primero ve la oferta y, justo antes del contacto, se le
    resuelven las dudas que le quedan.
@@ -72,10 +74,10 @@ export default function FitnessLanding({ assets }: { assets: FitnessAssets }) {
           <FitnessHero photo={heroPhoto} />
           <FitnessAudience />
           <FitnessAbout photo={aboutPhoto} />
+          <FitnessResults clients={assets.clients} />
           <FitnessSteps />
           <FitnessMethod />
           <FitnessAssimilation />
-          <FitnessResults clients={assets.clients} />
           <FitnessPlans />
           <FitnessInfoproducts />
           <FitnessAffiliates />
