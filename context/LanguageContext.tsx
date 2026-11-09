@@ -1046,7 +1046,7 @@ export const translations: Record<Lang, Dict> = {
         email: "rbellidomatias@gmail.com",
       },
       footer: {
-        back: "← Volver al portfolio",
+        back: "Ir al portfolio →",
         health: "El entrenamiento no reemplaza la consulta médica. Si tenés una lesión o un dolor persistente, consultá primero con un profesional de la salud. Menores de 18 años, con autorización de un adulto responsable.",
         rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
         withdrawal: "Botón de arrepentimiento",
@@ -1712,7 +1712,7 @@ export const translations: Record<Lang, Dict> = {
         email: "rbellidomatias@gmail.com",
       },
       footer: {
-        back: "← Back to portfolio",
+        back: "Go to portfolio →",
         health: "Training does not replace medical advice. If you have an injury or persistent pain, check with a health professional first. Under 18: with permission from a parent or guardian.",
         rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
         withdrawal: "Cancel my purchase",

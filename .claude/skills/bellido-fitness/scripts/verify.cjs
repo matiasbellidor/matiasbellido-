@@ -796,7 +796,7 @@ async function overflow(page) {
   }
   {
     // Desde el portfolio en claro, entrar a /fitness con el link del modal (<Link>, sin recargar) deja oscuro,
-    // y al volver con "Volver al portfolio" se restaura el tema claro guardado
+    // y al volver con "Ir al portfolio" se restaura el tema claro guardado
     const home = BASE.replace(/\/fitness\/?$/, "/");
     const { ctx, page } = await open(browser, { width: 1280, url: home, theme: "light", colorScheme: "light" });
     const isDark = () => page.evaluate(() => document.documentElement.classList.contains("dark"));
@@ -813,7 +813,7 @@ async function overflow(page) {
     await page.waitForURL(/\/fitness/);
     await page.waitForTimeout(700);
     const fitDark = await isDark();
-    await page.getByRole("link", { name: /Volver al portfolio/ }).click();
+    await page.getByRole("link", { name: /Ir al portfolio/ }).click();
     await page.waitForURL((u) => !/\/fitness/.test(u.pathname));
     await page.waitForTimeout(900);
     const backLight = !(await isDark());
