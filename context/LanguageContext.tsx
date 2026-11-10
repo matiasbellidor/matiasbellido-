@@ -107,10 +107,13 @@ type FitnessCartDict = {
   removeExtra: string;
   subtotal: string;
   discount: string;
-  /** Marca de las líneas mensuales a las que se aplicó el descuento */
+  /** Marca de los planes y packs con descuento (lo mensual: el descuento va en el primer mes) */
   discountChip: string;
-  /** El código está cargado pero no hay planes ni packs en el carrito */
-  codeNoPlans: string;
+  /** Marca de las clases presenciales e infoproductos con descuento */
+  discountChipOnce: string;
+  /** Para lectores de pantalla: el precio tachado y el precio final de cada línea */
+  originalPrice: string;
+  finalPrice: string;
   /** Se suman al mensaje del comprobante. Empiezan con un espacio. {code} / {name} */
   extrasCode: string;
   extrasReferrer: string;
@@ -154,8 +157,15 @@ type FitnessDict = {
     photoAlt: string;
     facts: { label: string; value: string }[];
     certsTitle: string;
-    /** Textuales, "Entidad — Título". No agregar otras. */
+    /** Textuales, "Entidad — Título". No agregar otras. Las que tienen archivo en public/fitness/Certificados se pueden abrir. */
     certs: string[];
+    /** Texto chico de las certificaciones que se pueden abrir */
+    certView: string;
+    /** Para lectores de pantalla, en las que son PDF */
+    certNewTab: string;
+    certClose: string;
+    /** Va antes del nombre en el texto alternativo de la imagen */
+    certAlt: string;
   };
   start: {
     eyebrow: string;
@@ -712,9 +722,13 @@ export const translations: Record<Lang, Dict> = {
         certs: [
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
           "IFBB — Strength and Power",
-          "IFBB — HIIT",
+          "IFBB — Cross Pro Fitness",
           "ISSA — Certified Personal Trainer",
         ],
+        certView: "Ver certificado",
+        certNewTab: "(se abre en otra pestaña)",
+        certClose: "Cerrar certificado",
+        certAlt: "Certificado",
       },
       start: {
         eyebrow: "Cómo empezar",
@@ -1000,7 +1014,9 @@ export const translations: Record<Lang, Dict> = {
         subtotal: "Subtotal",
         discount: "Descuento",
         discountChip: "Primer mes con descuento",
-        codeNoPlans: "El código se aplica a los planes y packs: agregá uno para usarlo.",
+        discountChipOnce: "Con descuento",
+        originalPrice: "Precio original",
+        finalPrice: "Precio con descuento",
         extrasCode: " Código de descuento: {code}.",
         extrasReferrer: " Me recomendó: {name}.",
         units: { month: "por mes", once: "pago único" },
@@ -1020,7 +1036,7 @@ export const translations: Record<Lang, Dict> = {
         referral: {
           code: {
             title: "Código de descuento",
-            desc: "Si tenés un código, anotalo acá. Se descuenta solo de tu primer mes de plan o pack y lo ves reflejado en el carrito.",
+            desc: "Si tenés un código, anotalo acá. Se descuenta automáticamente de todo lo que compres (en planes y packs, del primer mes) y lo ves reflejado en el carrito.",
             label: "Tu código",
             placeholder: "Escribilo acá",
             applied: "Código aplicado",
@@ -1393,9 +1409,13 @@ export const translations: Record<Lang, Dict> = {
         certs: [
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
           "IFBB — Strength and Power",
-          "IFBB — HIIT",
+          "IFBB — Cross Pro Fitness",
           "ISSA — Certified Personal Trainer",
         ],
+        certView: "View certificate",
+        certNewTab: "(opens in a new tab)",
+        certClose: "Close certificate",
+        certAlt: "Certificate",
       },
       start: {
         eyebrow: "How to start",
@@ -1666,7 +1686,9 @@ export const translations: Record<Lang, Dict> = {
         subtotal: "Subtotal",
         discount: "Discount",
         discountChip: "First month discounted",
-        codeNoPlans: "The code applies to plans and packs: add one to use it.",
+        discountChipOnce: "Discounted",
+        originalPrice: "Original price",
+        finalPrice: "Discounted price",
         extrasCode: " Discount code: {code}.",
         extrasReferrer: " Recommended by: {name}.",
         units: { month: "per month", once: "one-time payment" },
@@ -1686,7 +1708,7 @@ export const translations: Record<Lang, Dict> = {
         referral: {
           code: {
             title: "Discount code",
-            desc: "If you have a code, enter it here. It is taken off your first month of a plan or pack automatically, and you see it in your cart.",
+            desc: "If you have a code, enter it here. It is taken off everything you buy automatically (on plans and packs, off the first month), and you see it in your cart.",
             label: "Your code",
             placeholder: "Type it here",
             applied: "Code applied",

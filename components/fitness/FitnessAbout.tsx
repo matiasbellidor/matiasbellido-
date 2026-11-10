@@ -1,18 +1,58 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { BadgeCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { BadgeCheck, ExternalLink, Eye, X } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { EASE, FitnessSection, Reveal } from "./shared";
+import { EASE, FitnessSection, Reveal, type FitnessAssets } from "./shared";
 import logo from "@/app/icon.png";
+
+type Certificate = FitnessAssets["certificates"][number];
+
+/* Palabras sin tildes ni signos: "IFBB — Cross Pro Fitness" → ifbb cross pro fitness */
+const words = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+
+/* Qué archivo de public/fitness/Certificados es el de cada certificación.
+   Primero el nombre exacto ("IFBB Cross Pro Fitness.jpg"); si no, un nombre
+   más corto o más largo con las mismas palabras ("IFBB Personal Trainer.jpg"
+   sirve para la de IFBB Academy). Sin archivo, la certificación se muestra
+   igual pero no se puede abrir. */
+function matchCertificate(cert: string, files: Certificate[]): Certificate | null {
+  const c = words(cert);
+  const cSet = new Set(c);
+  let best: Certificate | null = null;
+  let bestScore = 0;
+  for (const file of files) {
+    const w = words(file.name);
+    if (w.length < 2) continue; // "IFBB.jpg" solo no alcanza para saber cuál es
+    const wSet = new Set(w);
+    const score = w.join(" ") === c.join(" ") ? 2 : w.every((x) => cSet.has(x)) || c.every((x) => wSet.has(x)) ? 1 : 0;
+    if (score > bestScore) {
+      best = file;
+      bestScore = score;
+    }
+  }
+  return best;
+}
 
 /* Quién soy + certificaciones. Las certificaciones son la señal de
    autoridad de la sección: chips sobrios con la entidad arriba y el
-   título abajo, textuales (t.fitness.about.certs, "Entidad — Título"). */
-export default function FitnessAbout({ photo }: { photo: string | null }) {
+   título abajo, textuales (t.fitness.about.certs, "Entidad — Título").
+   Las que tienen archivo en public/fitness/Certificados se pueden abrir
+   (pedido de Matías, 2026-11-10): una imagen se ve en un visor encima de
+   la página (no se sale de la landing); un PDF se abre en otra pestaña. */
+export default function FitnessAbout({ photo, certificates }: { photo: string | null; certificates: Certificate[] }) {
   const { t } = useLanguage();
   const a = t.fitness.about;
+  const [viewing, setViewing] = useState<{ label: string; url: string } | null>(null);
 
   return (
     <FitnessSection id="sobre-mi">
@@ -55,6 +95,27 @@ export default function FitnessAbout({ photo }: { photo: string | null }) {
             {a.certs.map((cert, i) => {
               const [issuer, ...rest] = cert.split(" — ");
               const title = rest.join(" — ");
+              const file = matchCertificate(cert, certificates);
+              const body = (
+                <>
+                  <BadgeCheck className="w-6 h-6 shrink-0 text-cyan" aria-hidden="true" />
+                  <span className="min-w-0">
+                    <span className="block text-xs font-bold uppercase tracking-wider text-cyan">{issuer}</span>
+                    {/* Guion solo para lectores de pantalla: se lee igual que el texto original */}
+                    <span className="sr-only"> — </span>
+                    <span className="mt-1 block text-sm md:text-base font-semibold text-fg leading-snug">{title}</span>
+                    {file && (
+                      <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-fg-soft">
+                        {file.pdf ? <ExternalLink className="w-3.5 h-3.5 text-cyan" aria-hidden="true" /> : <Eye className="w-3.5 h-3.5 text-cyan" aria-hidden="true" />}
+                        {a.certView}
+                        {file.pdf && <span className="sr-only"> {a.certNewTab}</span>}
+                      </span>
+                    )}
+                  </span>
+                </>
+              );
+              const chip = "fit-surface rounded-2xl p-4 flex h-full w-full items-start gap-3 text-left";
+              const clickable = `${chip} fit-focus transition-colors can-hover:hover:border-cyan/50 touch-manipulation`;
               return (
                 <motion.li
                   key={cert}
@@ -62,21 +123,114 @@ export default function FitnessAbout({ photo }: { photo: string | null }) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "0px 0px -40px 0px" }}
                   transition={{ duration: 0.45, ease: EASE, delay: i * 0.06 }}
-                  className="fit-surface rounded-2xl p-4 flex items-start gap-3"
                 >
-                  <BadgeCheck className="w-6 h-6 shrink-0 text-cyan" aria-hidden="true" />
-                  <p className="min-w-0">
-                    <span className="block text-xs font-bold uppercase tracking-wider text-cyan">{issuer}</span>
-                    {/* Guion solo para lectores de pantalla: se lee igual que el texto original */}
-                    <span className="sr-only"> — </span>
-                    <span className="mt-1 block text-sm md:text-base font-semibold text-fg leading-snug">{title}</span>
-                  </p>
+                  {!file ? (
+                    <p className={chip}>{body}</p>
+                  ) : file.pdf ? (
+                    <a href={file.url} target="_blank" rel="noopener noreferrer" className={clickable}>
+                      {body}
+                    </a>
+                  ) : (
+                    <button type="button" onClick={() => setViewing({ label: `${issuer} — ${title}`, url: file.url })} className={clickable}>
+                      {body}
+                    </button>
+                  )}
                 </motion.li>
               );
             })}
           </ul>
         </div>
       </div>
+
+      <CertificateViewer cert={viewing} onClose={() => setViewing(null)} />
     </FitnessSection>
+  );
+}
+
+/* Visor del certificado: la imagen entera, encima de la página. Mismo
+   comportamiento que el carrito: foco en "cerrar", Escape o tocar afuera
+   cierran, la página no scrollea abajo y al cerrar el foco vuelve a la
+   certificación que se abrió. Va en un portal a <body>: dentro de la
+   sección, un ancestro con transform (las animaciones de entrada) haría que
+   el `fixed` se ubique respecto de él y no de la pantalla. */
+function CertificateViewer({ cert, onClose }: { cert: { label: string; url: string } | null; onClose: () => void }) {
+  const { t } = useLanguage();
+  const a = t.fitness.about;
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const closeFn = useRef(onClose);
+  closeFn.current = onClose;
+  const open = cert !== null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeFn.current();
+      // "Cerrar" es lo único que se puede tocar: Tab no se va a la página de atrás
+      if (e.key === "Tab") {
+        e.preventDefault();
+        closeRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+      opener?.focus?.();
+    };
+  }, [open]);
+
+  if (!mounted) return null; // el servidor no tiene document.body
+  return createPortal(
+    <AnimatePresence>
+      {cert && (
+        <motion.div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cert-title"
+            initial={{ y: 24, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 24, opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: EASE }}
+            className="liquid-glass relative flex max-h-full w-full max-w-4xl flex-col rounded-3xl p-3 sm:p-4"
+          >
+            <div className="flex items-center justify-between gap-4 pb-3 pl-2 sm:pl-3">
+              <h2 id="cert-title" className="min-w-0 text-sm sm:text-base font-semibold text-fg leading-snug">
+                {cert.label}
+              </h2>
+              <button
+                ref={closeRef}
+                type="button"
+                onClick={onClose}
+                aria-label={a.certClose}
+                className="fit-focus grid shrink-0 place-items-center w-10 h-10 rounded-full text-fg transition-colors hover:bg-cyan/10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            {/* min-h-0 + max-h: la imagen se achica para entrar entera en la pantalla, sin cortarse */}
+            <div className="min-h-0 flex-1 flex items-center justify-center">
+              <Image
+                src={cert.url}
+                alt={`${a.certAlt}: ${cert.label}`}
+                width={1600}
+                height={1131}
+                sizes="(max-width: 896px) 100vw, 864px"
+                quality={85}
+                className="block h-auto w-auto max-w-full max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] rounded-2xl object-contain"
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body,
   );
 }

@@ -17,6 +17,10 @@ import type { FitnessAssets } from "@/components/fitness/shared";
                       o public/fitness/matias-fitness-about.jpg
      Clientes:        public/fitness/clients/clientes 1 antes.jpg + clientes 1 despues.jpg
                       o public/fitness/clients/client-01-before.jpg + client-01-after.jpg
+     Certificados:    public/fitness/Certificados/<nombre de la certificación>.jpg/.png/.pdf
+                      (ej. "IFBB Cross Pro Fitness.jpg"). El nombre se compara con
+                      t.fitness.about.certs (FitnessAbout.tsx: matchCertificate):
+                      la certificación que tiene archivo se puede abrir.
 
    Extensiones: .jpg .jpeg .png .webp .avif. Se usa el nombre real del
    archivo, así anda igual en Windows y en Vercel (Linux distingue
@@ -86,6 +90,22 @@ function findClients(): FitnessAssets["clients"] {
   return [...byNumber.entries()].sort(([a], [b]) => a - b).map(([n, slot]) => ({ n, ...slot }));
 }
 
+/* Certificados: imágenes o PDF. La carpeta se busca sin distinguir
+   mayúsculas ("Certificados" o "certificados"): Vercel (Linux) sí las distingue. */
+const CERT_FILE = /\.(?:jpe?g|png|webp|avif|pdf)$/i;
+function findCertificates(): FitnessAssets["certificates"] {
+  const folderName = filesIn("fitness").find((f) => /^certificados?$/i.test(f));
+  if (!folderName) return [];
+  const folder = `fitness/${folderName}`;
+  return filesIn(folder)
+    .filter((f) => CERT_FILE.test(f))
+    .map((file) => ({
+      name: file.normalize("NFC").replace(/\.[a-z0-9]+$/i, ""),
+      url: url(folder, file),
+      pdf: /\.pdf$/i.test(file),
+    }));
+}
+
 function getFitnessAssets(): FitnessAssets {
   const hero = findOne("fitness", HERO);
   const about = findOne("fitness", ABOUT);
@@ -93,6 +113,7 @@ function getFitnessAssets(): FitnessAssets {
     hero: hero ? url("fitness", hero) : null,
     about: about ? url("fitness", about) : null,
     clients: findClients(),
+    certificates: findCertificates(),
   };
 }
 

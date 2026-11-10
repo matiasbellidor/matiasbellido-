@@ -32,14 +32,14 @@ export const cleanCode = (v: string) => v.toUpperCase().replace(/[^A-Z0-9_-]/g, 
 export const cleanName = (v: string) => v.replace(/\s+/g, " ").trim().slice(0, 60);
 
 /* Lo que se puede comprar, armado desde t.fitness (nombre, precio, unidad) */
-export type Product = { id: string; name: string; price: number; unit: string; maxQty: number; /** plan o pack mensual: el código de descuento se aplica al primer mes */ monthly: boolean };
+export type Product = { id: string; name: string; price: number; unit: string; maxQty: number; /** plan o pack mensual: se cobra el primer mes (y el código de descuento va en ese mes) */ monthly: boolean };
 
 type CartContextValue = {
   /** discounted: el código de descuento se aplicó a esta línea */
   lines: (CartLine & { product: Product; discounted: boolean; /** lo que cuesta la línea ya con el descuento */ finalPrice: number })[];
   count: number;
   subtotal: number;
-  /** Lo que se resta por el código (0 si no hay código o no hay planes/packs) */
+  /** Lo que se resta por el código (0 si no hay código): la suma de lo que baja cada línea */
   discount: number;
   total: number;
   step: CartStep;
@@ -146,18 +146,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<CartContextValue>(() => {
-    // Líneas cuyo producto ya no existe (ej. cambió un id) se ignoran
+    // Líneas cuyo producto ya no existe (ej. cambió un id) se ignoran.
+    // El código se aplica a todo el carrito (pedido de Matías, 2026-11-10):
+    // planes y packs (en el primer mes), clases presenciales e infoproductos.
     const rate = isValidCode(state.code) ? DISCOUNT_CODES[state.code] : 0;
     const lines = state.lines
       .filter((l) => catalog[l.id])
       .map((l) => {
         const product = catalog[l.id];
-        const discounted = rate > 0 && product.monthly;
         const full = l.qty * product.price;
-        return { ...l, product, discounted, finalPrice: discounted ? full - Math.round(full * rate) : full };
+        return { ...l, product, discounted: rate > 0, finalPrice: full - Math.round(full * rate) };
       });
     const subtotal = lines.reduce((n, l) => n + l.qty * l.product.price, 0);
-    const discount = Math.round(lines.filter((l) => l.discounted).reduce((n, l) => n + l.qty * l.product.price * rate, 0));
+    // Suma de lo que baja cada línea (no un redondeo aparte): así las líneas, el descuento y el total cierran al peso
+    const discount = lines.reduce((n, l) => n + l.qty * l.product.price - l.finalPrice, 0);
     return {
       lines,
       count: lines.reduce((n, l) => n + l.qty, 0),

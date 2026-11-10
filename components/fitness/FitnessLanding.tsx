@@ -74,7 +74,7 @@ export default function FitnessLanding({ assets }: { assets: FitnessAssets }) {
         <div className="relative z-10">
           <FitnessHero photo={heroPhoto} />
           <FitnessAudience />
-          <FitnessAbout photo={aboutPhoto} />
+          <FitnessAbout photo={aboutPhoto} certificates={assets.certificates} />
           <FitnessResults clients={assets.clients} />
           <FitnessMethod />
           <FitnessAssimilation />

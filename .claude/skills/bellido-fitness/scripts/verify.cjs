@@ -99,7 +99,7 @@ async function overflow(page) {
     await page.locator("#contacto").scrollIntoViewIfNeeded();
     await page.waitForTimeout(600);
     const weeks = await page.evaluate(() => [...document.querySelectorAll("#resultados [role='listitem'] [aria-hidden='true'].bottom-3")].map((c) => c.textContent.trim()));
-    log(JSON.stringify(weeks) === JSON.stringify(["16 semanas", "22 semanas", "12 semanas", "28 semanas"]), `tiempo de cada cliente en el comparador: ${JSON.stringify(weeks)}`);
+    log(JSON.stringify(weeks) === JSON.stringify(["16 semanas", "22 semanas", "28 semanas"]), `tiempo de cada cliente en el comparador: ${JSON.stringify(weeks)}`);
     const info = await page.evaluate(() => ({
       text: document.querySelector("main").textContent,
       sections: [...document.querySelectorAll("main section[id]")].map((s) => s.id),
@@ -108,7 +108,7 @@ async function overflow(page) {
     }));
     const banned = (info.text + " " + info.desc).match(/actuar|\bseguros?\b|insurance|\bDECI\b|\bFCE\b|\bUBA\b|data analy|análisis de datos|ciencias exactas/g);
     log(!banned, `sin contenido actuarial: ${banned ? banned.join(", ") : "ninguno"}`);
-    const certs = ["IFBB Academy — Personal Trainer / Bodybuilding Instructor", "IFBB — Strength and Power", "IFBB — HIIT", "ISSA — Certified Personal Trainer"];
+    const certs = ["IFBB Academy — Personal Trainer / Bodybuilding Instructor", "IFBB — Strength and Power", "IFBB — Cross Pro Fitness", "ISSA — Certified Personal Trainer"];
     const flat = info.text.replace(/\s+/g, " ");
     log(certs.every((c) => flat.includes(c.replace(" — ", " — "))) || certs.every((c) => flat.replace(/ — /g, "—").includes(c.replace(/ — /g, "—"))), `certificaciones textuales: ${certs.filter((c) => !flat.includes(c)).join(" | ") || "las 4"}`);
     log(!/24 ?h/i.test(info.text), `sin "atención 24 h"`);
@@ -251,11 +251,11 @@ async function overflow(page) {
     await page.waitForTimeout(900);
     const pos = () => page.evaluate(() => [...document.querySelectorAll('#resultados [role="slider"]')].map((k) => +k.getAttribute("aria-valuenow")));
     const imgs = await page.evaluate(() => [...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => i.complete && i.naturalWidth > 0));
-    log(imgs.length === 8 && imgs.every(Boolean), `fotos de clientes cargadas (4 clientes, primer juego): ${imgs.filter(Boolean).length}/${imgs.length}`);
+    log(imgs.length === 6 && imgs.every(Boolean), `fotos de clientes cargadas (3 clientes: 1, 2 y 4; primer juego): ${imgs.filter(Boolean).length}/${imgs.length}`);
     const p1 = await pos();
     await page.waitForTimeout(700);
     const p2 = await pos();
-    log(p1.length === 4 && p1.some((v, i) => v !== p2[i]), `la barra se mueve sola: ${p1} → ${p2}`);
+    log(p1.length === 3 && p1.some((v, i) => v !== p2[i]), `la barra se mueve sola: ${p1} → ${p2}`);
     const wrap = await page.$eval(".fit-marquee-wrap", (e) => { const r = e.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right), vw: document.documentElement.clientWidth }; });
     log(wrap.left <= 1 && wrap.right >= wrap.vw - 1, `el carrusel va de borde a borde: ${JSON.stringify(wrap)}`);
     // Arrastrar: mientras se sostiene, la barra está donde está el mouse; al soltar vuelve sola al recorrido
@@ -409,9 +409,9 @@ async function overflow(page) {
       // zoom de las imágenes del primer juego, de a dos por cliente (después, antes): las caras ya están cortadas
       // en los archivos (1, 2, 3 y 4), así que todo va sin zoom salvo el "después" del cliente 4 (1 / 0,7816 = 1,28).
       // Ver FRAMING en FitnessResults.tsx
-      crop: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => { const m = getComputedStyle(i).transform; return m === "none" ? 1 : Math.round(+m.slice(7).split(",")[0] * 100) / 100; })) === JSON.stringify([1, 1, 1, 1, 1, 1, 1.28, 1]),
+      crop: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => { const m = getComputedStyle(i).transform; return m === "none" ? 1 : Math.round(+m.slice(7).split(",")[0] * 100) / 100; })) === JSON.stringify([1, 1, 1, 1, 1.28, 1]),
       // encuadre horizontal: el "antes" del cliente 1 se ve desde el borde izquierdo (ahí está el torso); el resto, centrado
-      centerX: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => getComputedStyle(i).objectPosition)) === JSON.stringify(["50% 100%", "0% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%"]),
+      centerX: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => getComputedStyle(i).objectPosition)) === JSON.stringify(["50% 100%", "0% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%"]),
       withdrawal: !!document.querySelector("footer a[href*='wa.me'][href*='arrepent']"),
     }));
     log(!c.trial && c.about && c.faq && c.crop && c.centerX && c.withdrawal, `contenido: ${JSON.stringify(c)}`);
@@ -486,7 +486,7 @@ async function overflow(page) {
     const tr = () => page.$eval(".fit-marquee", (e) => getComputedStyle(e).transform);
     const moves = async () => { const a = await tr(); await page.waitForTimeout(1200); return a !== (await tr()); };
     log(await moves(), "carrusel: se mueve solo");
-    log((await page.getByRole("slider").count()) === 4, "carrusel: 4 sliders accesibles, uno por cliente (las copias no son controles)");
+    log((await page.getByRole("slider").count()) === 3, "carrusel: 3 sliders accesibles, uno por cliente (las copias no son controles)");
     log((await page.$$eval(".fit-marquee [aria-hidden='true'] [tabindex], .fit-marquee [aria-hidden='true'][tabindex]", (e) => e.length)) === 0, "carrusel: sin foco dentro de las copias aria-hidden");
     // Velocidad de la pista en px/s (mide 1 s; si justo dio la vuelta, vuelve a medir)
     const speed = async () => {
@@ -626,6 +626,7 @@ async function overflow(page) {
     const total = num(await dlg.locator("span", { hasText: /^\$/ }).last().innerText());
     const ct = await dlg.innerText();
     log(disc === Math.round(sub * 0.25) && total === sub - disc && /Primer mes con descuento/.test(ct) && !/25\s?%/.test(ct), `${t} carrito: subtotal ${sub} − descuento ${disc} = total ${total}, sin decir el %`);
+    log((await dlg.locator("li .line-through").count()) === 1 && num(await dlg.locator("li .text-cyan.font-semibold").first().innerText()) === total, `${t} carrito: la línea muestra el precio original tachado y el final`);
     log(/BELLIDO25OFF/.test(ct) && /Te recomendó: Ana García/.test(ct), `${t} carrito: muestra el código y quién recomendó`);
     const axd = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).include("[role='dialog']").analyze();
     log(axd.violations.length === 0, `${t} carrito con descuento: axe ${axd.violations.map((v) => v.id).join(", ") || "ok"}`);
@@ -647,7 +648,17 @@ async function overflow(page) {
     log(!/Descuento/.test(await d.innerText()), `${t} al quitar el código desaparece el descuento`);
     await setCart({ lines: [{ id: "presencial", qty: 2 }, { id: "recetario", qty: 1 }], step: "cart", code: "BELLIDO25OFF", referrer: "" });
     d = await openCart();
-    log(!/Descuento ·/.test(await d.innerText()) && /El código se aplica a los planes y packs/.test(await d.innerText()), `${t} presencial e infoproductos: sin descuento, con aviso`);
+    {
+      // Presencial ×2 ($ 24.700 c/u) + recetario: el código también los descuenta, con el precio tachado y el final por línea
+      const txt = await d.innerText();
+      const struck = await d.locator(".line-through").count();
+      const sub2 = num(await d.locator("dt:text-is('Subtotal') + dd").innerText());
+      const disc2 = num(await d.locator("dt", { hasText: "Descuento" }).locator("xpath=following-sibling::dd").innerText());
+      // el descuento es la suma de lo que baja cada línea (redondeada por línea)
+      const rec = sub2 - 2 * 24700;
+      const expected = Math.round(2 * 24700 * 0.25) + Math.round(rec * 0.25);
+      log(/Descuento ·/.test(txt) && struck === 2 && /Con descuento/.test(txt) && disc2 === expected, `${t} presencial e infoproductos: también con descuento (${disc2}), tachado y precio final en ${struck} líneas`);
+    }
     await setCart({ lines: [{ id: "recetario", qty: 1 }], step: "cart", code: "HACK100", referrer: "" });
     d = await openCart();
     log(!/HACK100/.test(await d.innerText()), `${t} un código inventado en localStorage se descarta`);

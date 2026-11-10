@@ -252,18 +252,18 @@ function CartStepItems() {
               {line.discounted && (
                 <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-cyan/10 px-2.5 py-1 text-xs font-semibold text-fg">
                   <Check className="w-3.5 h-3.5 text-cyan" aria-hidden="true" />
-                  {c.discountChip}
+                  {line.product.monthly ? c.discountChip : c.discountChipOnce}
                 </p>
               )}
             </div>
             {line.discounted ? (
               <p className="text-right tabular-nums whitespace-nowrap">
-                <span className="block text-xs text-fg-muted line-through">
-                  <span className="sr-only">{c.subtotal}: </span>
+                <span className="block text-sm text-fg-muted line-through">
+                  <span className="sr-only">{c.originalPrice}: </span>
                   {formatARS(line.product.price * line.qty)}
                 </span>
                 <span className="block font-semibold text-cyan">
-                  <span className="sr-only">{c.discount}: </span>
+                  <span className="sr-only">{c.finalPrice}: </span>
                   {formatARS(line.finalPrice)}
                 </span>
               </p>
@@ -308,7 +308,7 @@ function CartStepItems() {
     {(cart.code || cart.referrer) && (
       <ul className="mt-4 space-y-2">
         {cart.code && (
-          <ExtraRow label={c.codeLabel} value={cart.code} note={cart.discount === 0 ? c.codeNoPlans : undefined} onRemove={() => cart.setCode("")} />
+          <ExtraRow label={c.codeLabel} value={cart.code} onRemove={() => cart.setCode("")} />
         )}
         {cart.referrer && <ExtraRow label={c.referrerLabel} value={cart.referrer} onRemove={() => cart.setReferrer("")} />}
       </ul>
@@ -318,14 +318,13 @@ function CartStepItems() {
 }
 
 /* Código de descuento / quién recomendó, anotados en Afiliados */
-function ExtraRow({ label, value, note, onRemove }: { label: string; value: string; note?: string; onRemove: () => void }) {
+function ExtraRow({ label, value, onRemove }: { label: string; value: string; onRemove: () => void }) {
   const { t } = useLanguage();
   const c = t.fitness.cart;
   return (
     <li className="fit-surface flex items-center justify-between gap-3 rounded-2xl py-1 pl-4 pr-1">
       <p className="min-w-0 py-2 text-sm text-fg-soft [overflow-wrap:anywhere]">
         {label}: <span className="font-semibold text-fg">{value}</span>
-        {note && <span className="mt-1 block text-xs text-fg-muted">{note}</span>}
       </p>
       <button
         type="button"

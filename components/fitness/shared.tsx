@@ -95,8 +95,9 @@ export const MERCADO_PAGO = {
    Vacío = el último paso pide solo el comprobante por WhatsApp. */
 export const PURCHASE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScNHvgImZI2YxHBVhbx5Tng0rtq_2B7Yd_5ZKPGPEu4I9Xe9A/viewform";
 
-/* Códigos de descuento: se restan solos en el carrito, del primer mes de los
-   planes y packs (lo mensual; no las clases presenciales ni los infoproductos).
+/* Códigos de descuento: se restan solos en el carrito, de todo lo que hay
+   (planes y packs en el primer mes, clases presenciales e infoproductos;
+   pedido de Matías, 2026-11-10). Cada línea muestra su precio tachado y el final.
    El porcentaje NO se muestra en ningún texto de la página (pedido de Matías).
    Valor = fracción: 0.25 = 25 %. Ojo: está en el código del sitio, así que
    quien mire el código fuente (el repo es público) lo puede leer. */
@@ -120,6 +121,8 @@ export type FitnessAssets = {
   about: string | null;
   /** n = número del cliente en el nombre del archivo (clientes 1 …) */
   clients: { n: number; before: string | null; after: string | null }[];
+  /** public/fitness/Certificados: name = nombre del archivo sin extensión */
+  certificates: { name: string; url: string; pdf: boolean }[];
 };
 
 const SUBLINE = "Asesoramientos";
