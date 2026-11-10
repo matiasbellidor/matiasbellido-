@@ -720,7 +720,7 @@ export const translations: Record<Lang, Dict> = {
           "Con el tiempo decidí especializarme en musculación, fuerza y distintos métodos de entrenamiento, para ayudar a personas a alcanzar su objetivo.",
           "Hoy, junto a Bellido Asesoramientos, lidero un equipo que me ayuda a seguir de cerca a cada persona, en modalidad virtual o presencial.",
           // Dato de Matías (2026-11-10)
-          "Hasta hoy ayudé a más de 30 personas a lograr su cambio físico.",
+          "A día de hoy, felizmente puedo decir que ayudé a más de 30 personas a lograr sus objetivos físicos.",
         ],
         photoAlt: "Matías Bellido",
         facts: [
@@ -1411,7 +1411,7 @@ export const translations: Record<Lang, Dict> = {
           "I'm passionate about fitness: eating well and following routines built around a goal. That led me to give them a hand: I helped them with their first routines and with understanding what they were doing and why.",
           "Over time I decided to specialize in bodybuilding, strength and different training methods, to help people reach their goals.",
           "Today, with Bellido Asesoramientos, I lead a team that helps me follow each person closely, online or in person.",
-          "So far, I've helped more than 30 people achieve their physical transformation.",
+          "Today, I'm happy to say I've helped more than 30 people reach their physical goals.",
         ],
         photoAlt: "Matías Bellido",
         facts: [
