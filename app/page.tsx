@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import ScrollBackground from "@/components/ScrollBackground";
 import IntroLoader from "@/components/IntroLoader";
 import PauseOffscreenGradients from "@/components/PauseOffscreenGradients";
+import SectionStepper from "@/components/SectionStepper";
 
 /* Secciones debajo del fold: cada una en su propio chunk de JS.
    Siguen renderizándose en el servidor (SEO intacto), pero su
@@ -18,6 +19,7 @@ export default function Home() {
     <main id="top" className="relative min-h-screen overflow-hidden">
       <IntroLoader />
       <PauseOffscreenGradients />
+      <SectionStepper />
       {/* Capa 1 (fondo): color interpolado por scroll */}
       <ScrollBackground />
       {/* Capa 2: grilla decorativa, transparente, sobre el color */}

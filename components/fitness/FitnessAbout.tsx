@@ -1,13 +1,25 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { BadgeCheck, ExternalLink, Eye, X } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
+import { translations, useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, Reveal, type FitnessAssets } from "./shared";
 import logo from "@/app/icon.png";
+/* Logos de las instituciones que dieron los títulos (pedido de Matías), en el
+   formato de public/logos: 144x144, círculo blanco. IFBB Academy: el emblema
+   de su diploma original, limpio del marco; ISSA: el logo oficial (avatar
+   del canal de YouTube de ISSA, 1424 px). Importados: link con huella. */
+import ifbbLogo from "@/public/logos/ifbb-academy.png";
+import issaLogo from "@/public/logos/issa.png";
+
+/* Qué logo va con cada entidad ("IFBB Academy — …", "ISSA — …") */
+const ISSUER_LOGOS: { match: RegExp; logo: StaticImageData }[] = [
+  { match: /^IFBB/i, logo: ifbbLogo },
+  { match: /^ISSA/i, logo: issaLogo },
+];
 
 type Certificate = FitnessAssets["certificates"][number];
 
@@ -20,6 +32,13 @@ const words = (s: string) =>
     .split(/[^a-z0-9]+/)
     .filter(Boolean);
 
+/* Imagen del visor: los mismos valores en el visor y en la precarga, así
+   next/image arma el mismo link y la segunda vez sale de la caché */
+const VIEWER_W = 1600;
+const VIEWER_H = 1131;
+const VIEWER_SIZES = "(max-width: 896px) 100vw, 864px";
+const VIEWER_QUALITY = 85;
+
 /* Palabras que no sirven para distinguir una certificación de otra */
 const STOPWORDS = new Set(["and", "y", "de", "of", "the", "en", "in"]);
 
@@ -30,13 +49,16 @@ const STOPWORDS = new Set(["and", "y", "de", "of", "the", "en", "in"]);
    Personal Trainer / Bodybuilding Instructor" (comparten personal y trainer)
    y no con "ISSA — Certified Personal Trainer" (otra entidad). Cada archivo
    va con una sola certificación: primero los pares con más palabras en
-   común. Sin archivo, la certificación se muestra igual pero no se abre. */
-function matchCertificates(certs: string[], files: Certificate[]): (Certificate | null)[] {
+   común. Sin archivo, la certificación se muestra igual pero no se abre.
+   Cada certificación trae sus nombres en los dos idiomas (mismo orden en
+   es y en): "IFBB Nutrición Deportiva.jpg" o "IFBB Sports Nutrition.jpg"
+   sirven igual, se vea la página en español o en inglés. */
+function matchCertificates(certs: string[][], files: Certificate[]): (Certificate | null)[] {
   const pairs: { ci: number; fi: number; score: number }[] = [];
-  certs.forEach((cert, ci) => {
-    const [issuer, ...rest] = cert.split(" — ");
+  certs.forEach((names, ci) => {
+    const [issuer] = names[0].split(" — ");
     const entity = words(issuer)[0];
-    const title = words(rest.join(" ")).filter((w) => !STOPWORDS.has(w));
+    const title = Array.from(new Set(names.flatMap((n) => words(n.split(" — ").slice(1).join(" "))))).filter((w) => !STOPWORDS.has(w));
     files.forEach((file, fi) => {
       const fileWords = new Set(words(file.name));
       if (!entity || !fileWords.has(entity)) return;
@@ -68,11 +90,46 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
   const a = t.fitness.about;
   /** url null = la certificación todavía no tiene archivo */
   const [viewing, setViewing] = useState<{ label: string; url: string | null } | null>(null);
-  const matched = matchCertificates(a.certs, certificates);
+  const matched = matchCertificates(
+    a.certs.map((_, i) => [translations.es.fitness.about.certs[i], translations.en.fitness.about.certs[i]].filter(Boolean)),
+    certificates,
+  );
+
+  /* Precarga (Matías: "que tarde lo menos posible en cargar"): cuando la
+     sección está a 800 px de entrar, se piden en segundo plano las MISMAS
+     imágenes que va a mostrar el visor (mismo sizes, quality y ancho → el
+     mismo link de next/image). Al tocar una certificación ya está en caché;
+     antes recién se pedía al abrirla y la primera vez el servidor además
+     tenía que optimizarla. */
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [warm, setWarm] = useState(false);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || warm || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setWarm(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [warm]);
+  const imageUrls = matched.filter((f): f is Certificate => !!f && !f.pdf).map((f) => f.url);
 
   return (
     <FitnessSection id="sobre-mi">
-      <div className="grid grid-cols-1 md:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-start">
+      {warm && (
+        <div aria-hidden="true" className="sr-only">
+          {imageUrls.map((url) => (
+            <Image key={url} src={url} alt="" width={VIEWER_W} height={VIEWER_H} sizes={VIEWER_SIZES} quality={VIEWER_QUALITY} loading="eager" />
+          ))}
+        </div>
+      )}
+      <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-start">
         <Reveal className="mx-auto w-full max-w-[320px] md:max-w-none md:sticky md:top-32">
           <div className="relative aspect-[4/5] rounded-3xl overflow-hidden fit-surface">
             {photo ? (
@@ -106,15 +163,25 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
             ))}
           </Reveal>
 
+          {/* data-step: parada extra de la navegación con flechas (SectionStepper):
+              antes de pasar a Resultados, baja hasta que se vean los certificados
+              (pedido de Matías). No cambia el diseño. */}
+          <div data-step="">
           <h3 className="mt-12 text-sm font-semibold uppercase tracking-[0.2em] text-fg-muted">{a.certsTitle}</h3>
           <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {a.certs.map((cert, i) => {
               const [issuer, ...rest] = cert.split(" — ");
               const title = rest.join(" — ");
               const file = matched[i];
+              const issuerLogo = ISSUER_LOGOS.find((l) => l.match.test(issuer))?.logo;
               const body = (
                 <>
-                  <BadgeCheck className="w-6 h-6 shrink-0 text-cyan" aria-hidden="true" />
+                  {/* Logo de la institución (alt vacío: el nombre está escrito al lado) */}
+                  {issuerLogo ? (
+                    <Image src={issuerLogo} alt="" width={96} height={96} className="h-12 w-12 shrink-0 rounded-full shadow-[0_2px_8px_rgb(0_0_0/0.35)]" />
+                  ) : (
+                    <BadgeCheck className="w-6 h-6 shrink-0 text-cyan" aria-hidden="true" />
+                  )}
                   <span className="min-w-0">
                     <span className="block text-xs font-bold uppercase tracking-wider text-cyan">{issuer}</span>
                     {/* Guion solo para lectores de pantalla: se lee igual que el texto original */}
@@ -134,8 +201,9 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
                   key={cert}
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "0px 0px -40px 0px" }}
-                  transition={{ duration: 0.45, ease: EASE, delay: i * 0.06 }}
+                  // Entrada a tiempo: arranca un poco antes de entrar, demora tope de 0,12 s
+                  viewport={{ once: true, margin: "0px 0px 15% 0px" }}
+                  transition={{ duration: 0.4, ease: EASE, delay: Math.min(i, 3) * 0.04 }}
                 >
                   {file?.pdf ? (
                     <a href={file.url} target="_blank" rel="noopener noreferrer" className={clickable}>
@@ -150,11 +218,64 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
               );
             })}
           </ul>
+          </div>
         </div>
       </div>
 
       <CertificateViewer cert={viewing} onClose={() => setViewing(null)} />
     </FitnessSection>
+  );
+}
+
+/* Certificado que todavía no se subió (pedido de Matías: "Error 404 con un UX
+   más cool y creativo que siga la identidad de marca"). Un diploma en blanco:
+   doble marco punteado como el de un diploma, un "404" cuyo 0 es un disco de
+   pesas que gira despacio (solo transform; quieto con "reducir movimiento"), el
+   texto y, como sello, el logo de Bellido todavía sin firmar. Colores de la
+   marca (celeste y azul eléctrico sobre la superficie plana), sin vidrio:
+   no se toca. En el celular deja de ser apaisado para que el texto entre. */
+function WeightPlate({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={className} aria-hidden="true" fill="none">
+      <circle cx="50" cy="50" r="46" stroke="currentColor" strokeWidth="7" />
+      <circle cx="50" cy="50" r="33" stroke="currentColor" strokeWidth="2" strokeOpacity="0.55" />
+      {/* Agarres del disco */}
+      {[0, 90, 180, 270].map((deg) => (
+        <rect key={deg} x="46" y="17" width="8" height="12" rx="4" fill="currentColor" fillOpacity="0.55" transform={`rotate(${deg} 50 50)`} />
+      ))}
+      <circle cx="50" cy="50" r="9" fill="currentColor" />
+      <circle cx="50" cy="50" r="4" fill="rgb(6 8 12)" />
+    </svg>
+  );
+}
+
+/* Los "4": degradé del color del texto al celeste de la marca (variables de
+   globals.css; Tailwind no tiene from-fg/to-fg-muted y quedaban invisibles) */
+const DIGIT_STYLE = { backgroundImage: "linear-gradient(180deg, var(--fg) 35%, rgb(var(--accent-cyan) / 0.75))" } as const;
+
+function CertMissing() {
+  const { t } = useLanguage();
+  const a = t.fitness.about;
+  return (
+    <div className="fit-surface relative flex w-full min-h-[300px] sm:min-h-0 sm:aspect-[1.414] max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] flex-col items-center justify-center overflow-hidden rounded-2xl px-6 py-10 text-center bg-[radial-gradient(circle_at_50%_40%,rgb(var(--accent-cyan)/0.10),transparent_60%)]">
+      {/* Doble marco de diploma */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-2 sm:inset-3 rounded-xl border border-dashed border-cyan/35" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-4 sm:inset-6 rounded-lg border border-cyan/10" />
+
+      <p className="relative text-xs font-semibold uppercase tracking-[0.3em] text-cyan">{a.certMissing}</p>
+      <div aria-hidden="true" className="relative mt-3 flex items-center gap-2 sm:gap-3 font-display text-7xl sm:text-8xl md:text-9xl font-bold leading-none tracking-tight">
+        <span className="bg-clip-text text-transparent" style={DIGIT_STYLE}>4</span>
+        <WeightPlate className="h-[0.78em] w-[0.78em] text-cyan drop-shadow-[0_0_18px_rgb(var(--accent-cyan)/0.35)] motion-safe:animate-[spin_9s_linear_infinite]" />
+        <span className="bg-clip-text text-transparent" style={DIGIT_STYLE}>4</span>
+      </div>
+      <p className="relative mt-5 text-lg sm:text-xl font-semibold text-fg">{a.certMissingTitle}</p>
+      <p className="relative mt-1.5 max-w-sm text-sm text-fg-soft leading-relaxed">{a.certMissingDesc}</p>
+
+      {/* Sello del diploma: el logo, todavía sin firmar */}
+      <div aria-hidden="true" className="absolute bottom-6 right-6 sm:bottom-9 sm:right-10 hidden min-[380px]:grid h-12 w-12 sm:h-16 sm:w-16 place-items-center rounded-full border border-dashed border-cyan/40 rotate-[-12deg]">
+        <Image src={logo} alt="" width={40} height={40} className="h-6 w-6 sm:h-8 sm:w-8 opacity-40 grayscale" />
+      </div>
+    </div>
   );
 }
 
@@ -173,6 +294,9 @@ function CertificateViewer({ cert, onClose }: { cert: { label: string; url: stri
   const open = cert !== null;
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  /* Hasta que la imagen llega se ve un lugar del tamaño del diploma que late
+     suave (con la precarga casi nunca se llega a ver) */
+  const [loadedUrl, setLoadedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -232,17 +356,18 @@ function CertificateViewer({ cert, onClose }: { cert: { label: string; url: stri
                 <Image
                   src={cert.url}
                   alt={`${a.certAlt}: ${cert.label}`}
-                  width={1600}
-                  height={1131}
-                  sizes="(max-width: 896px) 100vw, 864px"
-                  quality={85}
-                  className="block h-auto w-auto max-w-full max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] rounded-2xl object-contain"
+                  width={VIEWER_W}
+                  height={VIEWER_H}
+                  sizes={VIEWER_SIZES}
+                  quality={VIEWER_QUALITY}
+                  loading="eager"
+                  onLoad={() => setLoadedUrl(cert.url)}
+                  className={`block h-auto w-auto max-w-full max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] rounded-2xl object-contain ${
+                    loadedUrl === cert.url ? "" : "animate-pulse bg-cyan/[0.08] motion-reduce:animate-none"
+                  }`}
                 />
               ) : (
-                // Todavía sin archivo: un lugar del tamaño de un diploma con "ERROR 404"
-                <div className="fit-surface grid w-full aspect-[1.414] max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] place-items-center rounded-2xl">
-                  <p className="font-display text-4xl sm:text-6xl font-bold tracking-widest text-fg-muted">{a.certMissing}</p>
-                </div>
+                <CertMissing />
               )}
             </div>
           </motion.div>

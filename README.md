@@ -57,12 +57,13 @@ The site is built as a fast, fully responsive, bilingual (Spanish / English) sin
 
 **Digital Solutions & AI**
 
-- **Symbiosis AI** — Learning ecosystem that teaches university material through programming and real-world tooling. *In development.*
+- **AgroCow** — AI-powered computer vision pipeline built at HackaTwin (Twin Finance, Buenos Aires): a YOLO11 model detects each cow and ByteTrack follows it, measuring time in the feeder and water zones and flagging behavior changes so caretakers find animals that may be sick sooner. Not a diagnostic tool. [GitHub](https://github.com/Goat-Builders/agrocow) · [Landing page](https://agrocow.vercel.app/#1)
 - **ZIRA** — AI financial reconciliation agent built in 24 hours at the Aleph Hackathon. On-device OCR and matching with privacy-first design on QVAC.
 - **OneiricAi** — Dream reconstruction platform combining generative video with biometric data. Built at the SideQuest hackathon.
 - **NutriOps** — Linear programming model that optimizes nutrition under budget constraints, fed by a supermarket price scraping pipeline.
 - **NexStock** — Real-time multichannel stock synchronization for SMBs. Developed at the ITBA Entrepreneurs BootCamp 2026.
 - **Budgents** — AI agent ecosystems for customer service automation, lead qualification, and scheduling.
+- **Symbiosis AI** — Learning ecosystem that teaches university material through programming and real-world tooling. *On hold.*
 
 **Business Operations**
 

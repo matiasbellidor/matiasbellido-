@@ -17,6 +17,7 @@ import FitnessPlans from "./FitnessPlans";
 import { FitnessAffiliates, FitnessInfoproducts } from "./FitnessOffers";
 import FitnessFinalCta from "./FitnessFinalCta";
 import FitnessCart from "./FitnessCart";
+import SectionStepper from "@/components/SectionStepper";
 import { CartProvider } from "./cart";
 import type { FitnessAssets } from "./shared";
 
@@ -68,6 +69,8 @@ export default function FitnessLanding({ assets }: { assets: FitnessAssets }) {
       <main id="top" className="relative min-h-screen overflow-x-clip">
         <IntroLoader />
         <PauseOffscreenGradients />
+        {/* Flechas y clic en el fondo: de sección completa en sección completa (no se anuncia) */}
+        <SectionStepper mode="sections" />
         <div className="fit-backdrop" aria-hidden="true" />
         <div className="fixed inset-0 z-0 grid-bg pointer-events-none opacity-60" aria-hidden="true" />
         <FitnessHeader />

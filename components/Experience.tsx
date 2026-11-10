@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import Section from "./Section";
 import { Briefcase, GraduationCap, Award, X, Languages, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
@@ -37,6 +37,8 @@ export default function Experience() {
   const { setModalOpen: setGlobalModalOpen } = useModal();
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  /** La fila del carrusel ya entró (o está por entrar): aparecen todas sus tarjetas */
+  const rowShown = useInView(carouselRef, { once: true, margin: "0px 0px 15% 0px" });
   /* Qué tarjetas se ven COMPLETAS + si el scroll está en algún extremo.
      Se mide lo que realmente está en pantalla (no scrollLeft / ancho):
      así el indicador llega a 6/6 aunque las últimas tarjetas nunca
@@ -207,11 +209,13 @@ export default function Experience() {
               key={item.role + item.company}
               data-card
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              /* Margen solo abajo: si fuera en los 4 lados, la tarjeta que
-                 asoma a la derecha del carrusel nunca "entra" y queda invisible */
-              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
+              /* Entrada a tiempo (pedido de Matías, 2026-11-10): todas las
+                 tarjetas aparecen cuando la FILA entra (un poco antes, 15 %
+                 abajo). Con whileInView por tarjeta, las de la derecha (fuera
+                 del carrusel, recortadas) recién se animaban al deslizar.
+                 Demora tope de 0,15 s, no una que crezca con cada tarjeta. */
+              animate={rowShown ? { opacity: 1, y: 0 } : undefined}
+              transition={{ duration: 0.45, delay: Math.min(i, 3) * 0.05 }}
               className="snap-start shrink-0 w-[80vw] max-w-[400px] sm:w-[400px] md:w-[440px] md:max-w-none"
             >
               <div className="glass rounded-xl p-6 h-full flex flex-col hover:shadow-glow transition-all">
@@ -296,7 +300,8 @@ export default function Experience() {
             misma línea base que la más larga, eliminando el hueco inferior. */}
       <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 lg:items-stretch">
         {/* ──────── COLUMNA IZQUIERDA · Educación ──────── */}
-        <div className="flex flex-col h-full">
+        {/* data-step / data-step-row: paradas de la navegación con flechas (SectionStepper) */}
+        <div data-step="" className="flex flex-col h-full">
           <div className="flex items-start gap-3 mb-8">
             <GraduationCap className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
             <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.experience.educationTitle}</h3>
@@ -305,10 +310,13 @@ export default function Experience() {
             {t.experience.education.map((item, i) => (
               <motion.div
                 key={item.institution}
+                data-step-row=""
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
+                /* Cada tarjeta entra sola al bajar: sin demora acumulada (antes
+                   la 5.ª esperaba 0,4 s) y arrancando un poco antes de entrar */
+                viewport={{ once: true, margin: "0px 0px 15% 0px" }}
+                transition={{ duration: 0.45 }}
                 onClick={() => setExpandedIdx(i)}
                 className="glass rounded-2xl p-5 sm:p-7 md:p-9 hover:shadow-glow transition-all cursor-pointer group touch-manipulation flex flex-col last:flex-grow"
               >
@@ -350,7 +358,7 @@ export default function Experience() {
         </div>
 
         {/* ──────── COLUMNA DERECHA · Formación Complementaria ──────── */}
-        <div className="flex flex-col h-full">
+        <div data-step="" className="flex flex-col h-full">
           <div className="flex items-start gap-3 mb-8">
             <Award className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
             <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.experience.coursesTitle}</h3>
@@ -361,6 +369,7 @@ export default function Experience() {
               {t.experience.courses.slice(0, -1).map((group, gi) => (
                 <motion.div
                   key={group.category}
+                  data-step-row=""
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
@@ -391,6 +400,7 @@ export default function Experience() {
               return (
                 <motion.div
                   key={group.category}
+                  data-step-row=""
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}

@@ -64,7 +64,7 @@ export default function Bio() {
         className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-12 mb-24"
       >
         {skillCategories.map((category) => (
-          <motion.div key={category.title} variants={fadeUp}>
+          <motion.div key={category.title} variants={fadeUp} data-step-row="">
             <div className="mb-5">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-sm font-mono text-cyan/60">{category.number}</span>
@@ -89,7 +89,8 @@ export default function Bio() {
         ))}
       </motion.div>
 
-      <div className="relative max-w-4xl mx-auto">
+      {/* data-step: parada de la navegación con flechas (SectionStepper) */}
+      <div data-step="" className="relative max-w-4xl mx-auto">
         {/* 1. El divisor con las comillas entra primero */}
         <motion.div
           variants={fadeUp}

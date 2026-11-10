@@ -24,9 +24,11 @@ type ProjectItem = {
   category: string;
   title: string;
   role?: string;
+  /** Chip debajo del título, con el mismo estilo que `role` (ej. la hackathon donde se hizo) */
+  badge?: string;
   desc: string;
   tags: string[];
-  links?: { github?: string; review?: string };
+  links?: { github?: string; review?: string; demo?: string };
 };
 
 type ExperienceItem = {
@@ -170,8 +172,10 @@ type FitnessDict = {
     certClose: string;
     /** Va antes del nombre en el texto alternativo de la imagen */
     certAlt: string;
-    /** Lo que muestra el visor si la certificación todavía no tiene archivo (pedido de Matías) */
+    /** El visor de una certificación que todavía no tiene archivo (pedido de Matías): "Error 404", título y bajada */
     certMissing: string;
+    certMissingTitle: string;
+    certMissingDesc: string;
   };
   start: {
     eyebrow: string;
@@ -331,6 +335,7 @@ type Dict = {
     title: string;
     digitalSubtitle: string;
     businessSubtitle: string;
+    agrocow: ProjectItem;
     symbiosis: ProjectItem & { comingSoonLabel: string; clickHint: string };
     zira: ProjectItem;
     oneiric: ProjectItem;
@@ -554,19 +559,33 @@ export const translations: Record<Lang, Dict> = {
       digitalSubtitle: "Soluciones Digitales & IA",
       businessSubtitle: "Operaciones de Negocio",
 
+      // Hecho en HackaTwin (hackathon onchain de Twin Finance, Buenos Aires, 7/11/2026).
+      // Texto sacado del README del repo Goat-Builders/agrocow (auditado en el commit 6a30a74):
+      // es un prototipo sin métricas de precisión; no agregar cifras ni promesas que el código no cumple.
+      agrocow: {
+        date: "Nov 2026",
+        category: "Hackathon onchain · Twin Finance",
+        title: "AgroCow",
+        badge: "HackaTwin",
+        desc: "Pipeline de computer vision con IA: un modelo YOLO11 detecta a cada vaca en el video y un algoritmo ByteTrack le asigna un ID y la sigue cuadro a cuadro. Mide su tiempo en las zonas de comedero y bebedero y marca cambios de conducta, como aislamiento o inmovilidad, que suelen aparecer antes que los signos clínicos. No diagnostica: señala qué vacas revisar primero, para que el cuidador encuentre lo antes posible a las que pueden estar enfermas y evite problemas más graves.",
+        tags: ["Computer Vision", "Pipeline de datos", "Estrategia de producto", "Prototipado"],
+      },
+
+      // En pausa (pedido de Matías, 2026-11-10): va al final de la categoría
       symbiosis: {
         date: "Abr 2026",
-        category: "Flagship · En desarrollo",
+        category: "Flagship · En pausa",
         title: "Symbiosis AI",
         desc: "Tras encuestar a +80 estudiantes universitarios en CABA de entre 17-28 años, identifiqué una frustración constante: el miedo a quedar obsoletos frente a las herramientas que exige el mercado laboral actual. SymbiosisAI nace para cerrar esa brecha. No es solo una plataforma de estudio, es un ecosistema que enseña material de estudio universitario a través de la programación y el uso de tecnología real. Monitorea el progreso en tiempo real y ajusta el plan de aprendizaje para que el estudiante no solo apruebe sus materias, sino que domine las herramientas que lo harán competitivo el día de mañana.",
         tags: ["Python Backend", "LLM API Integration", "Streamlit UI", "RAG (Retrieval-Augmented Generation)"],
-        comingSoonLabel: "Próximamente",
+        comingSoonLabel: "En pausa",
         clickHint: "Click para recibir novedades",
       },
 
       zira: {
         date: "Ago 2026",
-        category: "Aleph Hackathon",
+        category: "Hackathon · 24 horas",
+        badge: "Aleph Hackathon",
         title: "ZIRA - Agente de Conciliación Financiera con IA",
         desc: "Desarrollado en 24 horas durante el Aleph Hackathon. ZIRA es un agente de IA que recibe comprobantes desde una carpeta local y ejecuta OCR y matching 100% on-device contra un CSV bancario. Prioriza alertar anomalías antes que fallar en silencio, garantizando la privacidad total de los datos financieros sensibles mediante tecnología descentralizada QVAC.",
         tags: ["QVAC SDK", "Python", "Local UI"],
@@ -578,15 +597,17 @@ export const translations: Record<Lang, Dict> = {
 
       oneiric: {
         date: "Julio 2026",
-        category: "Hackathon · SideQuest 1er edición",
+        category: "Hackathon · 1.ª edición",
+        badge: "SideQuest Hackathon",
         title: "OneiricAi",
         desc: "Desarrollado en solo 4 horas durante la primera edición del hackathon SideQuest. OneiricAi nace de un problema que todos conocemos: casi todo lo que soñamos se borra a los pocos minutos de despertar, y con eso se pierden ideas, escenas y recuerdos que nos gustaría conservar.\n\nLa plataforma integra IA para reconstruir tus sueños en formato de video a partir del contexto que vos le aportás, es decir, los fragmentos que sí recordás al despertar. Esa información se combina con patrones biológicos como la frecuencia cardíaca y los ciclos de sueño, medidos a lo largo de la noche por dispositivos wearable como el Apple Watch.\n\nEse cruce entre tu relato y tus datos biológicos es lo que hace única a la propuesta: el video generado no es una invención, es una reconstrucción respaldada por lo que tu cuerpo registró esa noche. Esos videos se pueden publicar directamente desde la aplicación en la red social integrada de Oneiric o compartirlos en plataformas como TikTok e Instagram. La diferencia clave con el resto de las redes sociales es que acá no se puede mentir ni aparentar: cada video está anclado a datos biológicos reales, lo que elimina las falsas apariencias. Por eso la llamamos 'The Healthy Social Network'.",
-        tags: ["GenAI Video", "Biometrics", "Product Strategy", "Hackathon"],
+        tags: ["Video con IA generativa", "Biometría", "Estrategia de producto", "Hackathon"],
       },
 
       nexstock: {
         date: "Mayo 2026",
-        category: "BootCamp ITBA · Procesos y Operaciones",
+        category: "Procesos y Operaciones",
+        badge: "Bootcamp ITBA",
         title: "NexStock",
         desc: "Contexto de ejecución\n• Propuesta de valor y modelo de negocio desarrollados y validados en 3 días de inmersión intensiva.\n\nEl problema\n• Las PyMEs que venden en múltiples canales —Mercado Libre, WhatsApp, Tienda Nube, mostrador— no logran sincronizar su dato de stock en tiempo real.\n• El resultado son sobreventas, cancelaciones y pérdidas silenciosas de hasta el 10% de la facturación anual.\n\nLa solución\n• Sincronización del dato de stock de los distintos canales de venta en tiempo real para PyMEs, con distribución inteligente por canal y reposición automática con proveedores.\n\nMi rol\n• Lideré el equipo en el BootCamp Emprendedores ITBA 2026, dentro de la categoría Procesos y Operaciones (Pan American Silver).\n• Estuve a cargo del análisis de datos de mercado, el diseño de los mockups del producto, la estructuración de la propuesta de negocio y la coordinación del equipo para optimizar tiempos y llegar con la idea lista para vender.\n• Presentamos la solución ante un jurado integrado por el CEO de Bianca, la Brand Experience Leader de Supervielle y el Chief Innovation & Transformation Officer de Teleperformance.",
         tags: ["Product Strategy", "Data Analysis", "UX/UI", "Team Leadership"],
@@ -631,7 +652,7 @@ export const translations: Record<Lang, Dict> = {
 
       modal: {
         title: "Quiero ser parte",
-        desc: "Symbiosis AI está en construcción. Dejame tu email y te aviso cuando lance.",
+        desc: "Symbiosis AI está en pausa. Dejame tu email y te aviso cuando lo retome.",
         placeholder: "tu@email.com",
         button: "Avisarme",
       },
@@ -719,8 +740,8 @@ export const translations: Record<Lang, Dict> = {
           "El fitness me apasiona: llevar una buena alimentación y seguir rutinas en base a un objetivo. Eso me llevó a darles una mano: los ayudaba con sus primeras rutinas y a entender qué hacían y para qué.",
           "Con el tiempo decidí especializarme en musculación, fuerza y distintos métodos de entrenamiento, para ayudar a personas a alcanzar su objetivo.",
           "Hoy, junto a Bellido Asesoramientos, lidero un equipo que me ayuda a seguir de cerca a cada persona, en modalidad virtual o presencial.",
-          // Dato de Matías (2026-11-10)
-          "A día de hoy, felizmente puedo decir que ayudé a más de 30 personas a lograr sus objetivos físicos.",
+          // Dato de Matías (2026-11-10); redacción más profesional a pedido suyo
+          "Al día de hoy, más de 30 personas alcanzaron sus objetivos físicos con mi asesoramiento personalizado.",
         ],
         photoAlt: "Matías Bellido",
         facts: [
@@ -733,13 +754,15 @@ export const translations: Record<Lang, Dict> = {
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
           "ISSA — Certified Personal Trainer",
           "IFBB Academy — Cross Pro Fitness",
-          "IFBB Academy — Strength and Power",
+          "IFBB Academy — Nutrición Deportiva",
         ],
         certView: "Ver certificado",
         certNewTab: "(se abre en otra pestaña)",
         certClose: "Cerrar certificado",
         certAlt: "Certificado",
-        certMissing: "ERROR 404",
+        certMissing: "Error 404",
+        certMissingTitle: "Certificado disponible próximamente",
+        certMissingDesc: "La versión digital de este certificado todavía no está publicada. Mientras tanto, podés consultar el resto de mis certificaciones.",
       },
       start: {
         eyebrow: "Cómo empezar",
@@ -1073,7 +1096,7 @@ export const translations: Record<Lang, Dict> = {
         email: "rbellidomatias@gmail.com",
       },
       footer: {
-        back: "Ir al portfolio →",
+        back: "Ir al portfolio profesional →",
         health: "El entrenamiento no reemplaza la consulta médica. Si tenés una lesión o un dolor persistente, consultá primero con un profesional de la salud. Menores de 18 años, con autorización de un adulto responsable.",
         rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
         withdrawal: "Botón de arrepentimiento",
@@ -1254,19 +1277,29 @@ export const translations: Record<Lang, Dict> = {
       digitalSubtitle: "Digital Solutions & AI",
       businessSubtitle: "Business Ops & Logic Models",
 
+      agrocow: {
+        date: "Nov 2026",
+        category: "Onchain hackathon · Twin Finance",
+        title: "AgroCow",
+        badge: "HackaTwin",
+        desc: "An AI-powered computer vision pipeline: a YOLO11 model detects each cow in the video and a ByteTrack algorithm assigns it an ID and follows it frame by frame. It measures time in the feeder and water trough zones and flags behavior changes, such as isolation or immobility, that often appear before clinical signs. It doesn't diagnose: it points out which cows to check first, so the caretaker can find the ones that may be sick as early as possible and prevent bigger problems.",
+        tags: ["Computer Vision", "Data Pipeline", "Product Strategy", "Prototyping"],
+      },
+
       symbiosis: {
         date: "Apr 2026",
-        category: "Flagship · In Development",
+        category: "Flagship · On Hold",
         title: "Symbiosis AI",
         desc: "After surveying 80+ university students in Buenos Aires aged 17-28, I identified a constant frustration: the fear of becoming obsolete against the tools demanded by today's job market. SymbiosisAI was born to close that gap. It's not just a study platform, it's an ecosystem that teaches university material through programming and the use of real technology. It monitors progress in real time and adjusts the learning plan so that students don't just pass their courses, but master the tools that will make them competitive tomorrow.",
         tags: ["Python Backend", "LLM API Integration", "Streamlit UI", "RAG (Retrieval-Augmented Generation)"],
-        comingSoonLabel: "Coming Soon",
+        comingSoonLabel: "On hold",
         clickHint: "Click to get notified",
       },
 
       zira: {
         date: "Aug 2026",
-        category: "Aleph Hackathon",
+        category: "Hackathon · 24 hours",
+        badge: "Aleph Hackathon",
         title: "ZIRA - AI Financial Reconciliation Agent",
         desc: "Built in 24 hours at the Aleph Hackathon. ZIRA is an AI agent that receives receipts from a local folder and runs OCR and matching 100% on-device against a bank CSV. It prioritizes alerting anomalies over failing silently, guaranteeing total privacy of sensitive financial data through decentralized QVAC technology.",
         tags: ["QVAC SDK", "Python", "Local UI"],
@@ -1278,7 +1311,8 @@ export const translations: Record<Lang, Dict> = {
 
       oneiric: {
         date: "July 2026",
-        category: "Hackathon · SideQuest 1st edition",
+        category: "Hackathon · 1st edition",
+        badge: "SideQuest Hackathon",
         title: "OneiricAi",
         desc: "Built in just 4 hours during the first edition of the SideQuest hackathon. OneiricAi was born from a problem we all know: almost everything we dream fades within minutes of waking up, and with it we lose ideas, scenes, and memories we would love to keep.\n\nThe platform integrates AI to reconstruct your dreams in video format from the context you provide, meaning the fragments you do remember when you wake up. That information is combined with biological patterns such as heart rate and sleep cycles, measured throughout the night by wearable devices like the Apple Watch.\n\nThat merge between your story and your biological data is what makes the product unique: the generated video is not an invention, it is a reconstruction backed by what your body recorded that night. These videos can be published directly from the app on Oneiric's built-in social network or shared to platforms like TikTok and Instagram. The key difference from other social networks is that you cannot lie or fake appearances here: every video is anchored to real biological data, which eliminates superficiality. That is why we call it 'The Healthy Social Network'.",
         tags: ["GenAI Video", "Biometrics", "Product Strategy", "Hackathon"],
@@ -1286,7 +1320,8 @@ export const translations: Record<Lang, Dict> = {
 
       nexstock: {
         date: "May 2026",
-        category: "ITBA BootCamp · Operations",
+        category: "Processes & Operations",
+        badge: "ITBA Bootcamp",
         title: "NexStock",
         desc: "Execution context\n• Business value proposition and model developed and validated in 3 days of intensive immersion.\n\nThe problem\n• SMBs selling across multiple channels —Mercado Libre, WhatsApp, Tienda Nube, in-store— can't sync their stock data in real time.\n• The result is overselling, cancellations, and silent losses of up to 10% of annual revenue.\n\nThe solution\n• Real-time synchronization of stock data across every sales channel for SMBs, with smart per-channel distribution and automatic supplier restocking.\n\nMy role\n• I led the team at the ITBA Entrepreneurs BootCamp 2026, within the Processes & Operations category (Pan American Silver).\n• I was in charge of market data analysis, product mockup design, structuring the business proposal, and coordinating the team to optimize time and get the idea ready to pitch.\n• We presented the solution to a jury made up of the CEO of Bianca, the Brand Experience Leader at Supervielle, and the Chief Innovation & Transformation Officer at Teleperformance.",
         tags: ["Product Strategy", "Data Analysis", "UX/UI", "Team Leadership"],
@@ -1329,7 +1364,7 @@ export const translations: Record<Lang, Dict> = {
 
       modal: {
         title: "I want in",
-        desc: "Symbiosis AI is under construction. Drop your email and I'll let you know when it launches.",
+        desc: "Symbiosis AI is on hold. Drop your email and I'll let you know when I pick it back up.",
         placeholder: "you@email.com",
         button: "Notify me",
       },
@@ -1411,7 +1446,7 @@ export const translations: Record<Lang, Dict> = {
           "I'm passionate about fitness: eating well and following routines built around a goal. That led me to give them a hand: I helped them with their first routines and with understanding what they were doing and why.",
           "Over time I decided to specialize in bodybuilding, strength and different training methods, to help people reach their goals.",
           "Today, with Bellido Asesoramientos, I lead a team that helps me follow each person closely, online or in person.",
-          "Today, I'm happy to say I've helped more than 30 people reach their physical goals.",
+          "To date, more than 30 people have reached their physical goals with my personalized coaching.",
         ],
         photoAlt: "Matías Bellido",
         facts: [
@@ -1424,13 +1459,15 @@ export const translations: Record<Lang, Dict> = {
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
           "ISSA — Certified Personal Trainer",
           "IFBB Academy — Cross Pro Fitness",
-          "IFBB Academy — Strength and Power",
+          "IFBB Academy — Sports Nutrition",
         ],
         certView: "View certificate",
         certNewTab: "(opens in a new tab)",
         certClose: "Close certificate",
         certAlt: "Certificate",
-        certMissing: "ERROR 404",
+        certMissing: "Error 404",
+        certMissingTitle: "Certificate coming soon",
+        certMissingDesc: "The digital version of this certificate hasn't been published yet. In the meantime, you can view my other certifications.",
       },
       start: {
         eyebrow: "How to start",
@@ -1749,7 +1786,7 @@ export const translations: Record<Lang, Dict> = {
         email: "rbellidomatias@gmail.com",
       },
       footer: {
-        back: "Go to portfolio →",
+        back: "Go to my professional portfolio →",
         health: "Training does not replace medical advice. If you have an injury or persistent pain, check with a health professional first. Under 18: with permission from a parent or guardian.",
         rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
         withdrawal: "Cancel my purchase",

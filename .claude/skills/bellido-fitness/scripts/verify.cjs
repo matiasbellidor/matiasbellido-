@@ -108,7 +108,7 @@ async function overflow(page) {
     }));
     const banned = (info.text + " " + info.desc).match(/actuar|\bseguros?\b|insurance|\bDECI\b|\bFCE\b|\bUBA\b|data analy|análisis de datos|ciencias exactas/g);
     log(!banned, `sin contenido actuarial: ${banned ? banned.join(", ") : "ninguno"}`);
-    const certs = ["IFBB Academy — Personal Trainer / Bodybuilding Instructor", "IFBB Academy — Strength and Power", "IFBB Academy — Cross Pro Fitness", "ISSA — Certified Personal Trainer"];
+    const certs = ["IFBB Academy — Personal Trainer / Bodybuilding Instructor", "IFBB Academy — Nutrición Deportiva", "IFBB Academy — Cross Pro Fitness", "ISSA — Certified Personal Trainer"];
     const flat = info.text.replace(/\s+/g, " ");
     log(certs.every((c) => flat.includes(c.replace(" — ", " — "))) || certs.every((c) => flat.replace(/ — /g, "—").includes(c.replace(/ — /g, "—"))), `certificaciones textuales: ${certs.filter((c) => !flat.includes(c)).join(" | ") || "las 4"}`);
     log(!/24 ?h/i.test(info.text), `sin "atención 24 h"`);
