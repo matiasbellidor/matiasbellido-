@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useAnimation, useInView, useReducedMotion, type MotionProps } from "framer-motion";
-import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, Newspaper, ArrowRight, ArrowUpRight, Rocket } from "lucide-react";
+import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, Newspaper, ArrowRight, ArrowUpRight, Rocket, ChevronDown } from "lucide-react";
 /* Logos importados (no "/logos/…" como texto): el link lleva una huella del
    contenido y next/image no sirve uno viejo de su caché de 30 días */
 import githubLogo from "@/public/logos/github.png";
@@ -87,8 +87,9 @@ const digitalProjectsMeta: ProjectMeta[] = [
   { id: "agrocow", image: "/projects/Imagenes/agrocow-cover.webp", proposalUrl: "", imageBg: "#17201d" },
   { id: "zira", image: "/projects/Imagenes/zira-cover.webp", proposalUrl: ZIRA_GITHUB_URL, links: { github: "", review: ZIRA_REVIEW_URL }, imageBg: "#020203" },
   { id: "oneiric", image: "/projects/Imagenes/OneiricAi.png", proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05091a" },
-  { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL, imageBg: "#edebe9" },
+  // De más reciente a más antiguo: NexStock (May 2026) antes que NutriOps (Dic 2025) (pedido de Matías, 2026-11-10)
   { id: "nexstock", image: "/projects/Imagenes/NexStock.webp", proposalUrl: "", imageBg: "#f6f8f8" },
+  { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL, imageBg: "#edebe9" },
   { id: "budgents", image: "/projects/Imagenes/agents.webp", proposalUrl: BUDGENTS_PROPOSAL_URL, imageBg: "linear-gradient(#212327, #0d0e12)" },
   // Symbiosis AI: en pausa, al final de la categoría (pedido de Matías,
   // 2026-11-10). Mismo diseño de siempre; el ribbon dice "En pausa". La
@@ -97,6 +98,14 @@ const digitalProjectsMeta: ProjectMeta[] = [
   // bajar y era caro de pintar (Matías: "a veces tarda muchísimo en aparecer").
   { id: "symbiosis", image: "/projects/Imagenes/symbiosis-blur.webp", proposalUrl: "", comingSoon: true, imageBg: "linear-gradient(#161b20, #020305)" },
 ];
+
+/* Soluciones Digitales: cuántas tarjetas se ven antes de "Ver más proyectos",
+   y la fila (carrusel en el celular, grilla desde md) que comparten las
+   primeras y las que se despliegan */
+const INITIAL_DIGITAL = 6;
+const DIGITAL_ROW =
+  "flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-8 -mb-6 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3";
+const EXPAND_EASE = [0.22, 1, 0.36, 1] as const;
 
 // Bellido Asesoramientos va primero (pedido de Matías, 2026-11-06)
 const businessProjectsMeta: ProjectMeta[] = [
@@ -219,6 +228,26 @@ export default function Projects() {
   const [email, setEmail] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const lockControls = useAnimation();
+  /* "Ver más proyectos" (pedido de Matías, 2026-11-10): en Soluciones Digitales
+     se ven los primeros INITIAL_DIGITAL y el resto se despliega abajo.
+     - showAllDigital: abierto o cerrado (lo que dice el botón y aria-expanded);
+     - renderRest: las tarjetas extra están montadas (se desmontan recién cuando
+       termina la animación de cierre, así se ven cerrarse);
+     - restSettled: terminó de abrirse → overflow visible (si quedara hidden,
+       recortaría el brillo de hover de la tarjeta). */
+  const [showAllDigital, setShowAllDigital] = useState(false);
+  const [renderRest, setRenderRest] = useState(false);
+  const [restSettled, setRestSettled] = useState(false);
+  const reducedMotion = !!useReducedMotion();
+  const toggleDigital = () => {
+    if (showAllDigital) {
+      setRestSettled(false);
+      setShowAllDigital(false);
+    } else {
+      setRenderRest(true);
+      setShowAllDigital(true);
+    }
+  };
   /* Las imágenes de las tarjetas se piden cuando la sección se acerca (800 px
      antes): con loading="lazy" solo, las del carrusel del celular que están a
      la derecha recién se pedían al deslizar, y Symbiosis (la última) llegaba tarde.
@@ -312,6 +341,24 @@ export default function Projects() {
   const handleModalLangToggle = () => setLang(lang === "es" ? "en" : "es");
   const expandedProject = allProjects.find((p) => p.id === expandedId);
 
+  /* Una tarjeta de Soluciones Digitales con su envoltorio (el mismo para las
+     primeras 6 y para las que se despliegan con "Ver más proyectos") */
+  const renderDigitalCard = (project: (typeof digitalProjects)[number], i: number) => (
+    <div key={project.id} data-step-row="" className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
+      <ProjectCard
+        project={project}
+        index={i}
+        onClick={project.id === "symbiosis" ? handleLockClick : () => setExpandedId(project.id)}
+        lang={lang}
+        onAsesoramientosClick={() => setCanvaModalOpen(true)}
+        onOptionsClick={proposalOptions[project.id] ? () => setOptionsFor(project.id) : undefined}
+        lockControls={project.id === "symbiosis" ? lockControls : undefined}
+        locked={project.id === "symbiosis" ? clicked : undefined}
+        eager={gridNear}
+      />
+    </div>
+  );
+
   return (
     <Section id="projects" eyebrow={t.projects.eyebrow} title={t.projects.title}>
       {/* CATEGORÍA: Soluciones Digitales & IA — AgroCow primero y Symbiosis
@@ -337,26 +384,59 @@ export default function Projects() {
           <Code2 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
           <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
         </div>
-        <div data-carousel-row="" className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-8 -mb-6 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3">
-          {digitalProjects.map((project, i) => (
-            <div key={project.id} data-step-row="" className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
-              <ProjectCard
-                project={project}
-                index={i}
-                onClick={project.id === "symbiosis" ? handleLockClick : () => setExpandedId(project.id)}
-                lang={lang}
-                onAsesoramientosClick={() => setCanvaModalOpen(true)}
-                onOptionsClick={proposalOptions[project.id] ? () => setOptionsFor(project.id) : undefined}
-                lockControls={project.id === "symbiosis" ? lockControls : undefined}
-                locked={project.id === "symbiosis" ? clicked : undefined}
-                eager={gridNear}
-              />
-            </div>
-          ))}
+        <div data-carousel-row="" className={DIGITAL_ROW}>
+          {digitalProjects.slice(0, INITIAL_DIGITAL).map((project, i) => renderDigitalCard(project, i))}
         </div>
         <p className="text-center text-xs text-fg-muted mt-3 md:hidden uppercase tracking-wider">
           {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
         </p>
+
+        {/* "Ver más proyectos": el resto (hoy solo Symbiosis AI) se despliega ABAJO
+            de la fila, también en el celular (al final del carrusel, fuera de la
+            pantalla, no se vería aparecer). El contenedor existe siempre (alto 0
+            cerrado) para que aria-controls apunte a algo; las tarjetas se montan
+            al abrir y se desmontan al terminar de cerrar. Sin tarjetas extra, no
+            hay botón. Con "reducir movimiento", sin animación. */}
+        {digitalProjects.length > INITIAL_DIGITAL && (
+          <>
+            <motion.div
+              id="projects-digital-more"
+              initial={false}
+              animate={{ height: showAllDigital ? "auto" : 0, opacity: showAllDigital ? 1 : 0 }}
+              transition={{ duration: reducedMotion ? 0 : 0.5, ease: EXPAND_EASE }}
+              onAnimationComplete={() => {
+                if (showAllDigital) setRestSettled(true);
+                else setRenderRest(false);
+              }}
+              style={{ overflow: restSettled ? "visible" : "hidden" }}
+            >
+              {renderRest && (
+                <div data-carousel-row="" className={`${DIGITAL_ROW} pt-6`}>
+                  {digitalProjects.slice(INITIAL_DIGITAL).map((project, i) => renderDigitalCard(project, INITIAL_DIGITAL + i))}
+                </div>
+              )}
+            </motion.div>
+            <div className="mt-8 flex justify-center">
+              <button
+                type="button"
+                onClick={toggleDigital}
+                aria-expanded={showAllDigital}
+                aria-controls="projects-digital-more"
+                className="group inline-flex h-11 items-center gap-3 rounded-full glass pl-5 pr-2 text-sm font-semibold text-fg-soft transition-[color,box-shadow] duration-200 can-hover:hover:text-cyan can-hover:hover:shadow-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan touch-manipulation"
+              >
+                {showAllDigital ? (lang === "es" ? "Ver menos proyectos" : "Show fewer projects") : lang === "es" ? "Ver más proyectos" : "Show more projects"}
+                {/* Flecha: rebota suave mientras está cerrado; al abrir gira y apunta arriba */}
+                <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-full bg-cyan/10 text-cyan">
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform duration-300 ${
+                      showAllDigital ? "rotate-180" : "motion-safe:animate-[bounce_2.4s_ease-in-out_infinite]"
+                    }`}
+                  />
+                </span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* CATEGORÍA: Operaciones de Negocio. data-step / data-step-row: paradas de la
