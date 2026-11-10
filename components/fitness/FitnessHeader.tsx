@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Languages, Menu, X } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { BrandName, WhatsAppButton } from "./shared";
 /* El mismo ícono del Header del portfolio y del favicon */
@@ -28,7 +28,7 @@ const SECTIONS_BY_LINK: Record<string, string[]> = {
    en el borde de abajo. Menos de lg: logo, CTA y un menú desplegable con
    el mismo material y las mismas marcas. */
 export default function FitnessHeader() {
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const nav = t.fitness.nav;
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
@@ -84,6 +84,7 @@ export default function FitnessHeader() {
     };
   }, [open]);
 
+  const toggleLang = () => setLang(lang === "es" ? "en" : "es");
   const activeIndex = nav.links.findIndex((link) => link.id === active);
   const stateOf = (i: number) => (i === activeIndex ? "active" : activeIndex > i ? "done" : "next");
 
@@ -102,13 +103,39 @@ export default function FitnessHeader() {
             <BrandName className="text-[1.5rem]" sub={0.42} />
           </a>
 
-          <nav aria-label="Secciones" className="hidden lg:flex items-center gap-1">
+          {/* Entre lg y xl los links van más juntos para que el menú entre centrado */}
+          <nav aria-label="Secciones" className="hidden lg:flex items-center gap-0.5 xl:gap-1">
             {nav.links.map((link, i) => (
               <NavLink key={link.id} id={link.id} label={link.label} state={stateOf(i)} layoutId="nav-pill-desktop" />
             ))}
           </nav>
 
           <div className="justify-self-end flex items-center gap-1 shrink-0">
+            {/* Idioma: el mismo botón que el Header del portfolio (ícono + "es"/"en"); el idioma se
+                guarda y vale para todo el sitio. Desde sm: abajo de 640 px no entra al lado de la
+                marca y del CTA (faltaban hasta 40 px), así que ahí va en el menú. Entre lg y xl va
+                sin ícono: con las 6 secciones, la marca y el CTA, el menú no quedaba centrado. */}
+            <button
+              type="button"
+              onClick={toggleLang}
+              // Empieza con lo que se ve ("ES") para que el control por voz lo encuentre
+              aria-label={`${lang.toUpperCase()}, ${nav.lang}`}
+              className="fit-focus hidden sm:flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full px-3 lg:max-xl:px-2 transition-colors hover:bg-cyan/10 touch-manipulation"
+            >
+              <Languages className="w-4 h-4 text-cyan lg:max-xl:hidden" aria-hidden="true" />
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={lang}
+                  initial={{ opacity: 0, y: -3 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 3 }}
+                  transition={{ duration: 0.15 }}
+                  className="text-xs uppercase font-mono text-fg-soft"
+                >
+                  {lang}
+                </motion.span>
+              </AnimatePresence>
+            </button>
             <WhatsAppButton message={t.fitness.whatsappMessage} label={nav.cta} size="sm" labelFrom="min400" />
             <button
               ref={toggleRef}
@@ -148,6 +175,17 @@ export default function FitnessHeader() {
                     <NavLink id={link.id} label={link.label} state={stateOf(i)} layoutId="nav-pill-mobile" block onClick={() => setOpen(false)} />
                   </li>
                 ))}
+                {/* Idioma en el celular (abajo de sm no entra en la barra): dice a qué idioma cambia */}
+                <li className="sm:hidden mt-1 border-t border-cyan/15 pt-1">
+                  <button
+                    type="button"
+                    onClick={toggleLang}
+                    className="fit-focus flex h-12 w-full items-center gap-2 rounded-full px-4 text-base font-medium text-fg-muted transition-colors hover:text-fg"
+                  >
+                    <Languages className="w-4 h-4 text-cyan" aria-hidden="true" />
+                    <span lang={lang === "es" ? "en" : "es"}>{nav.langOther}</span>
+                  </button>
+                </li>
               </ul>
             </motion.nav>
           )}
@@ -179,7 +217,7 @@ function NavLink({
       onClick={onClick}
       aria-current={isActive ? "location" : undefined}
       className={`fit-focus relative flex items-center gap-2 rounded-full transition-colors ${
-        block ? "h-12 px-4 text-base" : "h-10 px-3 text-sm"
+        block ? "h-12 px-4 text-base" : "h-10 px-3 lg:max-xl:px-2 text-sm"
       } font-medium ${isActive ? "text-fg" : state === "done" ? "text-fg-soft hover:text-fg" : "text-fg-muted hover:text-fg"}`}
     >
       {isActive && (

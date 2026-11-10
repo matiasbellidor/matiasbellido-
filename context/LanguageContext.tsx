@@ -129,6 +129,10 @@ type FitnessDict = {
     menu: string;
     close: string;
     home: string;
+    /** aria-label del botón de idioma: dice a qué idioma cambia */
+    lang: string;
+    /** El otro idioma, en ese idioma: la opción del menú en el celular */
+    langOther: string;
   };
   hero: {
     tagline: string;
@@ -679,6 +683,8 @@ export const translations: Record<Lang, Dict> = {
         menu: "Abrir menú",
         close: "Cerrar menú",
         home: "Ir al inicio de la página",
+        lang: "Cambiar el idioma a inglés",
+        langOther: "English",
       },
       hero: {
         tagline: "Entrenamiento con criterio real.",
@@ -713,6 +719,8 @@ export const translations: Record<Lang, Dict> = {
           "El fitness me apasiona: llevar una buena alimentación y seguir rutinas en base a un objetivo. Eso me llevó a darles una mano: los ayudaba con sus primeras rutinas y a entender qué hacían y para qué.",
           "Con el tiempo decidí especializarme en musculación, fuerza y distintos métodos de entrenamiento, para ayudar a personas a alcanzar su objetivo.",
           "Hoy, junto a Bellido Asesoramientos, lidero un equipo que me ayuda a seguir de cerca a cada persona, en modalidad virtual o presencial.",
+          // Dato de Matías (2026-11-10)
+          "Hasta hoy ayudé a más de 30 personas a lograr su cambio físico.",
         ],
         photoAlt: "Matías Bellido",
         facts: [
@@ -737,13 +745,13 @@ export const translations: Record<Lang, Dict> = {
         eyebrow: "Cómo empezar",
         title: "De este mensaje a tu primera sesión.",
         intro: "Esto es lo que pasa después de que me escribís, paso por paso.",
-        freeCall: "Antes de decidir, si querés, charlamos gratis 1 a 1 sobre tu situación.",
+        freeCall: "Antes de decidir, si querés, tenés una charla gratis 1 a 1 conmigo sobre tu situación.",
         stepLabel: "Paso",
         steps: [
           { title: "Formulario inicial", desc: "Te mando un formulario corto con tus datos, tu historial y tus horarios. Es el requisito para armar un plan hecho para vos.", when: "Apenas me escribís" },
-          { title: "Definimos tu objetivo", desc: "Con tus respuestas fijamos qué querés lograr y desde dónde arrancás: tu objetivo y tu estado físico actual.", when: "Con el formulario" },
+          { title: "Analizo tu objetivo", desc: "Con tus respuestas veo qué querés lograr y desde dónde arrancás: tu objetivo y tu estado físico actual.", when: "Con el formulario" },
           { title: "Rutina y alimentación", desc: "Recibís tu rutina de entrenamiento y tu programa de alimentación personalizados.", when: "En unos 2 días" },
-          { title: "Seguimiento por WhatsApp", desc: "Cada vez que entrenás, alguien del equipo o yo te escribimos para saber cómo te fue y ajustar lo que haga falta.", when: "Después de cada entrenamiento" },
+          { title: "Seguimiento por WhatsApp", desc: "Cada vez que entrenás, te escribo para saber cómo te fue y ajusto lo que haga falta.", when: "Después de cada entrenamiento" },
         ],
         cta: "Escribime por WhatsApp",
       },
@@ -753,8 +761,8 @@ export const translations: Record<Lang, Dict> = {
         intro: "Antes de empezar es importante que entiendas cómo trabajo, para que no haya malentendidos.",
         items: [
           { title: "Mesociclos", desc: "Divido tu entrenamiento en bloques y ajusto el volumen y la intensidad según tu respuesta física y el análisis de tu progreso." },
-          { title: "Alimentación sin prohibiciones", desc: "No prohíbo ningún alimento: te informo y te aconsejo lo más favorable para tu situación. Si querés sumar algo que te gusta, lo incorporamos." },
-          { title: "Seguimiento por WhatsApp", desc: "Después de cada entrenamiento te escribimos para saber cómo te fue, mejorar tu rendimiento y que tengas ganas de seguir." },
+          { title: "Alimentación sin prohibiciones", desc: "No prohíbo ningún alimento: te informo y te aconsejo lo más favorable para tu situación. Si querés sumar algo que te gusta, lo incorporo." },
+          { title: "Seguimiento por WhatsApp", desc: "Después de cada entrenamiento te escribo para saber cómo te fue, mejorar tu rendimiento y que tengas ganas de seguir." },
           { title: "Virtual, con honestidad", desc: "En la modalidad virtual es más difícil corregir la ejecución. Por eso podés escribirme cuando quieras y te mando un video que la explica." },
         ],
         sheet: {
@@ -771,12 +779,12 @@ export const translations: Record<Lang, Dict> = {
       assimilation: {
         eyebrow: "Asimilación del deportista",
         title: "Tus primeros tres meses, etapa por etapa.",
-        intro: "El entrenamiento personal es un servicio de mediano o largo plazo. Así se organizan los primeros meses, para que sepas exactamente qué hacemos y por qué.",
+        intro: "El entrenamiento personal es un servicio de mediano o largo plazo. Así se organizan los primeros meses, para que sepas exactamente qué hago y por qué.",
         monthLabel: "Mes",
         months: [
-          "Entendemos tu objetivo y tu estado físico actual, y mejoramos la técnica de los ejercicios para que el progreso siguiente sea más eficiente y rápido.",
-          "Con tu situación más clara, detectamos tus puntos débiles para pulirlos, subimos las cargas y ajustamos tu dieta según tu rendimiento.",
-          "Empezamos a intercalar bloques de fuerza e hipertrofia para mejorar tu rendimiento y tu composición corporal, evitando el estancamiento y posibles lesiones.",
+          "Entiendo tu objetivo y tu estado físico actual, y mejoro tu técnica en los ejercicios para que el progreso siguiente sea más eficiente y rápido.",
+          "Con tu situación más clara, detecto tus puntos débiles para pulirlos, subo las cargas y ajusto tu dieta según tu rendimiento.",
+          "Empiezo a intercalar bloques de fuerza e hipertrofia para mejorar tu rendimiento y tu composición corporal, evitando el estancamiento y posibles lesiones.",
         ],
       },
       results: {
@@ -815,7 +823,7 @@ export const translations: Record<Lang, Dict> = {
             items: [
               { q: "¿Me vas a prohibir comidas o el alcohol?", a: "No. Te doy recomendaciones y seguirlas es tu decisión." },
               { q: "¿La dieta puede incluir suplementos?", a: "Sí, si me lo pedís: armo tu dieta incluyendo la suplementación natural como recurso." },
-              { q: "¿Tengo comidas libres?", a: "Sí. No hay un número fijo: lo charlamos y vemos qué se alinea mejor con tus objetivos." },
+              { q: "¿Tengo comidas libres?", a: "Sí. No hay un número fijo: contame qué te gustaría y te digo qué se alinea mejor con tus objetivos." },
             ],
           },
         ],
@@ -1057,7 +1065,7 @@ export const translations: Record<Lang, Dict> = {
         },
       },
       contact: {
-        title: "Contame tu objetivo y armamos tu punto de partida.",
+        title: "Contame tu objetivo y armo tu punto de partida.",
         desc: "Escribime por WhatsApp con tu situación. Te respondo con honestidad si te puedo ayudar y qué plan te conviene.",
         cta: "Escribime por WhatsApp",
         freeCall: "La primera charla 1 a 1 es gratis.",
@@ -1368,6 +1376,8 @@ export const translations: Record<Lang, Dict> = {
         menu: "Open menu",
         close: "Close menu",
         home: "Go to the top of the page",
+        lang: "Switch language to Spanish",
+        langOther: "Español",
       },
       hero: {
         tagline: "Training with real criteria.",
@@ -1401,6 +1411,7 @@ export const translations: Record<Lang, Dict> = {
           "I'm passionate about fitness: eating well and following routines built around a goal. That led me to give them a hand: I helped them with their first routines and with understanding what they were doing and why.",
           "Over time I decided to specialize in bodybuilding, strength and different training methods, to help people reach their goals.",
           "Today, with Bellido Asesoramientos, I lead a team that helps me follow each person closely, online or in person.",
+          "So far, I've helped more than 30 people achieve their physical transformation.",
         ],
         photoAlt: "Matías Bellido",
         facts: [
@@ -1425,24 +1436,24 @@ export const translations: Record<Lang, Dict> = {
         eyebrow: "How to start",
         title: "From this message to your first session.",
         intro: "This is what happens after you message me, step by step.",
-        freeCall: "Before you decide, we can have a free 1-on-1 call about your situation if you'd like.",
+        freeCall: "Before you decide, you can have a free 1-on-1 call with me about your situation if you'd like.",
         stepLabel: "Step",
         steps: [
           { title: "Intake form", desc: "I send you a short form with your details, your history and your schedule. It's what I need to build a plan made for you.", when: "Right after you message me" },
-          { title: "We set your goal", desc: "With your answers we define what you want to achieve and where you're starting from: your goal and your current fitness.", when: "With the form" },
+          { title: "I review your goal", desc: "With your answers I look at what you want to achieve and where you're starting from: your goal and your current fitness.", when: "With the form" },
           { title: "Routine and nutrition", desc: "You get your personalized training routine and nutrition program.", when: "In about 2 days" },
-          { title: "Follow-up on WhatsApp", desc: "Every time you train, someone from the team or I message you to ask how it went and adjust whatever's needed.", when: "After every session" },
+          { title: "Follow-up on WhatsApp", desc: "Every time you train, I message you to ask how it went and adjust whatever's needed.", when: "After every session" },
         ],
         cta: "Message me on WhatsApp",
       },
       method: {
         eyebrow: "My method",
         title: "Planned, measured and adjusted to how you respond.",
-        intro: "Before we start, it's important that you understand how I work, so there are no misunderstandings.",
+        intro: "Before you start, it's important that you understand how I work, so there are no misunderstandings.",
         items: [
           { title: "Mesocycles", desc: "I split your training into blocks and adjust volume and intensity based on your physical response and the analysis of your progress." },
-          { title: "No banned foods", desc: "I don't ban any food: I inform you and advise what's best for your situation. If you want to add something you like, we work it in." },
-          { title: "Follow-up on WhatsApp", desc: "After every session we message you to ask how it went, improve your performance and keep you wanting to continue." },
+          { title: "No banned foods", desc: "I don't ban any food: I inform you and advise what's best for your situation. If you want to add something you like, I work it in." },
+          { title: "Follow-up on WhatsApp", desc: "After every session I message you to ask how it went, improve your performance and keep you wanting to continue." },
           { title: "Online, honestly", desc: "Online, correcting your form is harder. That's why you can message me anytime and I'll send you a video that explains it." },
         ],
         sheet: {
@@ -1459,12 +1470,12 @@ export const translations: Record<Lang, Dict> = {
       assimilation: {
         eyebrow: "Athlete assimilation",
         title: "Your first three months, stage by stage.",
-        intro: "Personal training is a medium to long-term service. This is how the first months are organized, so you know exactly what we do and why.",
+        intro: "Personal training is a medium to long-term service. This is how the first months are organized, so you know exactly what I do and why.",
         monthLabel: "Month",
         months: [
-          "We understand your goal and your current fitness, and improve your exercise technique so the progress that follows is more efficient and faster.",
-          "With your situation clearer, we spot your weak points to polish them, increase the loads and adjust your diet based on your performance.",
-          "We start alternating strength and hypertrophy blocks to improve your performance and body composition, avoiding plateaus and possible injuries.",
+          "I get to know your goal and your current fitness, and improve your exercise technique so the progress that follows is more efficient and faster.",
+          "With your situation clearer, I spot your weak points to polish them, increase the loads and adjust your diet based on your performance.",
+          "I start alternating strength and hypertrophy blocks to improve your performance and body composition, avoiding plateaus and possible injuries.",
         ],
       },
       results: {
@@ -1503,7 +1514,7 @@ export const translations: Record<Lang, Dict> = {
             items: [
               { q: "Will you ban foods or alcohol?", a: "No. I give you recommendations, and following them is your decision." },
               { q: "Can the diet include supplements?", a: "Yes, if you ask me: I build your diet including natural supplementation as a resource." },
-              { q: "Do I get cheat meals?", a: "Yes. There's no fixed number: we talk it through and see what fits your goals best." },
+              { q: "Do I get cheat meals?", a: "Yes. There's no fixed number: tell me what you'd like and I'll tell you what fits your goals best." },
             ],
           },
         ],
@@ -1632,7 +1643,7 @@ export const translations: Record<Lang, Dict> = {
         inPerson: {
           id: "presencial",
           title: "In-person guided training",
-          desc: "1-on-1 sessions at the gym. Add as many as you want to the cart or ask me about a class pack. Before we start I'll send you the terms and conditions.",
+          desc: "1-on-1 sessions at the gym. Add as many as you want to the cart or ask me about a class pack. Before you start I'll send you the terms and conditions.",
           price: 24700,
           unit: "per session",
           cta: "Ask about a pack",
@@ -1730,7 +1741,7 @@ export const translations: Record<Lang, Dict> = {
         },
       },
       contact: {
-        title: "Tell me your goal and we'll set your starting point.",
+        title: "Tell me your goal and I'll set your starting point.",
         desc: "Message me on WhatsApp with your situation. I'll tell you honestly whether I can help and which plan fits you.",
         cta: "Message me on WhatsApp",
         freeCall: "The first 1-on-1 call is free.",
