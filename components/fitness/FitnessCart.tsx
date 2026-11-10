@@ -256,7 +256,20 @@ function CartStepItems() {
                 </p>
               )}
             </div>
-            <p className="font-semibold text-fg tabular-nums whitespace-nowrap">{formatARS(line.product.price * line.qty)}</p>
+            {line.discounted ? (
+              <p className="text-right tabular-nums whitespace-nowrap">
+                <span className="block text-xs text-fg-muted line-through">
+                  <span className="sr-only">{c.subtotal}: </span>
+                  {formatARS(line.product.price * line.qty)}
+                </span>
+                <span className="block font-semibold text-cyan">
+                  <span className="sr-only">{c.discount}: </span>
+                  {formatARS(line.finalPrice)}
+                </span>
+              </p>
+            ) : (
+              <p className="font-semibold text-fg tabular-nums whitespace-nowrap">{formatARS(line.product.price * line.qty)}</p>
+            )}
           </div>
           <div className="mt-3 flex items-center justify-between gap-4">
             {line.product.maxQty > 1 ? (

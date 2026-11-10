@@ -36,7 +36,7 @@ export type Product = { id: string; name: string; price: number; unit: string; m
 
 type CartContextValue = {
   /** discounted: el código de descuento se aplicó a esta línea */
-  lines: (CartLine & { product: Product; discounted: boolean })[];
+  lines: (CartLine & { product: Product; discounted: boolean; /** lo que cuesta la línea ya con el descuento */ finalPrice: number })[];
   count: number;
   subtotal: number;
   /** Lo que se resta por el código (0 si no hay código o no hay planes/packs) */
@@ -150,7 +150,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const rate = isValidCode(state.code) ? DISCOUNT_CODES[state.code] : 0;
     const lines = state.lines
       .filter((l) => catalog[l.id])
-      .map((l) => ({ ...l, product: catalog[l.id], discounted: rate > 0 && catalog[l.id].monthly }));
+      .map((l) => {
+        const product = catalog[l.id];
+        const discounted = rate > 0 && product.monthly;
+        const full = l.qty * product.price;
+        return { ...l, product, discounted, finalPrice: discounted ? full - Math.round(full * rate) : full };
+      });
     const subtotal = lines.reduce((n, l) => n + l.qty * l.product.price, 0);
     const discount = Math.round(lines.filter((l) => l.discounted).reduce((n, l) => n + l.qty * l.product.price * rate, 0));
     return {
