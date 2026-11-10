@@ -723,9 +723,9 @@ export const translations: Record<Lang, Dict> = {
         certsTitle: "Certificaciones",
         certs: [
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
-          "IFBB Academy — Strength and Power",
-          "IFBB Academy — Cross Pro Fitness",
           "ISSA — Certified Personal Trainer",
+          "IFBB Academy — Cross Pro Fitness",
+          "IFBB Academy — Strength and Power",
         ],
         certView: "Ver certificado",
         certNewTab: "(se abre en otra pestaña)",
@@ -1411,9 +1411,9 @@ export const translations: Record<Lang, Dict> = {
         certsTitle: "Certifications",
         certs: [
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
-          "IFBB Academy — Strength and Power",
-          "IFBB Academy — Cross Pro Fitness",
           "ISSA — Certified Personal Trainer",
+          "IFBB Academy — Cross Pro Fitness",
+          "IFBB Academy — Strength and Power",
         ],
         certView: "View certificate",
         certNewTab: "(opens in a new tab)",
