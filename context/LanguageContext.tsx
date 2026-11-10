@@ -166,6 +166,8 @@ type FitnessDict = {
     certClose: string;
     /** Va antes del nombre en el texto alternativo de la imagen */
     certAlt: string;
+    /** Lo que muestra el visor si la certificación todavía no tiene archivo (pedido de Matías) */
+    certMissing: string;
   };
   start: {
     eyebrow: string;
@@ -721,14 +723,15 @@ export const translations: Record<Lang, Dict> = {
         certsTitle: "Certificaciones",
         certs: [
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
-          "IFBB — Strength and Power",
-          "IFBB — Cross Pro Fitness",
+          "IFBB Academy — Strength and Power",
+          "IFBB Academy — Cross Pro Fitness",
           "ISSA — Certified Personal Trainer",
         ],
         certView: "Ver certificado",
         certNewTab: "(se abre en otra pestaña)",
         certClose: "Cerrar certificado",
         certAlt: "Certificado",
+        certMissing: "ERROR 404",
       },
       start: {
         eyebrow: "Cómo empezar",
@@ -1408,14 +1411,15 @@ export const translations: Record<Lang, Dict> = {
         certsTitle: "Certifications",
         certs: [
           "IFBB Academy — Personal Trainer / Bodybuilding Instructor",
-          "IFBB — Strength and Power",
-          "IFBB — Cross Pro Fitness",
+          "IFBB Academy — Strength and Power",
+          "IFBB Academy — Cross Pro Fitness",
           "ISSA — Certified Personal Trainer",
         ],
         certView: "View certificate",
         certNewTab: "(opens in a new tab)",
         certClose: "Close certificate",
         certAlt: "Certificate",
+        certMissing: "ERROR 404",
       },
       start: {
         eyebrow: "How to start",

@@ -19,8 +19,9 @@ import type { FitnessAssets } from "@/components/fitness/shared";
                       o public/fitness/clients/client-01-before.jpg + client-01-after.jpg
      Certificados:    public/fitness/Certificados/<nombre de la certificación>.jpg/.png/.pdf
                       (ej. "IFBB Cross Pro Fitness.jpg"). El nombre se compara con
-                      t.fitness.about.certs (FitnessAbout.tsx: matchCertificate):
-                      la certificación que tiene archivo se puede abrir.
+                      t.fitness.about.certs (FitnessAbout.tsx: matchCertificates):
+                      tiene que decir la entidad (IFBB, ISSA) y alguna palabra del
+                      título. Sin archivo, el visor muestra "ERROR 404".
 
    Extensiones: .jpg .jpeg .png .webp .avif. Se usa el nombre real del
    archivo, así anda igual en Windows y en Vercel (Linux distingue

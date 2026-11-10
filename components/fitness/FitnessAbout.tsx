@@ -15,44 +15,60 @@ type Certificate = FitnessAssets["certificates"][number];
 const words = (s: string) =>
   s
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "") // tildes sueltas tras NFD
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter(Boolean);
 
-/* Qué archivo de public/fitness/Certificados es el de cada certificación.
-   Primero el nombre exacto ("IFBB Cross Pro Fitness.jpg"); si no, un nombre
-   más corto o más largo con las mismas palabras ("IFBB Personal Trainer.jpg"
-   sirve para la de IFBB Academy). Sin archivo, la certificación se muestra
-   igual pero no se puede abrir. */
-function matchCertificate(cert: string, files: Certificate[]): Certificate | null {
-  const c = words(cert);
-  const cSet = new Set(c);
-  let best: Certificate | null = null;
-  let bestScore = 0;
-  for (const file of files) {
-    const w = words(file.name);
-    if (w.length < 2) continue; // "IFBB.jpg" solo no alcanza para saber cuál es
-    const wSet = new Set(w);
-    const score = w.join(" ") === c.join(" ") ? 2 : w.every((x) => cSet.has(x)) || c.every((x) => wSet.has(x)) ? 1 : 0;
-    if (score > bestScore) {
-      best = file;
-      bestScore = score;
-    }
+/* Palabras que no sirven para distinguir una certificación de otra */
+const STOPWORDS = new Set(["and", "y", "de", "of", "the", "en", "in"]);
+
+/* Qué archivo de public/fitness/Certificados va con cada certificación.
+   El nombre del archivo tiene que tener la entidad (la primera palabra:
+   "IFBB", "ISSA") y gana la certificación con más palabras del título en
+   común. Así "IFBB Certified Personal Trainer.png" va con "IFBB Academy —
+   Personal Trainer / Bodybuilding Instructor" (comparten personal y trainer)
+   y no con "ISSA — Certified Personal Trainer" (otra entidad). Cada archivo
+   va con una sola certificación: primero los pares con más palabras en
+   común. Sin archivo, la certificación se muestra igual pero no se abre. */
+function matchCertificates(certs: string[], files: Certificate[]): (Certificate | null)[] {
+  const pairs: { ci: number; fi: number; score: number }[] = [];
+  certs.forEach((cert, ci) => {
+    const [issuer, ...rest] = cert.split(" — ");
+    const entity = words(issuer)[0];
+    const title = words(rest.join(" ")).filter((w) => !STOPWORDS.has(w));
+    files.forEach((file, fi) => {
+      const fileWords = new Set(words(file.name));
+      if (!entity || !fileWords.has(entity)) return;
+      const score = new Set(title.filter((w) => fileWords.has(w))).size;
+      if (score > 0) pairs.push({ ci, fi, score });
+    });
+  });
+  pairs.sort((p, q) => q.score - p.score || p.ci - q.ci);
+  const matched: (Certificate | null)[] = certs.map(() => null);
+  const usedFiles = new Set<number>();
+  for (const { ci, fi } of pairs) {
+    if (matched[ci] || usedFiles.has(fi)) continue;
+    matched[ci] = files[fi];
+    usedFiles.add(fi);
   }
-  return best;
+  return matched;
 }
 
 /* Quién soy + certificaciones. Las certificaciones son la señal de
    autoridad de la sección: chips sobrios con la entidad arriba y el
    título abajo, textuales (t.fitness.about.certs, "Entidad — Título").
-   Las que tienen archivo en public/fitness/Certificados se pueden abrir
-   (pedido de Matías, 2026-11-10): una imagen se ve en un visor encima de
-   la página (no se sale de la landing); un PDF se abre en otra pestaña. */
+   Todas se pueden abrir (pedido de Matías, 2026-11-10): una imagen se ve
+   en un visor encima de la página (no se sale de la landing); un PDF se
+   abre en otra pestaña. Si todavía no hay archivo en
+   public/fitness/Certificados, el visor muestra "ERROR 404" (también pedido
+   de Matías) hasta que lo suba: entonces sale la imagen, sin tocar código. */
 export default function FitnessAbout({ photo, certificates }: { photo: string | null; certificates: Certificate[] }) {
   const { t } = useLanguage();
   const a = t.fitness.about;
-  const [viewing, setViewing] = useState<{ label: string; url: string } | null>(null);
+  /** url null = la certificación todavía no tiene archivo */
+  const [viewing, setViewing] = useState<{ label: string; url: string | null } | null>(null);
+  const matched = matchCertificates(a.certs, certificates);
 
   return (
     <FitnessSection id="sobre-mi">
@@ -95,7 +111,7 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
             {a.certs.map((cert, i) => {
               const [issuer, ...rest] = cert.split(" — ");
               const title = rest.join(" — ");
-              const file = matchCertificate(cert, certificates);
+              const file = matched[i];
               const body = (
                 <>
                   <BadgeCheck className="w-6 h-6 shrink-0 text-cyan" aria-hidden="true" />
@@ -104,18 +120,15 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
                     {/* Guion solo para lectores de pantalla: se lee igual que el texto original */}
                     <span className="sr-only"> — </span>
                     <span className="mt-1 block text-sm md:text-base font-semibold text-fg leading-snug">{title}</span>
-                    {file && (
-                      <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-fg-soft">
-                        {file.pdf ? <ExternalLink className="w-3.5 h-3.5 text-cyan" aria-hidden="true" /> : <Eye className="w-3.5 h-3.5 text-cyan" aria-hidden="true" />}
-                        {a.certView}
-                        {file.pdf && <span className="sr-only"> {a.certNewTab}</span>}
-                      </span>
-                    )}
+                    <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-fg-soft">
+                      {file?.pdf ? <ExternalLink className="w-3.5 h-3.5 text-cyan" aria-hidden="true" /> : <Eye className="w-3.5 h-3.5 text-cyan" aria-hidden="true" />}
+                      {a.certView}
+                      {file?.pdf && <span className="sr-only"> {a.certNewTab}</span>}
+                    </span>
                   </span>
                 </>
               );
-              const chip = "fit-surface rounded-2xl p-4 flex h-full w-full items-start gap-3 text-left";
-              const clickable = `${chip} fit-focus transition-colors can-hover:hover:border-cyan/50 touch-manipulation`;
+              const clickable = "fit-surface fit-focus rounded-2xl p-4 flex h-full w-full items-start gap-3 text-left transition-colors can-hover:hover:border-cyan/50 touch-manipulation";
               return (
                 <motion.li
                   key={cert}
@@ -124,14 +137,12 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
                   viewport={{ once: true, margin: "0px 0px -40px 0px" }}
                   transition={{ duration: 0.45, ease: EASE, delay: i * 0.06 }}
                 >
-                  {!file ? (
-                    <p className={chip}>{body}</p>
-                  ) : file.pdf ? (
+                  {file?.pdf ? (
                     <a href={file.url} target="_blank" rel="noopener noreferrer" className={clickable}>
                       {body}
                     </a>
                   ) : (
-                    <button type="button" onClick={() => setViewing({ label: `${issuer} — ${title}`, url: file.url })} className={clickable}>
+                    <button type="button" onClick={() => setViewing({ label: `${issuer} — ${title}`, url: file?.url ?? null })} className={clickable}>
                       {body}
                     </button>
                   )}
@@ -153,7 +164,7 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
    certificación que se abrió. Va en un portal a <body>: dentro de la
    sección, un ancestro con transform (las animaciones de entrada) haría que
    el `fixed` se ubique respecto de él y no de la pantalla. */
-function CertificateViewer({ cert, onClose }: { cert: { label: string; url: string } | null; onClose: () => void }) {
+function CertificateViewer({ cert, onClose }: { cert: { label: string; url: string | null } | null; onClose: () => void }) {
   const { t } = useLanguage();
   const a = t.fitness.about;
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -217,15 +228,22 @@ function CertificateViewer({ cert, onClose }: { cert: { label: string; url: stri
             </div>
             {/* min-h-0 + max-h: la imagen se achica para entrar entera en la pantalla, sin cortarse */}
             <div className="min-h-0 flex-1 flex items-center justify-center">
-              <Image
-                src={cert.url}
-                alt={`${a.certAlt}: ${cert.label}`}
-                width={1600}
-                height={1131}
-                sizes="(max-width: 896px) 100vw, 864px"
-                quality={85}
-                className="block h-auto w-auto max-w-full max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] rounded-2xl object-contain"
-              />
+              {cert.url ? (
+                <Image
+                  src={cert.url}
+                  alt={`${a.certAlt}: ${cert.label}`}
+                  width={1600}
+                  height={1131}
+                  sizes="(max-width: 896px) 100vw, 864px"
+                  quality={85}
+                  className="block h-auto w-auto max-w-full max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] rounded-2xl object-contain"
+                />
+              ) : (
+                // Todavía sin archivo: un lugar del tamaño de un diploma con "ERROR 404"
+                <div className="fit-surface grid w-full aspect-[1.414] max-h-[calc(100dvh-8rem)] sm:max-h-[calc(100dvh-10rem)] place-items-center rounded-2xl">
+                  <p className="font-display text-4xl sm:text-6xl font-bold tracking-widest text-fg-muted">{a.certMissing}</p>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>
