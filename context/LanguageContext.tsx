@@ -1008,9 +1008,10 @@ export const translations: Record<Lang, Dict> = {
           { id: "recetario", title: "Recetario", price: 15800, items: ["Más de 10 recetas saludables que te ayudan a ahorrar tiempo en la cocina"] },
         ],
       },
-      // Carrito: nombres y botón según la decisión de Matías ("Carrito", "🛒 Agregar al carrito")
+      // Carrito: nombres y botón según la decisión de Matías ("Carrito", "🛒 Agregar al carrito").
+      // El 🛒 lo pone AddToCartButton como imagen de Apple (cart.tsx): acá va solo el texto.
       cart: {
-        add: "🛒 Agregar al carrito",
+        add: "Agregar al carrito",
         inCart: "En el carrito · Ver",
         open: "Ver carrito",
         title: "Carrito",
@@ -1700,7 +1701,7 @@ export const translations: Record<Lang, Dict> = {
         ],
       },
       cart: {
-        add: "🛒 Add to cart",
+        add: "Add to cart",
         inCart: "In your cart · View",
         open: "View cart",
         title: "Cart",

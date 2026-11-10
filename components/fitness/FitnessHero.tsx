@@ -3,10 +3,13 @@
 import Image from "next/image";
 import { useRef, type CSSProperties, type MouseEvent as ReactMouseEvent } from "react";
 import { motion, useMotionValue, useSpring, useMotionTemplate, useReducedMotion } from "framer-motion";
-import { Check } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useHasFinePointer } from "@/components/Magnetic";
+import { Emoji, type EmojiName } from "./emoji";
 import { BrandName, SecondaryLink, WhatsAppButton } from "./shared";
+
+/* Los tres pilares del hero llevan el mismo emoji que en "Mi método" */
+const METHOD_EMOJIS: EmojiName[] = ["barChart", "plate", "speech"];
 
 /* Entrada en CSS (.hero-reveal / .hero-photo-in de globals.css), igual que
    el Hero del portfolio: arranca con el primer paint, sin esperar al JS, y
@@ -81,9 +84,10 @@ export default function FitnessHero({ photo }: { photo: string }) {
           </p>
 
           <ul style={delay(0.44)} className="hero-reveal mt-6 flex flex-wrap gap-2">
-            {h.method.map((item) => (
+            {h.method.map((item, i) => (
               <li key={item} className="fit-surface inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-fg">
-                <Check className="w-4 h-4 shrink-0 text-cyan" aria-hidden="true" />
+                {/* eager: está en la primera pantalla, que no espere al lazy-load */}
+                <Emoji name={METHOD_EMOJIS[i % METHOD_EMOJIS.length]} className="w-[18px] h-[18px]" eager />
                 {item}
               </li>
             ))}

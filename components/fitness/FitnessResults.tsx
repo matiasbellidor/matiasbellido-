@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Clock, ImageIcon, Pause, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, Pause, Play } from "lucide-react";
+import { Emoji } from "./emoji";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal, SectionHeading, type FitnessAssets } from "./shared";
 
@@ -409,7 +410,7 @@ function BeforeAfter({
           aria-hidden="true"
           className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2 inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-black/60 backdrop-blur-sm border border-white/20 px-4 py-2 text-sm font-semibold text-white"
         >
-          <Clock className="w-4 h-4 text-[rgb(0,229,255)]" />
+          <Emoji name="stopwatch" className="w-4 h-4" />
           {caption}
         </span>
       )}

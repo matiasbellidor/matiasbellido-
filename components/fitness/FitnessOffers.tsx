@@ -2,13 +2,15 @@
 
 import { useEffect, useId, useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, ChefHat, Apple, HandCoins, Check, Tag, UserCheck, type LucideIcon } from "lucide-react";
+import { Check } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, Reveal, SectionHeading, WhatsAppButton, formatARS, isValidCode } from "./shared";
 import { AddToCartButton, cleanCode, cleanName, useCart } from "./cart";
+import { Emoji, type EmojiName } from "./emoji";
 
-/* Un ícono por infoproducto, por id (no por posición: el orden de la lista puede cambiar) */
-const PRODUCT_ICONS: Record<string, LucideIcon> = { anatomia: BookOpen, alimentacion: Apple, recetario: ChefHat };
+/* Un emoji de Apple por infoproducto, por id (no por posición: el orden de la
+   lista puede cambiar). Uno nuevo sin entrada acá lleva el libro. */
+const PRODUCT_EMOJIS: Record<string, EmojiName> = { anatomia: "biceps", alimentacion: "apple", recetario: "cook" };
 
 /* Infoproductos y Afiliados (PDF, páginas 11 y 12). Superficies planas:
    el vidrio queda para los planes, que son la decisión principal. */
@@ -21,7 +23,7 @@ export function FitnessInfoproducts() {
       <SectionHeading eyebrow={ip.eyebrow} title={ip.title} intro={ip.intro} />
       <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {ip.items.map((product, i) => {
-          const Icon = PRODUCT_ICONS[product.id] ?? BookOpen;
+          const emoji = PRODUCT_EMOJIS[product.id] ?? "book";
           return (
             <motion.li
               key={product.title}
@@ -31,8 +33,8 @@ export function FitnessInfoproducts() {
               transition={{ duration: 0.5, ease: EASE, delay: i * 0.08 }}
               className="fit-surface rounded-3xl p-6 flex flex-col"
             >
-              <span className="w-12 h-12 rounded-2xl bg-cyan/10 flex items-center justify-center">
-                <Icon className="w-6 h-6 text-cyan" aria-hidden="true" />
+              <span className="w-12 h-12 rounded-2xl bg-cyan/10 flex items-center justify-center" aria-hidden="true">
+                <Emoji name={emoji} className="w-8 h-8" />
               </span>
               <h3 className="mt-4 font-display text-xl font-bold text-fg">{product.title}</h3>
               <ul className="mt-3 space-y-2 flex-1">
@@ -65,7 +67,7 @@ export function FitnessAffiliates() {
         <div className="fit-surface rounded-3xl p-6 md:p-12 grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-12 items-center">
           <div>
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-cyan mb-4">
-              <HandCoins className="w-4 h-4" aria-hidden="true" />
+              <Emoji name="moneyBag" className="w-4 h-4" />
               {af.eyebrow}
             </p>
             <h2 className="font-display text-[clamp(1.75rem,4.5vw,2.5rem)] font-bold leading-[1.1] tracking-tight text-fg">{af.title}</h2>
@@ -98,7 +100,7 @@ export function FitnessAffiliates() {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <Reveal className="h-full">
           <ReferralBox
-            icon={Tag}
+            emoji="label"
             title={af.referral.code.title}
             desc={af.referral.code.desc}
             label={af.referral.code.label}
@@ -115,7 +117,7 @@ export function FitnessAffiliates() {
         </Reveal>
         <Reveal delay={0.1} className="h-full">
           <ReferralBox
-            icon={UserCheck}
+            emoji="handshake"
             title={af.referral.referrer.title}
             desc={af.referral.referrer.desc}
             label={af.referral.referrer.label}
@@ -136,7 +138,7 @@ export function FitnessAffiliates() {
    Se guarda con el botón o con Enter; al guardar muestra el valor y un "Quitar".
    Si el valor cambia desde afuera (ej. se quita en el carrito), el campo se vacía. */
 function ReferralBox({
-  icon: Icon,
+  emoji,
   title,
   desc,
   label,
@@ -150,7 +152,7 @@ function ReferralBox({
   maxLength,
   uppercase = false,
 }: {
-  icon: LucideIcon;
+  emoji: EmojiName;
   title: string;
   desc: string;
   label: string;
@@ -190,8 +192,8 @@ function ReferralBox({
   return (
     <form onSubmit={submit} className="fit-surface rounded-3xl p-6 h-full flex flex-col">
       <h3 className="flex items-center gap-3 font-display text-xl font-bold text-fg">
-        <span className="grid place-items-center w-10 h-10 shrink-0 rounded-xl bg-cyan/10">
-          <Icon className="w-5 h-5 text-cyan" aria-hidden="true" />
+        <span className="grid place-items-center w-10 h-10 shrink-0 rounded-xl bg-cyan/10" aria-hidden="true">
+          <Emoji name={emoji} />
         </span>
         {title}
       </h3>

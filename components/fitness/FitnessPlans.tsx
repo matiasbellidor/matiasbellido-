@@ -2,7 +2,8 @@
 
 import { useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Sparkles, Users } from "lucide-react";
+import { Check } from "lucide-react";
+import { Emoji } from "./emoji";
 import { useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, Reveal, SectionHeading, WhatsAppButton, formatARS } from "./shared";
 import { AddToCartButton } from "./cart";
@@ -94,7 +95,7 @@ export default function FitnessPlans() {
               <h3 className="font-display text-2xl font-bold text-fg">{plan.name}</h3>
               {/* La diferencia principal, antes del precio y la lista */}
               <p className="mt-3 inline-flex self-start items-start gap-2 rounded-2xl bg-cyan/10 border border-cyan/20 px-3 py-2 text-sm font-semibold text-fg leading-snug">
-                <Sparkles className="w-4 h-4 shrink-0 mt-0.5 text-cyan" aria-hidden="true" />
+                <Emoji name="sparkles" className="w-[18px] h-[18px]" />
                 {plan.highlight}
               </p>
               <div className="mt-4 pb-6 border-b border-cyan/15">
@@ -127,8 +128,8 @@ export default function FitnessPlans() {
 
       <Reveal className="mt-8">
         <div className="fit-surface rounded-3xl p-6 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-          <span className="shrink-0 w-12 h-12 rounded-2xl bg-cyan/10 flex items-center justify-center">
-            <Users className="w-6 h-6 text-cyan" aria-hidden="true" />
+          <span className="shrink-0 w-12 h-12 rounded-2xl bg-cyan/10 flex items-center justify-center" aria-hidden="true">
+            <Emoji name="weightlifter" className="w-8 h-8" />
           </span>
           <div className="flex-1 min-w-0">
             <h3 className="font-display text-xl font-bold text-fg">{pl.inPerson.title}</h3>

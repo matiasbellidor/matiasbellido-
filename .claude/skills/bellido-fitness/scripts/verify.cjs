@@ -250,7 +250,8 @@ async function overflow(page) {
     await page.locator("#resultados").scrollIntoViewIfNeeded();
     await page.waitForTimeout(900);
     const pos = () => page.evaluate(() => [...document.querySelectorAll('#resultados [role="slider"]')].map((k) => +k.getAttribute("aria-valuenow")));
-    const imgs = await page.evaluate(() => [...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => i.complete && i.naturalWidth > 0));
+    // Solo las fotos: el ⏱️ del tiempo de cada cliente es un emoji (img[data-emoji], emoji.tsx)
+    const imgs = await page.evaluate(() => [...document.querySelectorAll("#resultados [role='listitem'] img:not([data-emoji])")].map((i) => i.complete && i.naturalWidth > 0));
     log(imgs.length === 6 && imgs.every(Boolean), `fotos de clientes cargadas (3 clientes: 1, 2 y 4; primer juego): ${imgs.filter(Boolean).length}/${imgs.length}`);
     const p1 = await pos();
     await page.waitForTimeout(700);
@@ -308,12 +309,12 @@ async function overflow(page) {
     const { ctx, page, errors } = await open(browser, { width: 1280 });
     await page.evaluate(() => localStorage.removeItem("bellido-fitness-cart-v1"));
     const fab = () => page.evaluate(() => { const b = document.querySelector("button[aria-label^='Ver carrito']"); return b ? b.getAttribute("aria-label") : null; });
-    const addBtn = (scope) => page.locator(`${scope} button`, { hasText: "🛒 Agregar al carrito" }).first();
+    const addBtn = (scope) => page.locator(`${scope} button`, { hasText: "Agregar al carrito" }).first();
     await page.locator("#infoproductos").scrollIntoViewIfNeeded();
     // Infoproductos de mayor a menor precio
     const ipOrder = await page.evaluate(() => [...document.querySelectorAll("#infoproductos h3")].map((h) => `${h.textContent} ${h.closest("li").querySelector("p.font-display")?.textContent.replace(/\s/g, " ")}`));
     log(ipOrder.join("|") === "Anatomía muscular $ 24.700 pago único|Alimentación saludable $ 24.700 pago único|Recetario $ 15.800 pago único", `infoproductos de mayor a menor precio: ${ipOrder.join(" | ")}`);
-    await page.locator("#infoproductos li", { has: page.locator("h3", { hasText: "Recetario" }) }).locator("button", { hasText: "🛒 Agregar al carrito" }).click();
+    await page.locator("#infoproductos li", { has: page.locator("h3", { hasText: "Recetario" }) }).locator("button", { hasText: "Agregar al carrito" }).click();
     await page.waitForTimeout(300);
     const f1 = await fab();
     log(/1 · \$\s?15\.800/.test(f1 || ""), `agregar Recetario: botón flotante "${f1}"`);
@@ -330,8 +331,8 @@ async function overflow(page) {
     const f2 = await fab();
     log(/2 · \$\s?411\.500/.test(f2 || "") && /En el carrito/.test(inCartLabel), `agregar Intensive Pack: "${f2}", botón "${inCartLabel}"`);
     // Clases presenciales: se suman de a una
-    await page.locator("#planes button", { hasText: "🛒 Agregar al carrito" }).last().click();
-    await page.locator("#planes button", { hasText: "🛒 Agregar al carrito" }).last().click();
+    await page.locator("#planes button", { hasText: "Agregar al carrito" }).last().click();
+    await page.locator("#planes button", { hasText: "Agregar al carrito" }).last().click();
     await page.waitForTimeout(300);
     const f3 = await fab();
     log(/4 · \$\s?460\.900/.test(f3 || ""), `2 clases presenciales a $ 24.700: "${f3}"`);
@@ -387,7 +388,7 @@ async function overflow(page) {
     // Mobile: el panel entra en 320 px y en claro
     const m = await open(browser, { width: 320, theme: "light", colorScheme: "light" });
     await m.page.locator("#infoproductos").scrollIntoViewIfNeeded();
-    await m.page.locator("#infoproductos button", { hasText: "🛒 Agregar al carrito" }).first().click();
+    await m.page.locator("#infoproductos button", { hasText: "Agregar al carrito" }).first().click();
     await m.page.locator("button[aria-label^='Ver carrito']").click();
     await m.page.locator("[role='dialog'] button", { hasText: "Ir a pagar" }).click();
     await m.page.waitForTimeout(400);
@@ -409,9 +410,9 @@ async function overflow(page) {
       // zoom de las imágenes del primer juego, de a dos por cliente (después, antes): las caras ya están cortadas
       // en los archivos (1, 2, 3 y 4), así que todo va sin zoom salvo el "después" del cliente 4 (1 / 0,7816 = 1,28).
       // Ver FRAMING en FitnessResults.tsx
-      crop: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => { const m = getComputedStyle(i).transform; return m === "none" ? 1 : Math.round(+m.slice(7).split(",")[0] * 100) / 100; })) === JSON.stringify([1, 1, 1, 1, 1.28, 1]),
+      crop: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img:not([data-emoji])")].map((i) => { const m = getComputedStyle(i).transform; return m === "none" ? 1 : Math.round(+m.slice(7).split(",")[0] * 100) / 100; })) === JSON.stringify([1, 1, 1, 1, 1.28, 1]),
       // encuadre horizontal: el "antes" del cliente 1 se ve desde el borde izquierdo (ahí está el torso); el resto, centrado
-      centerX: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img")].map((i) => getComputedStyle(i).objectPosition)) === JSON.stringify(["50% 100%", "0% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%"]),
+      centerX: JSON.stringify([...document.querySelectorAll("#resultados [role='listitem'] img:not([data-emoji])")].map((i) => getComputedStyle(i).objectPosition)) === JSON.stringify(["50% 100%", "0% 100%", "50% 100%", "50% 100%", "50% 100%", "50% 100%"]),
       withdrawal: !!document.querySelector("footer a[href*='wa.me'][href*='arrepent']"),
     }));
     log(!c.trial && c.about && c.faq && c.crop && c.centerX && c.withdrawal, `contenido: ${JSON.stringify(c)}`);

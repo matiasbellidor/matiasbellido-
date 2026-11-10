@@ -1,12 +1,13 @@
 "use client";
 
 import { useId, useState } from "react";
-import { ChevronDown, Dumbbell, Salad } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { Emoji, type EmojiName } from "./emoji";
 import { FitnessSection, Reveal, SectionHeading } from "./shared";
 
-/* Un ícono por grupo, en el mismo orden que t.fitness.faq.groups */
-const GROUP_ICONS = [Dumbbell, Salad];
+/* Un emoji de Apple por grupo, en el mismo orden que t.fitness.faq.groups */
+const GROUP_EMOJIS: EmojiName[] = ["weightlifter", "salad"];
 
 /* Preguntas frecuentes del PDF (entrenamiento y alimentación) en acordeón.
    El alto se anima con grid-template-rows 0fr → 1fr (sin medir en JS). */
@@ -19,11 +20,11 @@ export default function FitnessFaq() {
       <SectionHeading eyebrow={f.eyebrow} title={f.title} intro={f.intro} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {f.groups.map((group, g) => {
-          const Icon = GROUP_ICONS[g % GROUP_ICONS.length];
+          const emoji = GROUP_EMOJIS[g % GROUP_EMOJIS.length];
           return (
             <Reveal key={group.title} delay={g * 0.08}>
               <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-fg-muted mb-4">
-                <Icon className="w-4 h-4 text-cyan" aria-hidden="true" />
+                <Emoji name={emoji} className="w-[18px] h-[18px]" />
                 {group.title}
               </h3>
               <ul className="space-y-3">

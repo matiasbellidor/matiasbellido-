@@ -4,7 +4,8 @@ import Image, { type StaticImageData } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeCheck, ExternalLink, Eye, X } from "lucide-react";
+import { ExternalLink, Eye, X } from "lucide-react";
+import { Emoji } from "./emoji";
 import { translations, useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, Reveal, type FitnessAssets } from "./shared";
 import logo from "@/app/icon.png";
@@ -180,7 +181,10 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
                   {issuerLogo ? (
                     <Image src={issuerLogo} alt="" width={96} height={96} className="h-12 w-12 shrink-0 rounded-full shadow-[0_2px_8px_rgb(0_0_0/0.35)]" />
                   ) : (
-                    <BadgeCheck className="w-6 h-6 shrink-0 text-cyan" aria-hidden="true" />
+                    // Institución sin logo: birrete de Apple en un círculo del mismo tamaño que los logos
+                    <span aria-hidden="true" className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-cyan/10">
+                      <Emoji name="graduationCap" />
+                    </span>
                   )}
                   <span className="min-w-0">
                     <span className="block text-xs font-bold uppercase tracking-wider text-cyan">{issuer}</span>

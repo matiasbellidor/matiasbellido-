@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock, Phone } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { Emoji } from "./emoji";
 import { EASE, FitnessSection, SectionHeading, WhatsAppButton } from "./shared";
 
 /* Cómo empezar: stepper visual de 4 pasos (formulario → objetivo →
@@ -21,7 +21,7 @@ export default function FitnessSteps() {
       <SectionHeading eyebrow={s.eyebrow} title={s.title} intro={s.intro} />
 
       <p className="fit-surface -mt-4 mb-12 inline-flex items-center gap-3 rounded-full px-4 py-3 text-sm md:text-base text-fg">
-        <Phone className="w-4 h-4 shrink-0 text-cyan" aria-hidden="true" />
+        <Emoji name="telephone" className="w-5 h-5" />
         {s.freeCall}
       </p>
 
@@ -58,7 +58,7 @@ export default function FitnessSteps() {
               <h3 className="mt-2 font-display text-lg font-semibold text-fg">{step.title}</h3>
               <p className="mt-2 flex-1 text-sm md:text-base text-fg-soft leading-relaxed">{step.desc}</p>
               <p className="mt-4 inline-flex items-center gap-2 self-start rounded-full bg-cyan/10 px-3 py-1 text-xs font-semibold text-fg">
-                <Clock className="w-3.5 h-3.5 shrink-0 text-cyan" aria-hidden="true" />
+                <Emoji name="stopwatch" className="w-4 h-4" />
                 {step.when}
               </p>
             </div>

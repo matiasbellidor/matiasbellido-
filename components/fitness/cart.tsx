@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
+import { Emoji } from "./emoji";
 import { useLanguage } from "@/context/LanguageContext";
 import { DISCOUNT_CODES, isValidCode } from "./shared";
 
@@ -195,7 +196,9 @@ export function useCart() {
   return ctx;
 }
 
-/* "🛒 Agregar al carrito" (decisión de Matías: ese texto exacto). Se
+/* "🛒 Agregar al carrito" (decisión de Matías: ese texto exacto). El 🛒 es
+   la imagen de Apple (emoji.tsx), no un carácter: así se ve igual en todos
+   los dispositivos, y el nombre accesible queda "Agregar al carrito". Se
    actualiza al instante (optimista). Si ya está, pasa a "En el carrito ·
    Ver" y abre el carrito; las clases presenciales suman una más. */
 export function AddToCartButton({ id, className = "" }: { id: string; className?: string }) {
@@ -224,6 +227,7 @@ export function AddToCartButton({ id, className = "" }: { id: string; className?
       onClick={() => cart.add(id)}
       className={`liquid-cta fit-focus inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold touch-manipulation ${className}`}
     >
+      <Emoji name="cart" className="w-5 h-5" />
       {c.add}
     </button>
   );
