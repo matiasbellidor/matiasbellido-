@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ModalProvider } from "@/context/ModalContext";
+import CursorGlow from "@/components/CursorGlow";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -58,6 +59,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </ModalProvider>
         </LanguageProvider>
+        {/* Resplandor que sigue al mouse, en todas las páginas (solo con mouse; ver globals.css) */}
+        <CursorGlow />
       </body>
     </html>
   );

@@ -27,6 +27,9 @@
   --nav-border-bottom: rgba(21, 128, 61, 0.3);
   --aurora-opacity: 0.4;
   --modal-overlay-bg: rgba(15, 23, 42, 0.45);
+  /* Resplandor que sigue al cursor (CursorGlow): centro y borde, sobre el color de acento */
+  --glow-alpha: 0.1;
+  --glow-alpha-soft: 0.04;
 }
 
 /* DARK MODE */
@@ -54,6 +57,8 @@
   --nav-border-bottom: rgba(0, 229, 255, 0.35);
   --aurora-opacity: 0.6;
   --modal-overlay-bg: rgba(0, 0, 0, 0.85);
+  --glow-alpha: 0.11;
+  --glow-alpha-soft: 0.04;
 }
 
 html {
@@ -615,6 +620,50 @@ html:not(.intro-seen) .hero-reveal {
     opacity: 1;
     transform: none;
     animation: none;
+  }
+}
+
+/* ── Resplandor que sigue al cursor (components/CursorGlow.tsx) ──
+   Un solo círculo con un degradé radial, en todo el sitio. Solo con mouse
+   (hover + pointer fino), desde 1024 px y sin "reducir movimiento"; si no,
+   ni existe (display: none) y el JS no escucha el mouse.
+   Capa: z-index 1, fijo. Las dos páginas tienen el fondo en z-0 y el
+   contenido en un wrapper z-10, así que queda ARRIBA del fondo y DEBAJO del
+   texto, los botones, el header y los modales: nunca tapa nada.
+   Rendimiento: tamaño fijo, solo se mueve con transform (capa propia en la
+   GPU, sin layout ni repintado) y `contain` aísla su pintado. */
+.cursor-glow {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .cursor-glow {
+    --glow-size: 520px;
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: var(--glow-size);
+    height: var(--glow-size);
+    margin: calc(var(--glow-size) / -2) 0 0 calc(var(--glow-size) / -2);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--accent-cyan) / var(--glow-alpha)),
+      rgb(var(--accent-cyan) / var(--glow-alpha-soft)) 50%,
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    will-change: transform;
+    contain: strict;
+  }
+
+  /* Aparece cuando el mouse se mueve y se apaga cuando sale de la ventana */
+  .cursor-glow[data-active] {
+    opacity: 1;
   }
 }
 
