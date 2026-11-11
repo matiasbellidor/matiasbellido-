@@ -60,6 +60,8 @@ function matchCertificates(certs: string[][], files: Certificate[]): (Certificat
     const [issuer] = names[0].split(" — ");
     const entity = words(issuer)[0];
     const title = Array.from(new Set(names.flatMap((n) => words(n.split(" — ").slice(1).join(" "))))).filter((w) => !STOPWORDS.has(w));
+    // El diploma de nutrición se llama "Planificación de Dietas" (pedido de Matías, 2026-11-11)
+    if (title.includes("nutricion")) title.push("planificacion", "dietas", "diet", "planning");
     files.forEach((file, fi) => {
       const fileWords = new Set(words(file.name));
       if (!entity || !fileWords.has(entity)) return;
