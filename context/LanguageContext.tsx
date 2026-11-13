@@ -63,6 +63,8 @@ type FitnessPlan = {
   highlight: string;
   /** Lo que incluye (contenido del PDF, con palabras claras) */
   items: string[];
+  /** Lo que ESTE plan no trae y otros de su grupo sí (se muestra en gris, tachado, para que se entienda qué se pierde). Solo hechos de la lista de arriba. */
+  excluded?: string[];
   /** Precio en pesos argentinos, sin decimales. null → se muestra plans.priceFallback y no va al carrito */
   price: number | null;
 };
@@ -243,7 +245,9 @@ type FitnessDict = {
     /** {plan} se reemplaza por el nombre del plan */
     message: string;
     /** label = nombre corto de la pestaña; sublabel = en qué se diferencia (en la pestaña) */
-    groups: { id: string; label: string; sublabel: string; desc: string; plans: FitnessPlan[] }[];
+    groups: { id: string; label: string; sublabel: string; desc: string; /** Lo que trae TODO el grupo: se muestra una vez arriba y no se repite en cada tarjeta */ common?: { title: string; items: string[] }; plans: FitnessPlan[] }[];
+    /** Packs: título de lo que suma cada pack */
+    extras: string;
     /** Clases presenciales: se compran por unidad (el carrito deja elegir cuántas) */
     inPerson: { id: string; title: string; desc: string; price: number; unit: string; cta: string; message: string };
   };
@@ -854,11 +858,12 @@ export const translations: Record<Lang, Dict> = {
       plans: {
         eyebrow: "Servicios",
         title: "Elegí cómo querés entrenar.",
-        intro: "Hay dos formas de trabajar conmigo. Si querés entrenar acompañado, elegí un pack: suma sesiones guiadas cada mes. Si preferís entrenar por tu cuenta con un plan hecho para vos, elegí un plan online.",
+        intro: "Hay **dos formas de trabajar conmigo**. Si querés entrenar acompañado, elegí __un pack__: suma sesiones guiadas cada mes. Si preferís entrenar por tu cuenta con un plan hecho para vos, elegí __un plan online__.",
         tabsLabel: "Tipo de servicio",
         priceFallback: "Consultá el valor",
         billing: "por mes",
         includes: "Incluye",
+        extras: "Este pack suma",
         cta: "Consultar por WhatsApp",
         message: "Hola Matías, me interesa el {plan}. Mi objetivo es: ",
         groups: [
@@ -867,6 +872,7 @@ export const translations: Record<Lang, Dict> = {
             label: "Packs",
             sublabel: "Con sesiones guiadas",
             desc: "Asesoramiento personalizado más sesiones de entrenamiento guiadas cada mes, virtuales o presenciales. Los packs se diferencian por la cantidad de sesiones.",
+            common: { title: "Todos los packs incluyen", items: ["Asesoramiento personalizado 1 a 1", "Rutina de entrenamiento personalizada", "Programa de alimentación personalizado"] },
             plans: [
               {
                 id: "intensive",
@@ -874,9 +880,6 @@ export const translations: Record<Lang, Dict> = {
                 highlight: "20 sesiones guiadas por mes",
                 price: 395700,
                 items: [
-                  "Asesoramiento personalizado 1 a 1",
-                  "Rutina de entrenamiento personalizada",
-                  "Programa de alimentación personalizado",
                   "20 sesiones de entrenamiento guiadas, virtuales o presenciales",
                   "Acceso anticipado a productos y servicios nuevos",
                   "Videollamadas semanales (opcionales)",
@@ -890,9 +893,6 @@ export const translations: Record<Lang, Dict> = {
                 highlight: "15 sesiones guiadas por mes",
                 price: 297300,
                 items: [
-                  "Asesoramiento personalizado 1 a 1",
-                  "Rutina de entrenamiento personalizada",
-                  "Programa de alimentación personalizado",
                   "15 sesiones de entrenamiento guiadas, virtuales o presenciales",
                   "Acceso anticipado a productos y servicios nuevos",
                   "Videollamadas semanales (opcionales)",
@@ -905,11 +905,8 @@ export const translations: Record<Lang, Dict> = {
                 name: "Inicial Pack",
                 highlight: "8 sesiones guiadas por mes",
                 price: 181000,
-                items: [
-                  "Asesoramiento personalizado 1 a 1",
-                  "8 sesiones de entrenamiento guiadas, virtuales o presenciales",
-                  "Rutina de entrenamiento y programa de alimentación personalizados",
-                ],
+                excluded: ["Acceso anticipado a productos y servicios nuevos", "Videollamadas semanales", "Acompañamiento motivacional", "Recetario de regalo"],
+                items: ["8 sesiones de entrenamiento guiadas, virtuales o presenciales"],
               },
             ],
           },
@@ -922,14 +919,13 @@ export const translations: Record<Lang, Dict> = {
               {
                 id: "premium",
                 name: "Asesoramiento Premium",
-                highlight: "Videollamada semanal + 1 entrenamiento juntos por semana",
+                highlight: "Videollamada semanal + 5% de descuento al renovar",
                 price: 36120,
                 items: [
                   "Asesoramiento personalizado 1 a 1",
                   "Rutina de entrenamiento personalizada",
                   "Programa de alimentación personalizado",
                   "Videollamadas semanales",
-                  "1 entrenamiento por semana juntos en mi gimnasio, si querés (no se acumula; sujeto a disponibilidad)",
                   "Recetario de regalo",
                   "5% de descuento al renovar el mes siguiente",
                 ],
@@ -953,6 +949,7 @@ export const translations: Record<Lang, Dict> = {
                 name: "Asesoramiento Avanzado",
                 highlight: "Rutina y alimentación personalizadas",
                 price: 29360,
+                excluded: ["Videollamadas semanales", "Descuento al renovar"],
                 items: [
                   "Asesoramiento personalizado 1 a 1",
                   "Rutina de entrenamiento personalizada",
@@ -965,6 +962,7 @@ export const translations: Record<Lang, Dict> = {
                 name: "Rutina y Programa de alimentación",
                 highlight: "Rutina o alimentación: elegís una",
                 price: 26770,
+                excluded: ["Rutina y alimentación juntas", "Videollamadas semanales", "Descuento al renovar"],
                 items: [
                   "Asesoramiento personalizado 1 a 1",
                   "Rutina de entrenamiento o programa de alimentación personalizado (elegís uno)",
@@ -976,6 +974,7 @@ export const translations: Record<Lang, Dict> = {
                 name: "Rutinas a medida",
                 highlight: "Rutina básica, la opción más económica",
                 price: 22180,
+                excluded: ["Programa de alimentación", "Videollamadas semanales", "Recetario de regalo", "Descuento al renovar"],
                 items: ["Rutina de entrenamiento básica según tu objetivo", "Asesoramiento personalizado 1 a 1"],
               },
             ],
@@ -1560,11 +1559,12 @@ export const translations: Record<Lang, Dict> = {
       plans: {
         eyebrow: "Services",
         title: "Choose how you want to train.",
-        intro: "There are two ways to work with me. If you want to train with guidance, choose a pack: it adds guided sessions every month. If you'd rather train on your own with a plan made for you, choose an online plan.",
+        intro: "There are **two ways to work with me**. If you want to train with guidance, choose __a pack__: it adds guided sessions every month. If you'd rather train on your own with a plan made for you, choose __an online plan__.",
         tabsLabel: "Service type",
         priceFallback: "Ask for the price",
         billing: "per month",
         includes: "Includes",
+        extras: "This pack adds",
         cta: "Ask on WhatsApp",
         message: "Hi Matías, I'm interested in the {plan}. My goal is: ",
         groups: [
@@ -1573,6 +1573,7 @@ export const translations: Record<Lang, Dict> = {
             label: "Packs",
             sublabel: "With guided sessions",
             desc: "Personalized coaching plus guided training sessions every month, online or in person. The packs differ in the number of sessions.",
+            common: { title: "All packs include", items: ["Personalized 1-on-1 coaching", "Personalized training routine", "Personalized nutrition program"] },
             plans: [
               {
                 id: "intensive",
@@ -1580,9 +1581,6 @@ export const translations: Record<Lang, Dict> = {
                 highlight: "20 guided sessions a month",
                 price: 395700,
                 items: [
-                  "Personalized 1-on-1 coaching",
-                  "Personalized training routine",
-                  "Personalized nutrition program",
                   "20 guided training sessions, online or in person",
                   "Early access to new products and services",
                   "Weekly video calls (optional)",
@@ -1596,9 +1594,6 @@ export const translations: Record<Lang, Dict> = {
                 highlight: "15 guided sessions a month",
                 price: 297300,
                 items: [
-                  "Personalized 1-on-1 coaching",
-                  "Personalized training routine",
-                  "Personalized nutrition program",
                   "15 guided training sessions, online or in person",
                   "Early access to new products and services",
                   "Weekly video calls (optional)",
@@ -1611,11 +1606,8 @@ export const translations: Record<Lang, Dict> = {
                 name: "Inicial Pack",
                 highlight: "8 guided sessions a month",
                 price: 181000,
-                items: [
-                  "Personalized 1-on-1 coaching",
-                  "8 guided training sessions, online or in person",
-                  "Personalized training routine and nutrition program",
-                ],
+                excluded: ["Early access to new products and services", "Weekly video calls", "Motivational support", "Free recipe book"],
+                items: ["8 guided training sessions, online or in person"],
               },
             ],
           },
@@ -1628,14 +1620,13 @@ export const translations: Record<Lang, Dict> = {
               {
                 id: "premium",
                 name: "Premium Coaching",
-                highlight: "Weekly video call + 1 session together a week",
+                highlight: "Weekly video call + 5% off when you renew",
                 price: 36120,
                 items: [
                   "Personalized 1-on-1 coaching",
                   "Personalized training routine",
                   "Personalized nutrition program",
                   "Weekly video calls",
-                  "1 session a week together at my gym, if you want (doesn't carry over; subject to availability)",
                   "Free recipe book",
                   "5% off when you renew for the next month",
                 ],
@@ -1659,6 +1650,7 @@ export const translations: Record<Lang, Dict> = {
                 name: "Advanced Coaching",
                 highlight: "Personalized routine and nutrition",
                 price: 29360,
+                excluded: ["Weekly video calls", "Renewal discount"],
                 items: ["Personalized 1-on-1 coaching", "Personalized training routine", "Personalized nutrition program", "Free recipe book"],
               },
               {
@@ -1666,6 +1658,7 @@ export const translations: Record<Lang, Dict> = {
                 name: "Routine and Nutrition Program",
                 highlight: "Routine or nutrition: you choose one",
                 price: 26770,
+                excluded: ["Routine and nutrition together", "Weekly video calls", "Renewal discount"],
                 items: ["Personalized 1-on-1 coaching", "Personalized training routine or nutrition program (you choose one)", "Free recipe book"],
               },
               {
@@ -1673,6 +1666,7 @@ export const translations: Record<Lang, Dict> = {
                 name: "Custom Routines",
                 highlight: "Basic routine, the most affordable option",
                 price: 22180,
+                excluded: ["Nutrition program", "Weekly video calls", "Free recipe book", "Renewal discount"],
                 items: ["Basic training routine for your goal", "Personalized 1-on-1 coaching"],
               },
             ],

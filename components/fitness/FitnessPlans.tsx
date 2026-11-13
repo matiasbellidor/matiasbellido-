@@ -1,12 +1,61 @@
 "use client";
 
 import { useRef, useState, type KeyboardEvent } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import { Check, Minus } from "lucide-react";
 import { Emoji } from "./emoji";
 import { useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, Reveal, SectionHeading, WhatsAppButton, formatARS } from "./shared";
 import { AddToCartButton } from "./cart";
+
+/* Resalte de la bajada ("Hay dos formas de trabajar conmigo…"). El copy
+   marca **lo principal** y __las dos opciones__; acá se dibuja, sobrio:
+   lo principal en blanco y negrita con un subrayado celeste fino; las
+   opciones, solo en negrita blanca. El resto del párrafo queda en gris. */
+function HighlightedIntro({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\*\*.+?\*\*|__.+?__)/g).map((part, i) =>
+        part.startsWith("**") ? (
+          <strong key={i} className="font-semibold text-fg underline decoration-cyan decoration-2 underline-offset-4">
+            {part.slice(2, -2)}
+          </strong>
+        ) : part.startsWith("__") ? (
+          <strong key={i} className="font-semibold text-fg">
+            {part.slice(2, -2)}
+          </strong>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
+/* Invitación a mirar la pestaña que todavía no está elegida (Planes
+   online): un solo anillo celeste suave que se expande y se desvanece
+   cada ~3 s. Solo transform y opacity. Se detiene cuando la pestaña ya
+   está elegida, cuando la sección sale de la pantalla (useInView) y con
+   "reducir movimiento" (queda un borde fijo tenue). aria-hidden. */
+function TabInvite({ active }: { active: boolean }) {
+  const reduced = !!useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref);
+  const loop = active && inView && !reduced;
+  return (
+    <span ref={ref} aria-hidden className="pointer-events-none absolute inset-0">
+      {active && reduced && <span className="absolute inset-0 rounded-3xl border border-cyan/40" />}
+      {loop && (
+        <motion.span
+          className="absolute inset-0 rounded-3xl border border-cyan"
+          initial={{ opacity: 0, scale: 1 }}
+          animate={{ opacity: [0, 0.8, 0], scale: [1, 1, 1.14] }}
+          transition={{ duration: 1.5, times: [0, 0.01, 1], ease: "easeOut", repeat: Infinity, repeatDelay: 1.5 }}
+        />
+      )}
+    </span>
+  );
+}
 
 /* Servicios del PDF. Para no mostrar 8 tarjetas de golpe, un selector de
    dos opciones del MISMO ancho (Packs / Planes) en Liquid Glass; las
@@ -32,7 +81,7 @@ export default function FitnessPlans() {
 
   return (
     <FitnessSection id="planes">
-      <SectionHeading eyebrow={pl.eyebrow} title={pl.title} intro={pl.intro} center />
+      <SectionHeading eyebrow={pl.eyebrow} title={pl.title} intro={<HighlightedIntro text={pl.intro} />} center />
 
       <Reveal className="flex justify-center mb-4">
         <div
@@ -58,7 +107,7 @@ export default function FitnessPlans() {
                 onClick={() => setActive(i)}
                 onKeyDown={(e) => onTabKey(e, i)}
                 className={`fit-focus relative flex flex-col items-center justify-center gap-1 rounded-3xl px-2 py-2 min-h-14 transition-colors ${
-                  selected ? "text-fg" : "text-fg-muted hover:text-fg"
+                  selected || g.id === "planes" ? "text-fg" : "text-fg-muted hover:text-fg"
                 }`}
               >
                 {selected && (
@@ -68,6 +117,7 @@ export default function FitnessPlans() {
                     className="absolute inset-0 rounded-3xl bg-cyan/15 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] border border-cyan/30"
                   />
                 )}
+                {g.id === "planes" && <TabInvite active={!selected} />}
                 {/* Nombre + en qué se diferencia: se elige sin leer las tarjetas */}
                 <span className="relative text-sm md:text-base font-semibold leading-tight">{g.label}</span>
                 <span className="relative text-xs font-medium leading-tight text-fg-soft">{g.sublabel}</span>
@@ -76,7 +126,14 @@ export default function FitnessPlans() {
           })}
         </div>
       </Reveal>
-      <p className="text-center text-sm md:text-base text-fg-soft max-w-2xl mx-auto mb-12">{group.desc}</p>
+      <p className="text-center text-sm md:text-base text-fg-soft max-w-2xl mx-auto">{group.desc}</p>
+      {/* Lo que trae TODO el grupo, en una línea: cada tarjeta muestra solo lo que cambia */}
+      {group.common && (
+        <p className="mt-3 text-center text-sm md:text-base text-fg max-w-3xl mx-auto">
+          <span className="font-semibold">{group.common.title}:</span> {group.common.items.join(" · ")}
+        </p>
+      )}
+      <div className="mb-12" />
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -102,11 +159,18 @@ export default function FitnessPlans() {
                 <p className="font-display text-3xl font-bold text-fg tabular-nums">{plan.price !== null ? formatARS(plan.price) : pl.priceFallback}</p>
                 <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-fg-muted">{pl.billing}</p>
               </div>
-              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted">{pl.includes}</p>
+              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-fg-muted">{group.common ? pl.extras : pl.includes}</p>
               <ul className="mt-3 space-y-3 flex-1">
                 {plan.items.map((item) => (
                   <li key={item} className="flex gap-3 text-sm text-fg leading-snug">
                     <Check className="w-4 h-4 shrink-0 mt-0.5 text-cyan" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+                {/* Lo que este plan no trae: en gris y con "–", al final de la misma lista */}
+                {plan.excluded?.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm text-fg-muted leading-snug">
+                    <Minus className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                     {item}
                   </li>
                 ))}

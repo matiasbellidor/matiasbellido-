@@ -103,6 +103,9 @@ export const PURCHASE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScNHv
    quien mire el código fuente (el repo es público) lo puede leer. */
 export const DISCOUNT_CODES: Record<string, number> = {
   BELLIDO25OFF: 0.25,
+  BELLIDO15OFF: 0.15,
+  BELLIDO10OFF: 0.1,
+  BELLIDO5OFF: 0.05,
 };
 
 export const isValidCode = (code: string) => Object.prototype.hasOwnProperty.call(DISCOUNT_CODES, code);
@@ -200,7 +203,7 @@ export function SectionHeading({
 }: {
   eyebrow: string;
   title: string;
-  intro?: string;
+  intro?: ReactNode;
   center?: boolean;
   className?: string;
 }) {
