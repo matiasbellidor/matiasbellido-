@@ -146,21 +146,6 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onOptions
   const label = lang === "es" ? "Propuesta" : "Proposal";
   const isAsesoramientos = projectId === "asesoramientos";
   const hasUrl = isAsesoramientos || !!onOptionsClick || url !== "";
-
-  /* Bellido Asesoramientos es la propuesta distinta (lleva a sus servicios y
-     a la landing de /fitness): Matías pidió que se note sí o sí, sin molestar.
-     Por eso es la única con relleno sólido del color de acción (texto blanco:
-     4,8:1 en oscuro y 7,1:1 en claro), sombra de color, el brillo que la
-     recorre y un halo que se expande y se desvanece cada ~4 s. El brillo y el
-     halo corren solo con el botón en pantalla y se apagan con "reducir
-     movimiento". Flecha en vez de link externo: abre un modal, no otra pestaña. */
-  const ref = useRef<HTMLButtonElement>(null);
-  const inView = useInView(ref);
-  const reduced = !!useReducedMotion();
-  /* En el celular la tarjeta queda quieta al tocarla: sin escala de Framer
-     ni :hover pegado (pedido de Matías: el scroll se trababa sobre las tarjetas) */
-  const fine = useHasFinePointer();
-  const shimmer = isAsesoramientos && !reduced;
   if (!hasUrl) return null;
 
   const handleClick = (e: React.MouseEvent) => {
@@ -170,8 +155,37 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onOptions
     else window.open(url, "_blank");
   };
 
-  if (isAsesoramientos) {
-    return (
+  if (isAsesoramientos) return <AsesoramientosProposalButton label={label} onClick={handleClick} />;
+
+  // El resto de las propuestas: el estilo de siempre (translúcido, con borde) y link externo
+  return (
+    <button onClick={handleClick}
+      className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs can-hover:hover:bg-electric/40 transition-all touch-manipulation">
+      <FileText className="relative w-3.5 h-3.5" />
+      <span className="relative">{label}</span>
+      <ExternalLink className="relative w-3 h-3" />
+    </button>
+  );
+}
+
+/* Bellido Asesoramientos es la propuesta distinta (lleva a sus servicios y
+   a la landing de /fitness): Matías pidió que se note sí o sí, sin molestar.
+   Por eso es la única con relleno sólido del color de acción (texto blanco:
+   4,8:1 en oscuro y 7,1:1 en claro), sombra de color, el brillo que la
+   recorre y un halo que se expande y se desvanece cada ~4 s. El brillo y el
+   halo corren solo con el botón en pantalla y se apagan con "reducir
+   movimiento". Flecha en vez de link externo: abre un modal, no otra pestaña.
+   Va en su propio componente: solo este botón necesita saber si está en
+   pantalla (antes los 9 botones de Propuesta se observaban igual). */
+function AsesoramientosProposalButton({ label, onClick }: { label: string; onClick: (e: React.MouseEvent) => void }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const inView = useInView(ref);
+  const reduced = !!useReducedMotion();
+  /* En el celular la tarjeta queda quieta al tocarla: sin escala de Framer
+     ni :hover pegado (pedido de Matías: el scroll se trababa sobre las tarjetas) */
+  const fine = useHasFinePointer();
+  const shimmer = !reduced;
+  return (
       <div className="absolute top-3 right-3 z-30">
         {shimmer && (
           <motion.span
@@ -182,7 +196,7 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onOptions
             transition={inView ? { duration: 1.6, ease: "easeOut", repeat: Infinity, repeatDelay: 2.4 } : { duration: 0 }}
           />
         )}
-        <motion.button ref={ref} onClick={handleClick}
+        <motion.button ref={ref} onClick={onClick}
           whileHover={fine && !reduced ? { scale: 1.04 } : undefined}
           whileTap={fine ? { scale: 0.97 } : undefined}
           transition={{ duration: 0.2, ease: "easeOut" }}
@@ -202,17 +216,6 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onOptions
           <ArrowRight className="relative w-3.5 h-3.5" aria-hidden="true" />
         </motion.button>
       </div>
-    );
-  }
-
-  // El resto de las propuestas: el estilo de siempre (translúcido, con borde) y link externo
-  return (
-    <button onClick={handleClick}
-      className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs can-hover:hover:bg-electric/40 transition-all touch-manipulation">
-      <FileText className="relative w-3.5 h-3.5" />
-      <span className="relative">{label}</span>
-      <ExternalLink className="relative w-3 h-3" />
-    </button>
   );
 }
 

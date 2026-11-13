@@ -561,36 +561,13 @@ html:not(.intro-seen) .hero-reveal {
   }
 }
 
-/* Cita (DropInText): cada letra cae desde arriba. Descripción de
-   Proyectos (WaveText): cada palabra sube. Ocultas hasta que el
-   párrafo entra en pantalla (.is-shown); el retraso de cada una va inline. */
-.drop-char,
-.wave-word {
+/* Cita (DropInText): cada letra cae desde arriba. Arranca oculta y
+   corrida; DropInText la anima con la Web Animations API al entrar en
+   pantalla y le deja el estado final inline. */
+.drop-char {
   display: inline-block;
   opacity: 0;
-}
-
-.drop-char {
   transform: translateY(-12px);
-}
-
-.wave-word {
-  transform: translateY(8px);
-}
-
-.is-shown .drop-char {
-  animation: text-settle 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.is-shown .wave-word {
-  animation: text-settle 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes text-settle {
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 /* Accesibilidad: si el usuario pidió reducir movimiento en su sistema,
@@ -613,13 +590,9 @@ html:not(.intro-seen) .hero-reveal {
     animation: none;
   }
 
-  .drop-char,
-  .wave-word,
-  .is-shown .drop-char,
-  .is-shown .wave-word {
+  .drop-char {
     opacity: 1;
     transform: none;
-    animation: none;
   }
 }
 

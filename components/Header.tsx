@@ -51,11 +51,27 @@ export default function Header() {
     }
   };
 
-  // Scroll spy MEJORADO - elige la sección que ocupa más viewport
-  // Throttle con requestAnimationFrame: como mucho un cálculo por frame
-  // (antes medía todas las secciones en CADA evento de scroll).
+  // Scroll spy: la sección activa es la que tiene el CENTRO más cerca del
+  // centro de la pantalla. Como mucho un cálculo por cuadro (rAF).
+  // Rendimiento (2026-11-13): el centro de cada sección y el alto de la
+  // página se miden una vez y se vuelven a medir solo cuando algo cambia de
+  // tamaño (ResizeObserver). Antes se medía todo en cada cuadro del scroll,
+  // y cada medición obligaba al navegador a recalcular el layout.
   useEffect(() => {
     let ticking = false;
+    let centers: { id: string; center: number }[] = [];
+    let documentHeight = 0;
+    const measure = () => {
+      const scrollY = window.scrollY;
+      documentHeight = document.documentElement.scrollHeight;
+      centers = navItems.flatMap((item) => {
+        const element = document.getElementById(item.id);
+        if (!element) return [];
+        const rect = element.getBoundingClientRect();
+        return [{ id: item.id, center: scrollY + rect.top + rect.height / 2 }];
+      });
+    };
+
     const handleScroll = () => {
       ticking = false;
       if (ignoreScrollSpy.current) return;
@@ -71,32 +87,20 @@ export default function Header() {
       }
 
       // Si estamos cerca del fondo absoluto, siempre Contact
-      const documentHeight = document.documentElement.scrollHeight;
       if (scrollY + viewportHeight >= documentHeight - 50) {
         setActiveSection("contact");
         return;
       }
 
-      // Para todo el medio: la sección activa es aquella cuyo CENTRO
-      // está más cerca del centro del viewport
       let bestSection = "home";
       let smallestDistance = Infinity;
-
-      for (const item of navItems) {
-        const element = document.getElementById(item.id);
-        if (!element) continue;
-
-        const rect = element.getBoundingClientRect();
-        const elementTop = scrollY + rect.top;
-        const elementCenter = elementTop + rect.height / 2;
-        const distance = Math.abs(elementCenter - viewportCenter);
-
+      for (const { id, center } of centers) {
+        const distance = Math.abs(center - viewportCenter);
         if (distance < smallestDistance) {
           smallestDistance = distance;
-          bestSection = item.id;
+          bestSection = id;
         }
       }
-
       setActiveSection(bestSection);
     };
 
@@ -105,10 +109,23 @@ export default function Header() {
       ticking = true;
       requestAnimationFrame(handleScroll);
     };
+    const remeasure = () => {
+      measure();
+      onScroll();
+    };
 
+    // Las secciones de abajo cargan aparte (next/dynamic): cambian el alto de la página
+    const resize = new ResizeObserver(remeasure);
+    resize.observe(document.body);
+    window.addEventListener("resize", remeasure, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
+    measure();
     handleScroll(); // run once on mount
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", remeasure);
+      resize.disconnect();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

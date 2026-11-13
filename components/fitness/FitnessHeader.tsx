@@ -37,18 +37,28 @@ export default function FitnessHeader() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 30, mass: 0.3 });
 
-  // Sección activa: la última cuyo borde de arriba ya pasó el 35 % de la pantalla
+  // Sección activa: la última cuyo borde de arriba ya pasó el 35 % de la pantalla.
+  // Rendimiento (2026-11-13): el borde de arriba de cada sección se mide una vez
+  // y otra vez solo cuando algo cambia de tamaño (ResizeObserver); en cada cuadro
+  // del scroll solo se compara con window.scrollY. Antes se medían todas las
+  // secciones en cada cuadro y eso obligaba a recalcular el layout (~13 ms por
+  // cuadro en un celular).
   useEffect(() => {
     const order = nav.links.flatMap((link) => (SECTIONS_BY_LINK[link.id] ?? [link.id]).map((section) => ({ section, link: link.id })));
+    let tops: { top: number; link: string }[] = [];
+    const measure = () => {
+      const scrollY = window.scrollY;
+      tops = order.flatMap(({ section, link }) => {
+        const el = document.getElementById(section);
+        return el ? [{ top: scrollY + el.getBoundingClientRect().top, link }] : [];
+      });
+    };
     let ticking = false;
     const update = () => {
       ticking = false;
-      const probe = window.innerHeight * 0.35;
+      const probe = window.scrollY + window.innerHeight * 0.35;
       let current: string | null = null;
-      for (const { section, link } of order) {
-        const el = document.getElementById(section);
-        if (el && el.getBoundingClientRect().top <= probe) current = link;
-      }
+      for (const { top, link } of tops) if (top <= probe) current = link;
       setActive(current);
     };
     const onScroll = () => {
@@ -56,12 +66,20 @@ export default function FitnessHeader() {
       ticking = true;
       requestAnimationFrame(update);
     };
+    const remeasure = () => {
+      measure();
+      onScroll();
+    };
+    const resize = new ResizeObserver(remeasure);
+    resize.observe(document.body);
+    measure();
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", remeasure);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", remeasure);
+      resize.disconnect();
     };
   }, [nav.links]);
 

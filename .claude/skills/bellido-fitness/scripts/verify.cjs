@@ -249,7 +249,10 @@ async function overflow(page) {
 
     await page.locator("#resultados").scrollIntoViewIfNeeded();
     await page.waitForTimeout(900);
-    const pos = () => page.evaluate(() => [...document.querySelectorAll('#resultados [role="slider"]')].map((k) => +k.getAttribute("aria-valuenow")));
+    // Posición real de la barra (0–100) de cada comparador accesible: se lee el transform de
+    // su capa, porque el recorrido automático corre en el compositor (Web Animations API)
+    // y no pasa por --pos ni por aria-valuenow
+    const pos = () => page.evaluate(() => [...document.querySelectorAll('#resultados [role="slider"]')].map((k) => Math.round(((b) => 50 + new DOMMatrixReadOnly(getComputedStyle(b).transform).m41 / b.offsetWidth * 100)(k.closest("[class*='aspect-[4/5]']").querySelector(".z-20")))));
     // Solo las fotos: el ⏱️ del tiempo de cada cliente es un emoji (img[data-emoji], emoji.tsx)
     const imgs = await page.evaluate(() => [...document.querySelectorAll("#resultados [role='listitem'] img:not([data-emoji])")].map((i) => i.complete && i.naturalWidth > 0));
     log(imgs.length === 6 && imgs.every(Boolean), `fotos de clientes cargadas (3 clientes: 1, 2 y 4; primer juego): ${imgs.filter(Boolean).length}/${imgs.length}`);
@@ -268,7 +271,7 @@ async function overflow(page) {
       frames.sort((a, b) => mid(a) - mid(b))[0].id = "arrastre";
     });
     const sl = page.locator("#arrastre");
-    const barAt = () => sl.evaluate((e) => Math.round(+e.style.getPropertyValue("--pos")));
+    const barAt = () => sl.evaluate((e) => Math.round(((b) => 50 + new DOMMatrixReadOnly(getComputedStyle(b).transform).m41 / b.offsetWidth * 100)(e.querySelector(".z-20"))));
     const sb0 = await sl.boundingBox();
     await page.mouse.move(sb0.x + sb0.width * 0.5, sb0.y + sb0.height * 0.6);
     await page.mouse.down();
@@ -554,11 +557,11 @@ async function overflow(page) {
       k.closest("[class*='aspect-[4/5]']").id = "tocada";
       return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     });
-    const barPos = () => page.$eval("#tocada", (e) => +e.style.getPropertyValue("--pos"));
+    const barPos = () => page.$eval("#tocada", (e) => ((b) => 50 + new DOMMatrixReadOnly(getComputedStyle(b).transform).m41 / b.offsetWidth * 100)(e.querySelector(".z-20")));
     // ¿la barra se mueve sola? Mira 2 s seguidos: el recorrido tiene una pausa en el medio de hasta 1,4 s
     const barMoves = () => page.$eval("#tocada", (e) => new Promise((done) => {
       const seen = [];
-      const id = setInterval(() => { seen.push(+e.style.getPropertyValue("--pos")); if (seen.length >= 20) { clearInterval(id); done(Math.max(...seen) - Math.min(...seen) > 0.5); } }, 100);
+      const id = setInterval(() => { seen.push(((b) => 50 + new DOMMatrixReadOnly(getComputedStyle(b).transform).m41 / b.offsetWidth * 100)(e.querySelector(".z-20"))); if (seen.length >= 20) { clearInterval(id); done(Math.max(...seen) - Math.min(...seen) > 0.5); } }, 100);
     }));
     const cdp = await ctx.newCDPSession(page);
     const touch = (type, x, y) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y }] });

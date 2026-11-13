@@ -15,10 +15,11 @@ import { Reveal, SectionHeading, type FitnessAssets } from "./shared";
    vuelve suave al recorrido desde donde quedó (pedido de Matías: que nunca
    se quede quieta para siempre). Con el teclado (flechas) queda donde la
    dejan hasta que el foco sale de la manija.
-   Rendimiento: la posición es una variable CSS (--pos) que se escribe
-   desde requestAnimationFrame sin re-render de React, y todo se mueve con
-   transform (la foto de "antes" se recorta con dos traslaciones opuestas),
-   así que no se repinta la foto en cada cuadro.
+   Rendimiento: todo se mueve con transform (la foto de "antes" se recorta
+   con dos traslaciones opuestas), así que no se repinta la foto. El
+   recorrido automático son animaciones de la Web Animations API (corren en
+   el compositor, sin JS por cuadro); al arrastrar o con el teclado, la
+   posición es una variable CSS (--pos) que se escribe sin re-render.
    Con "reducir movimiento", la barra queda quieta en el medio. */
 
 /* Recorrido automático: [momento del ciclo 0–1, posición %] */
@@ -65,6 +66,15 @@ const FRAMING: Record<number, ClientFraming> = {
   4: { before: { start: 0, end: 1 }, after: { start: 0, end: 0.7816 } },
 };
 const framingFor = (n: number): ClientFraming | null => (FRAMING[n] ?? (PRE_CROPPED_CLIENTS.has(n) ? null : SAFE_FRAMING));
+
+/* La misma curva de cada tramo (0.5 − cos(πk)/2) como cubic-bezier, para la
+   Web Animations API: es la curva estándar "easeInOutSine" */
+const EASE_IN_OUT_SINE = "cubic-bezier(0.37, 0, 0.63, 1)";
+
+/* Las tres capas que dependen de la posición de la barra (p, 0–100), en el
+   orden [recorte de "antes", foto de "antes", barra + manija]. Son las mismas
+   cuentas que los transform con var(--pos) del JSX. */
+const layerTransforms = (p: number) => [`translateX(${p - 100}%)`, `translateX(${100 - p}%)`, `translateX(${p - 50}%)`];
 
 function sweepAt(t: number) {
   for (let i = 1; i < SWEEP.length; i++) {
@@ -193,11 +203,8 @@ function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
               phase={i * 0.35}
               framing={framingFor(client.n)}
               decorative={!primary}
+              active={inView}
             />
-            <p className="px-2 pt-4 text-center text-xs font-semibold uppercase tracking-[0.25em] text-fg-muted">
-              {r.clientLabel} {number}
-              {caption && primary && <span className="sr-only">: {caption}</span>}
-            </p>
           </div>
         );
       }),
@@ -261,6 +268,7 @@ function BeforeAfter({
   phase,
   framing,
   decorative = false,
+  active,
 }: {
   before: string | null;
   after: string | null;
@@ -278,62 +286,119 @@ function BeforeAfter({
   framing: ClientFraming | null;
   /** Copia del carrusel (aria-hidden): la manija no es un control ni recibe foco */
   decorative?: boolean;
+  /** El carrusel está en pantalla (o cerca): mientras tanto la barra hace su recorrido */
+  active: boolean;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const knobRef = useRef<HTMLDivElement>(null);
+  // Las tres capas que se mueven con la barra (ver layerTransforms)
+  const clipRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const pos = useRef(50);
   /* Momento del recorrido (0–1) donde va la barra: al volver del arrastre, de
      fuera de pantalla o del teclado, sigue desde acá en vez de saltar */
   const cycle = useRef(phase % 1);
+  /* Animaciones del recorrido automático que están corriendo (Web Animations
+     API, en el compositor): las del deslizamiento inicial o las del ciclo */
+  const anims = useRef<Animation[]>([]);
+  const sweeping = useRef(false);
   // Refs: frenan el recorrido en el mismo evento; el estado lo reanuda después
   const dragging = useRef(false);
   const keyboardRef = useRef(false);
   const reduced = !!useReducedMotion();
   const [held, setHeld] = useState(false);
   const [keyboard, setKeyboard] = useState(false);
-  const [inView, setInView] = useState(false);
 
-  const apply = useCallback((p: number) => {
-    const v = Math.min(100, Math.max(0, p));
-    pos.current = v;
-    frameRef.current?.style.setProperty("--pos", v.toFixed(2));
-    knobRef.current?.setAttribute("aria-valuenow", String(Math.round(v)));
-  }, []);
+  /* Último valor anunciado: no se toca el atributo si el número no cambió, y
+     nunca en las copias decorativas (no son un slider) */
+  const announced = useRef(50);
+  const apply = useCallback(
+    (p: number) => {
+      const v = Math.min(100, Math.max(0, p));
+      pos.current = v;
+      frameRef.current?.style.setProperty("--pos", v.toFixed(2));
+      const rounded = Math.round(v);
+      if (!decorative && rounded !== announced.current) {
+        announced.current = rounded;
+        knobRef.current?.setAttribute("aria-valuenow", String(rounded));
+      }
+    },
+    [decorative],
+  );
 
+  /* Corta el recorrido automático y deja la barra exactamente donde estaba:
+     lee la posición real de la capa de la barra (la animación corre en el
+     compositor, así que JS no la conoce) y la pasa a --pos antes de cancelar. */
+  const stopSweep = useCallback(() => {
+    if (!anims.current.length) return;
+    const bar = barRef.current;
+    if (bar && bar.offsetWidth) {
+      const tx = new DOMMatrixReadOnly(getComputedStyle(bar).transform).m41;
+      apply(50 + (tx / bar.offsetWidth) * 100);
+    }
+    if (sweeping.current) {
+      const time = Number(anims.current[0]?.currentTime ?? 0);
+      cycle.current = (time / SWEEP_MS) % 1;
+    }
+    anims.current.forEach((a) => a.cancel());
+    anims.current = [];
+    sweeping.current = false;
+  }, [apply]);
+
+  /* Recorrido automático: con el carrusel en pantalla, sin "reducir
+     movimiento" y mientras nadie la sostiene ni la maneja con el teclado. Al
+     (re)empezar se desliza desde donde está la barra hasta su punto del
+     recorrido y sigue desde ahí: nunca salta.
+     Rendimiento (2026-11-13): antes un requestAnimationFrame por comparador
+     escribía --pos en cada cuadro; con 16 comparadores (el carrusel repite la
+     lista) y un IntersectionObserver para cada uno, el hilo principal quedaba
+     ocupado ~95 % del tiempo con la página quieta frente a Resultados (celular
+     emulado). Ahora el recorrido son animaciones de transform de la Web
+     Animations API: corren en el compositor y el hilo principal queda libre. */
   useEffect(() => {
-    const el = frameRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.3 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  /* Recorrido automático: solo en pantalla, sin "reducir movimiento" y
-     mientras nadie la sostiene ni la maneja con el teclado. Al (re)empezar
-     se desliza desde donde está la barra hasta su punto del recorrido y
-     sigue desde ahí: nunca salta. */
-  useEffect(() => {
-    if (held || keyboard || reduced || !inView) return;
-    let raf = 0;
+    if (held || keyboard || reduced || !active) return;
+    const layers = [clipRef.current, innerRef.current, barRef.current];
+    if (layers.some((el) => !el || typeof el.animate !== "function")) return;
     const from = pos.current;
     const begin = cycle.current;
     const to = sweepAt(begin);
     const glide = (Math.min(50, Math.abs(to - from)) / 50) * GLIDE_MS;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      if (dragging.current || keyboardRef.current) return; // tomaron el control en este mismo cuadro
-      const elapsed = now - t0;
-      if (elapsed < glide) {
-        apply(from + (to - from) * (0.5 - Math.cos(Math.PI * (elapsed / glide)) / 2));
-      } else {
-        cycle.current = (begin + (elapsed - glide) / SWEEP_MS) % 1;
-        apply(sweepAt(cycle.current));
-      }
-      raf = requestAnimationFrame(tick);
+    let cancelled = false;
+
+    const startCycle = () => {
+      if (cancelled) return;
+      anims.current = layers.map((el, i) => {
+        const a = el!.animate(
+          SWEEP.map(([offset, p]) => ({ offset, transform: layerTransforms(p)[i], easing: EASE_IN_OUT_SINE })),
+          { duration: SWEEP_MS, iterations: Infinity },
+        );
+        a.currentTime = begin * SWEEP_MS;
+        return a;
+      });
+      sweeping.current = true;
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [held, keyboard, reduced, inView, apply]);
+
+    if (glide < 16) startCycle();
+    else {
+      anims.current = layers.map((el, i) =>
+        el!.animate([{ transform: layerTransforms(from)[i] }, { transform: layerTransforms(to)[i] }], {
+          duration: glide,
+          easing: EASE_IN_OUT_SINE,
+          fill: "forwards",
+        }),
+      );
+      anims.current[0].onfinish = () => {
+        if (cancelled) return;
+        anims.current.forEach((a) => a.cancel());
+        startCycle();
+      };
+    }
+    return () => {
+      cancelled = true;
+      stopSweep();
+    };
+  }, [held, keyboard, reduced, active, stopSweep]);
 
   useEffect(() => {
     if (reduced) apply(50);
@@ -346,6 +411,7 @@ function BeforeAfter({
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     dragging.current = true;
+    stopSweep(); // en el mismo evento: la barra va al dedo sin esperar al próximo render
     setHeld(true);
     e.currentTarget.setPointerCapture(e.pointerId);
     fromPointer(e);
@@ -358,14 +424,28 @@ function BeforeAfter({
   };
 
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    const now = Math.round(pos.current);
     const step = e.shiftKey ? 10 : 5;
-    const next = { ArrowLeft: now - step, ArrowRight: now + step, Home: 0, End: 100 }[e.key];
-    if (next === undefined) return;
+    const keys: Record<string, true> = { ArrowLeft: true, ArrowRight: true, Home: true, End: true };
+    if (!keys[e.key]) return;
     e.preventDefault();
+    stopSweep(); // primero: pos.current pasa a ser la posición real de la barra
+    const now = Math.round(pos.current);
+    const next = { ArrowLeft: now - step, ArrowRight: now + step, Home: 0, End: 100 }[e.key]!;
     keyboardRef.current = true;
     setKeyboard(true);
     apply(next);
+  };
+
+  /* Al enfocar la manija, aria-valuenow pasa a ser la posición real: durante el
+     recorrido automático no se actualiza (corre en el compositor), y un lector de
+     pantalla leería un valor viejo. Una sola lectura, no detiene el recorrido. */
+  const onKnobFocus = () => {
+    const bar = barRef.current;
+    if (!bar || !bar.offsetWidth || !anims.current.length) return;
+    const tx = new DOMMatrixReadOnly(getComputedStyle(bar).transform).m41;
+    const rounded = Math.round(Math.min(100, Math.max(0, 50 + (tx / bar.offsetWidth) * 100)));
+    announced.current = rounded;
+    knobRef.current?.setAttribute("aria-valuenow", String(rounded));
   };
 
   // El teclado deja la barra quieta hasta que el foco sale de la manija
@@ -391,8 +471,8 @@ function BeforeAfter({
       {/* Antes: misma foto recortada a la izquierda de la barra. El marco se
           corre a la izquierda y la foto, lo mismo a la derecha: queda quieta
           y solo cambia cuánto se ve (todo con transform). */}
-      <div className="absolute inset-0 overflow-hidden" style={{ transform: "translateX(calc((var(--pos) - 100) * 1%))" }}>
-        <div className="absolute inset-0" style={{ transform: "translateX(calc((100 - var(--pos)) * 1%))" }}>
+      <div ref={clipRef} className="absolute inset-0 overflow-hidden" style={{ transform: "translateX(calc((var(--pos) - 100) * 1%))" }}>
+        <div ref={innerRef} className="absolute inset-0" style={{ transform: "translateX(calc((100 - var(--pos)) * 1%))" }}>
           <Photo src={before} alt={altBefore} pending={pending} framing={framing?.before ?? null} />
         </div>
       </div>
@@ -416,13 +496,13 @@ function BeforeAfter({
       )}
 
       {/* Barra + manija: una capa del ancho del marco corrida (pos − 50) %, con la barra en su centro */}
-      <div className="pointer-events-none absolute inset-0 z-20" style={{ transform: "translateX(calc((var(--pos) - 50) * 1%))" }}>
+      <div ref={barRef} className="pointer-events-none absolute inset-0 z-20" style={{ transform: "translateX(calc((var(--pos) - 50) * 1%))" }}>
         <span className="absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-white shadow-[0_0_12px_rgb(255_255_255/0.9),0_0_2px_rgb(0_0_0/0.6)]" />
         <div
           ref={knobRef}
           {...(decorative
             ? {}
-            : { role: "slider", tabIndex: 0, "aria-label": label, "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": 50, onKeyDown: onKey, onBlur: onKnobBlur })}
+            : { role: "slider", tabIndex: 0, "aria-label": label, "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": 50, onKeyDown: onKey, onFocus: onKnobFocus, onBlur: onKnobBlur })}
           // Vidrio con tinte oscuro fijo: va sobre una foto, en los dos temas
           className="liquid-glass fit-focus pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 place-items-center w-12 h-12 rounded-full !bg-black/35 !border-white/60 text-white cursor-grab active:cursor-grabbing"
         >

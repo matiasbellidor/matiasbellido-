@@ -21,6 +21,10 @@ import { useEffect, useRef } from "react";
    - Listener de scroll passive + throttle con requestAnimationFrame.
    - Escribe backgroundColor directo al DOM via ref: cero re-renders.
    - MutationObserver repinta al togglear dark/light.
+   - El recorrido máximo (alto del documento − alto de la ventana) se
+     guarda y se recalcula solo cuando cambia el tamaño (ResizeObserver).
+     Leer scrollHeight en cada cuadro obligaba al navegador a recalcular
+     el layout: ~19 ms por cuadro en un celular (medido 2026-11-13).
    ═════════════════════════════════════════════════════════════ */
 
 type RGB = [number, number, number];
@@ -55,6 +59,11 @@ export default function ScrollBackground() {
 
   useEffect(() => {
     let ticking = false;
+    let max = 0;
+    const doc = document.scrollingElement || document.documentElement;
+    const measure = () => {
+      max = doc.scrollHeight - doc.clientHeight;
+    };
 
     const isDark = () => document.documentElement.classList.contains("dark");
 
@@ -63,9 +72,7 @@ export default function ScrollBackground() {
       const el = ref.current;
       if (!el) return;
 
-      const doc = document.scrollingElement || document.documentElement;
-      const max = doc.scrollHeight - doc.clientHeight;
-      const prog = max > 0 ? clamp01(doc.scrollTop / max) : 0;
+      const prog = max > 0 ? clamp01(window.scrollY / max) : 0;
 
       const p = isDark() ? PALETTES.dark : PALETTES.light;
       const [r, g, b] = colorAt(prog, p.a, p.b, p.c);
@@ -80,7 +87,6 @@ export default function ScrollBackground() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
 
     const observer = new MutationObserver(paint);
     observer.observe(document.documentElement, {
@@ -88,12 +94,26 @@ export default function ScrollBackground() {
       attributeFilter: ["class"],
     });
 
+    // Cambió el alto de la página (se abrió algo, cargó una imagen) o de la ventana
+    const resize = new ResizeObserver(() => {
+      measure();
+      onScroll();
+    });
+    resize.observe(document.body);
+    const onWindowResize = () => {
+      measure();
+      onScroll();
+    };
+    window.addEventListener("resize", onWindowResize, { passive: true });
+
+    measure();
     paint();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onWindowResize);
       observer.disconnect();
+      resize.disconnect();
     };
   }, []);
 
