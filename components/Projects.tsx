@@ -109,7 +109,7 @@ const EXPAND_EASE = [0.22, 1, 0.36, 1] as const;
 
 // Bellido Asesoramientos va primero (pedido de Matías, 2026-11-06)
 const businessProjectsMeta: ProjectMeta[] = [
-  { id: "asesoramientos", image: "/projects/Imagenes/asesoramientos.webp", proposalUrl: "" },
+  { id: "asesoramientos", image: "/projects/Imagenes/bellido_asesoramientos.png", proposalUrl: "" },
   { id: "imports", image: "/projects/Imagenes/Imports.webp", proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#272a2c" },
 ];
 
