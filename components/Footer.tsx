@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { Mail, MapPin, ArrowUpRight, Copy, Check, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Magnetic from "@/components/Magnetic";
 import CVModal from "@/components/CVModal";
@@ -12,52 +12,42 @@ import ContactForm from "@/components/ContactForm";
 import logo from "@/app/icon.png";
 /* Logos importados (no "/logos/…" como texto): el link lleva una huella del
    contenido, así un logo nuevo con el mismo nombre se ve al toque */
-import linkedinLogo from "@/public/logos/linkedin.png";
+import linkedinLogo from "@/public/logos/linkedin-round.png";
 import githubLogo from "@/public/logos/github.png";
-import whatsappLogo from "@/public/logos/whatsapp.png";
+import whatsappLogo from "@/public/logos/whatsapp-round.png";
 
 /* Curva de easing premium (la misma del Hero) */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const EMAIL = "rbellidomatias@gmail.com";
-const MAILTO_URL = `mailto:${EMAIL}`;
-const MAPS_URL =
-  "https://www.google.com/maps/place/Buenos+Aires/@-34.615796,-58.5156997,12z/data=!3m1!4b1!4m6!3m5!1s0x95bcca3b4ef90cbd:0xa0b3812e88e88e87!8m2!3d-34.6036739!4d-58.3821215!16zL20vMDFseTVt";
 
 /* Único lugar del sitio con las redes. Cada botón usa el logo PNG de su app
    (public/logos), no un ícono genérico. */
 const SOCIAL_LINKS = [
   { label: "LinkedIn", href: "https://www.linkedin.com/in/matiasbellido", logo: linkedinLogo },
-  { label: "GitHub", href: "https://github.com/matiasbellidor", logo: githubLogo },
+  // GitHub: el logo original (círculo blanco con el gato), un poco más grande que los otros
+  { label: "GitHub", href: "https://github.com/matiasbellidor", logo: githubLogo, big: true },
   { label: "WhatsApp", href: "https://wa.me/message/RRG5RHLSINR3M1", logo: whatsappLogo },
 ];
 
-/* Pill simétrica: el logo en un círculo pegado a la izquierda, el nombre en
+/* Pill simétrica: el logo (ya redondo, del color de su marca) pegado a la izquierda, el nombre en
    el medio y, a la derecha, un hueco del mismo ancho que el círculo; así el
    texto queda centrado en el botón. El hueco puede achicarse (a 320 px
    "WhatsApp" no entraría) antes que cortar el nombre. px-[5px] + 1 px de
    borde del vidrio = 6 px al costado, lo mismo que arriba y abajo. */
 const socialClass =
   "w-full h-11 glass rounded-full flex items-center px-[5px] text-sm font-semibold text-fg-soft hover:text-cyan hover:shadow-glow transition-all touch-manipulation";
-const logoCircle = "h-8 w-8 shrink-0 rounded-full shadow-[0_1px_4px_rgb(0_0_0/0.25)]";
+const logoCircle = "h-8 w-8 shrink-0 rounded-full";
+/* 34 px = el máximo que entra en la pill de 44 px dejando 5 px de aire arriba y abajo */
+const logoCircleBig = "h-[34px] w-[34px] shrink-0 rounded-full shadow-[0_1px_4px_rgb(0_0_0/0.25)]";
 const logoSpacer = <span aria-hidden="true" className="w-8 shrink" />;
+const logoSpacerBig = <span aria-hidden="true" className="w-[34px] shrink" />;
 
 export default function Footer() {
   const { t } = useLanguage();
   const reduced = !!useReducedMotion();
-  const [copied, setCopied] = useState(false);
   const [cvOpen, setCvOpen] = useState(false);
   const closeCv = useCallback(() => setCvOpen(false), []);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(EMAIL);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* Si el navegador bloquea el portapapeles, no rompemos nada */
-    }
-  };
 
   /* Stagger de entrada al hacer scroll hasta la sección:
      eyebrow → título → texto → formulario → tarjetas → redes */
@@ -108,58 +98,8 @@ export default function Footer() {
         </motion.p>
 
         {/* Formulario = CTA principal: arma el email en Gmail u Outlook */}
-        <motion.div variants={fadeUp} className="max-w-2xl mx-auto mb-4">
+        <motion.div variants={fadeUp} className="max-w-2xl mx-auto mb-10">
           <ContactForm to={EMAIL} />
-        </motion.div>
-
-        <motion.div
-          variants={fadeUp}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 max-w-2xl mx-auto"
-        >
-          {/* Tarjeta de Email (dato de contacto, debajo del formulario).
-             Estructura: la tarjeta entera es un enlace mailto, con un
-             botón de copiar SEPARADO (no anidado, para HTML válido). */}
-          <div className="relative glass rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 text-left min-w-0 border border-cyan/30 hover:border-cyan/60 hover:shadow-glow transition-all group">
-            <a
-              href={MAILTO_URL}
-              className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0"
-              aria-label={`Enviar email a ${EMAIL}`}
-            >
-              <Mail className="w-5 h-5 text-cyan shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs uppercase tracking-wider text-fg-muted">{t.footer.emailLabel}</p>
-                <p className="text-sm sm:text-base [overflow-wrap:anywhere] text-fg group-hover:text-cyan transition-colors">
-                  {/* <wbr> → en pantallas angostas corta en la "@", no a mitad de palabra */}
-                  {EMAIL.split("@")[0]}@<wbr />{EMAIL.split("@")[1]}
-                </p>
-              </div>
-            </a>
-            <button
-              onClick={handleCopy}
-              aria-label={copied ? "Email copiado" : "Copiar email"}
-              className="shrink-0 p-2 rounded-lg hover:bg-cyan/10 transition-colors touch-manipulation"
-            >
-              {copied ? (
-                <Check className="w-4 h-4 text-cyan" />
-              ) : (
-                <Copy className="w-4 h-4 text-fg-muted hover:text-cyan transition-colors" />
-              )}
-            </button>
-          </div>
-
-          <a
-            href={MAPS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="glass rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 text-left min-w-0 hover:shadow-glow transition-all group"
-          >
-            <MapPin className="w-5 h-5 text-cyan shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase tracking-wider text-fg-muted">{t.footer.locationLabel}</p>
-              <p className="text-base text-fg">{t.footer.location}</p>
-            </div>
-            <ArrowUpRight className="w-4 h-4 text-fg-muted group-hover:text-cyan transition-all" />
-          </a>
         </motion.div>
 
         {/* Redes + CV: un solo juego de enlaces, con logo Y texto. Las 4
@@ -168,18 +108,18 @@ export default function Footer() {
           variants={fadeUp}
           className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto"
         >
-          {SOCIAL_LINKS.map(({ label, href, logo: src }) => (
+          {SOCIAL_LINKS.map(({ label, href, logo: src, big }) => (
             <Magnetic key={label} strength={0.45} className="w-full">
               <a href={href} target="_blank" rel="noopener noreferrer" className={socialClass}>
-                <Image src={src} alt="" width={32} height={32} className={logoCircle} />
+                <Image src={src} alt="" width={big ? 34 : 32} height={big ? 34 : 32} className={big ? logoCircleBig : logoCircle} />
                 <span className="flex-1 text-center whitespace-nowrap">{label}</span>
-                {logoSpacer}
+                {big ? logoSpacerBig : logoSpacer}
               </a>
             </Magnetic>
           ))}
           <Magnetic strength={0.45} className="w-full">
             {/* Abre el CV en un modal, sin salir de la página. No es una app:
-                lleva el ícono de documento en el mismo círculo blanco */}
+                lleva el ícono de documento en un círculo lleno del color de acción */}
             <button
               type="button"
               onClick={() => setCvOpen(true)}
@@ -187,8 +127,8 @@ export default function Footer() {
               aria-label="Curriculum Vitae"
               aria-haspopup="dialog"
             >
-              <span className={`${logoCircle} grid place-items-center bg-white`}>
-                <FileText className="w-4 h-4 text-electric" aria-hidden="true" />
+              <span className={`${logoCircle} grid place-items-center bg-electric`}>
+                <FileText className="w-4 h-4 text-white" aria-hidden="true" />
               </span>
               <span className="flex-1 text-center whitespace-nowrap">CV</span>
               {logoSpacer}

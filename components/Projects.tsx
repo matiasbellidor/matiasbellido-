@@ -32,7 +32,7 @@ const ONEIRIC_PROPOSAL_URL = "/projects/Imagenes/OneiricAi.pdf";
 const IMPORTS_PROPOSAL_URL = "/projects/Imagenes/Importaciones.pdf";
 const ZIRA_GITHUB_URL = "https://github.com/felipebridge/aleph-hackathon";
 const ASESORAMIENTOS_FITNESS_PAGE = "/fitness";
-const ASESORAMIENTOS_EDUCATION_URL = "/projects/Imagenes/Bellido-Asesoramientos-Educativo.pdf";
+const ASESORAMIENTOS_EDUCATION_PAGE = "/educativo";
 const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
 const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.pdf";
 const AGROCOW_GITHUB_URL = "https://github.com/Goat-Builders/agrocow";
@@ -498,19 +498,19 @@ export default function Projects() {
                     </span>
                   </div>
                 </Link>
-                <a href={ASESORAMIENTOS_EDUCATION_URL} target="_blank" rel="noopener noreferrer" className={SERVICE_CARD}>
+                <Link href={ASESORAMIENTOS_EDUCATION_PAGE} onClick={() => setCanvaModalOpen(false)} className={SERVICE_CARD}>
                   <div aria-hidden="true" className="service-band relative overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
                     <AsesoramientoAnimation variant="educativo" className="absolute inset-0 h-full w-full" />
                   </div>
                   <div className="flex flex-1 flex-col items-center px-5 pb-4 pt-3 sm:pb-5 sm:pt-4">
                     <p className="font-display text-lg sm:text-xl font-bold text-fg">{lang === "es" ? "Asesoramientos Educativos" : "Educational Tutoring"}</p>
-                    <p className="mt-0.5 mb-3 sm:mt-1 sm:mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver propuesta (PDF)" : "View proposal (PDF)"}</p>
+                    <p className="mt-0.5 mb-3 sm:mt-1 sm:mb-4 text-sm text-fg-muted">{lang === "es" ? "Ver packs y cómo trabajo" : "See packs and how I work"}</p>
                     <span className={SERVICE_CTA}>
-                      {lang === "es" ? "Abrir la propuesta" : "Open the proposal"}
-                      <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                      {lang === "es" ? "Ver la página" : "Open the page"}
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                     </span>
                   </div>
-                </a>
+                </Link>
               </div>
             </motion.div>
           </motion.div>

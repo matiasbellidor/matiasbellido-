@@ -11,6 +11,10 @@ import {
 } from "framer-motion";
 import { Sparkles, ArrowDown, MapPin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+
+/* Google Maps de Buenos Aires: el mismo link que tenía la tarjeta de ubicación del pie */
+const MAPS_URL =
+  "https://www.google.com/maps/place/Buenos+Aires/@-34.615796,-58.5156997,12z/data=!3m1!4b1!4m6!3m5!1s0x95bcca3b4ef90cbd:0xa0b3812e88e88e87!8m2!3d-34.6036739!4d-58.3821215!16zL20vMDFseTVt";
 import Magnetic, { useHasFinePointer } from "@/components/Magnetic";
 // Importada: el link lleva una huella del contenido (next/image no sirve una versión vieja)
 import profilePhoto from "@/public/projects/Imagenes/profile.webp";
@@ -139,11 +143,19 @@ export default function Hero() {
               {t.hero.badge}
             </span>
             <span className="hidden xl:inline text-cyan/40" aria-hidden="true">|</span>
-            <span className="inline-flex items-center gap-1.5 xl:gap-2 whitespace-nowrap">
+            {/* Link a Google Maps (el que tenía la tarjeta de ubicación del pie). Mismo aspecto
+                que antes: sin subrayado ni cambio de color; solo el aro de foco para teclado. */}
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative inline-flex items-center gap-1.5 xl:gap-2 whitespace-nowrap rounded-full after:absolute after:-inset-x-2 after:-inset-y-3 after:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan"
+            >
               <MapPin className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
               <span className="xl:hidden">{t.hero.locationShort}</span>
               <span className="hidden xl:inline">{t.hero.location}</span>
-            </span>
+              <span className="sr-only"> {t.footer.form.newTab}</span>
+            </a>
           </div>
 
           {/* md+: el tamaño sigue al ancho de la columna (7vw − 12px, tope 72px)

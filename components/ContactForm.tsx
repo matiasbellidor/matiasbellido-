@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import { Check, Copy } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/context/LanguageContext";
 /* Importados (no "/logos/…" como texto): el link lleva una huella del
@@ -43,6 +44,18 @@ export default function ContactForm({ to }: { to: string }) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [opened, setOpened] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  /* Copiar el email de Matías: botón chico en la esquina del recuadro */
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(to);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* el navegador bloqueó el portapapeles: no se rompe nada */
+    }
+  };
   const openedTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const providerLabel = PROVIDERS[provider].label;
@@ -67,7 +80,7 @@ export default function ContactForm({ to }: { to: string }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass rounded-2xl p-5 sm:p-8 text-left space-y-5">
+    <form onSubmit={handleSubmit} className="relative glass rounded-2xl p-5 sm:p-8 text-left space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
         <div>
           <label htmlFor="contact-name" className={labelClass}>{f.nameLabel}</label>
@@ -159,6 +172,17 @@ export default function ContactForm({ to }: { to: string }) {
       <p aria-live="polite" className={`text-center text-xs leading-relaxed ${opened ? "text-cyan" : "text-fg-muted"}`}>
         {(opened ? f.opened : f.hint).replace("{provider}", providerLabel)}
       </p>
+      {/* Minimalista: solo el ícono, en la esquina; la zona táctil de 44 px es el ::after.
+          Va al final y con !mt-0: el space-y del formulario no le suma margen ni empuja a los demás. */}
+      <button
+        type="button"
+        onClick={copyEmail}
+        aria-label={copied ? f.copied : f.copyEmail}
+        title={copied ? f.copied : f.copyEmail}
+        className="!mt-0 !min-h-0 absolute right-2.5 top-2.5 sm:right-3.5 sm:top-3.5 grid h-7 w-7 place-items-center rounded-full text-fg-muted transition-colors hover:text-cyan hover:bg-cyan/10 after:absolute after:-inset-2 after:content-[''] touch-manipulation"
+      >
+        {copied ? <Check className="w-3.5 h-3.5 text-cyan" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
+      </button>
     </form>
   );
 }

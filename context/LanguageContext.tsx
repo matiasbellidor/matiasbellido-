@@ -293,6 +293,198 @@ type FitnessDict = {
   footer: { back: string; health: string; rights: string; withdrawal: string; withdrawalMessage: string };
 };
 
+/* ── Landing de /educativo (Bellido Asesoramientos Educativo) ──
+   Contenido del PDF de la propuesta (public/projects/Imagenes/
+   Bellido-Asesoramientos-Educativo.pdf, no se muestra en la página).
+   Propuesta corta y concisa (pedido de Matías): pocas palabras, nada
+   genérico, sin resultados ni testimonios inventados. Precios y links de la
+   tienda y de los palacios: components/educativo/data.ts. */
+export type EducativoPackId = "promotion" | "support" | "tec" | "black" | "avanzado" | "smart" | "clase";
+
+type EducativoCard = { title: string; desc: string };
+
+type EducativoDict = {
+  /** Mensaje precargado del WhatsApp principal (header, hero, cómo arrancar, contacto) */
+  whatsappMessage: string;
+  nav: {
+    links: { id: string; label: string }[];
+    /** aria-label del menú de secciones */
+    sections: string;
+    cta: string;
+    menu: string;
+    close: string;
+    home: string;
+    lang: string;
+    langOther: string;
+  };
+  hero: {
+    kicker: string;
+    tagline: string;
+    who: string;
+    cta: string;
+    ctaSecondary: string;
+    photoAlt: string;
+  };
+  method: {
+    eyebrow: string;
+    title: string;
+    stepLabel: string;
+    steps: EducativoCard[];
+  };
+  about: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    subjectsTitle: string;
+    /** Materias que da Matías, de más a menos pedidas (la última invita a consultar por otras) */
+    subjects: string[];
+    /** Niveles a los que adapta las clases */
+    levels: string;
+    /** Invitación al portfolio profesional (link a /) */
+    portfolioIntro: string;
+    portfolioCta: string;
+  };
+  problem: {
+    eyebrow: string;
+    title: string;
+    items: string[];
+    closing: string;
+    benefitsTitle: string;
+    /** Textuales de la propuesta de Matías: no cambiar la redacción */
+    benefits: string[];
+    benefitsNote: string;
+  };
+  packs: {
+    eyebrow: string;
+    title: string;
+    /** Lo que traen los tres packs de clases, en una línea */
+    common: string;
+    othersTitle: string;
+    descriptions: Record<EducativoPackId, string>;
+    /** Lo que incluye cada plan, textual de las fichas de la tienda de Matías */
+    includes: Record<"black" | "avanzado" | "smart", string[]>;
+    featured: string;
+    perMonth: string;
+    perClass: string;
+    before: string;
+    newTab: string;
+    /** Botón tranquilo de consulta por WhatsApp; el mensaje lleva {pack} = nombre del pack */
+    consult: string;
+    message: string;
+    /** Link a ese producto en la tienda (solo si hay buyUrl en data.ts) */
+    store: string;
+    /** Link a la tienda completa (solo si hay STORE_CART_URL) */
+    storeAll: string;
+  };
+  /** Carrito, con el mismo flujo que /fitness: Carrito → Pago (Mercado Pago) → Formulario */
+  cart: {
+    add: string;
+    inCart: string;
+    open: string;
+    title: string;
+    close: string;
+    steps: string[];
+    empty: string;
+    emptyCta: string;
+    remove: string;
+    less: string;
+    more: string;
+    total: string;
+    monthNote: string;
+    toPay: string;
+    payTitle: string;
+    payIntro: string;
+    payButton: string;
+    qrLabel: string;
+    aliasLabel: string;
+    cvuLabel: string;
+    nameLabel: string;
+    copy: string;
+    copied: string;
+    paid: string;
+    back: string;
+    doneTitle: string;
+    doneDesc: string;
+    formButton: string;
+    formPending: string;
+    receipt: string;
+    /** {items}, {total} y {extras} (el código, si hay) */
+    receiptMessage: string;
+    extrasCode: string;
+    finish: string;
+    units: { month: string; class: string };
+    /** Botón flotante sin nada adentro */
+    emptyShort: string;
+    codeTitle: string;
+    codePlaceholder: string;
+    codeApply: string;
+    codeInvalid: string;
+    codeApplied: string;
+    codeRemove: string;
+    /** Los códigos valen solo para el primer mes de packs y planes */
+    codeNote: string;
+    subtotal: string;
+    discount: string;
+    discountChip: string;
+    originalPrice: string;
+    finalPrice: string;
+  };
+  start: {
+    eyebrow: string;
+    title: string;
+    stepLabel: string;
+    steps: (EducativoCard & { when: string })[];
+    cta: string;
+  };
+  /** Material UBA: fila discreta que se despliega (no va en el menú, pedido de Matías) */
+  study: {
+    title: string;
+    intro: string;
+    toggleOpen: string;
+    toggleClose: string;
+    topicsTitle: string;
+    open: string;
+    soon: string;
+    newTab: string;
+    note: string;
+    items: { id: "macro" | "stats"; subject: string; title: string; part: string; topics: string[] }[];
+  };
+  faq: {
+    eyebrow: string;
+    title: string;
+    groups: { title: string; items: { q: string; a: string }[] }[];
+  };
+  affiliates: {
+    eyebrow: string;
+    title: string;
+    cta: string;
+    message: string;
+  };
+  contact: {
+    title: string;
+    desc: string;
+    freeCall: string;
+    cta: string;
+    emailLabel: string;
+    email: string;
+    linkedin: string;
+    linkedinLabel: string;
+    /** Título de las otras vías de contacto */
+    otherTitle: string;
+    formQuestion: string;
+    formLink: string;
+    /** Solo en desarrollo, mientras EDU_FORM_URL esté vacío */
+    formMissing: string;
+  };
+  footer: {
+    back: string;
+    rights: string;
+    withdrawal: string;
+    withdrawalMessage: string;
+    notes: string;
+  };
+};
+
 type Dict = {
   nav: {
     home: string;
@@ -376,12 +568,17 @@ type Dict = {
       submit: string;
       hint: string;
       opened: string;
+      copyEmail: string;
+      copied: string;
+      /** Para lectores de pantalla: el link abre otra pestaña */
+      newTab: string;
       subject: string;
       greeting: string;
       emailLine: string;
     };
   };
   fitness: FitnessDict;
+  educativo: EducativoDict;
 };
 
 export const translations: Record<Lang, Dict> = {
@@ -682,6 +879,9 @@ export const translations: Record<Lang, Dict> = {
         messagePlaceholder: "Contame en qué te puedo ayudar...",
         submit: "Abrir en {provider}",
         hint: "Se abre {provider} con el asunto y el mensaje listos: solo te queda tocar Enviar.",
+        copyEmail: "Copiar mi email",
+        copied: "Email copiado",
+        newTab: "(se abre en otra pestaña)",
         opened: "Listo: {provider} se abrió en una pestaña nueva.",
         subject: "Consulta desde el portfolio",
         greeting: "Hola Matías,",
@@ -1101,6 +1301,272 @@ export const translations: Record<Lang, Dict> = {
         withdrawalMessage: "Hola Matías, quiero arrepentirme de mi compra (botón de arrepentimiento). Mi nombre es: ",
       },
     },
+
+    // ─────────── LANDING /educativo (Bellido Asesoramientos Educativo) ───────────
+    // Fuente: PDF "Bellido Asesoramientos Educativo". Propuesta corta: pocas palabras,
+    // nada genérico ni con doble sentido. Precios y links: components/educativo/data.ts.
+    educativo: {
+      whatsappMessage: "Hola Matías, vi tu página de clases. Necesito ayuda con la materia: ",
+      nav: {
+        // En el orden de la página: el header marca en cuál estás y cuáles ya pasaste
+        links: [
+          { id: "metodo", label: "Método" },
+          { id: "sobre-mi", label: "Quién soy" },
+          { id: "packs", label: "Packs" },
+          { id: "preguntas", label: "Preguntas" },
+        ],
+        sections: "Secciones",
+        cta: "Escribime",
+        menu: "Abrir menú",
+        close: "Cerrar menú",
+        home: "Ir al inicio de la página",
+        lang: "Cambiar el idioma a inglés",
+        langOther: "English",
+      },
+      hero: {
+        kicker: "Clases particulares · Virtuales y 1 a 1",
+        tagline: "¿Estudiás y la materia no te cierra?",
+        who: "Encuentro dónde te trabaste, armamos esa base y te ponés al día.",
+        cta: "Quiero arrancar",
+        ctaSecondary: "Ver packs",
+        photoAlt: "Matías Bellido",
+      },
+      method: {
+        eyebrow: "Método",
+        title: "Tres pasos, siempre en este orden.",
+        stepLabel: "Paso",
+        steps: [
+          { title: "Veo qué no te cierra", desc: "Averiguo en qué tema o concepto exacto te perdés. Ahí está el problema." },
+          { title: "Arreglamos lo que falta", desc: "Repasamos lo básico que quedó flojo. Con esa base, lo que estás viendo ahora se entiende." },
+          { title: "Seguimos adelante", desc: "Avanzamos con lo próximo de la materia, así no vas corriendo atrás." },
+        ],
+      },
+      about: {
+        eyebrow: "Quién soy",
+        title: "Matías, 21 años. Estudio Actuario en la UBA.",
+        text: "Doy clases desde 2023 y me reparto las clases con otros profes de mi equipo: algunas las doy yo y otras un profe asignado según tu materia, siempre con el mismo método. Superviso que todo funcione. Trabajo con estadística, datos y programación en mis propios proyectos, así que no te explico solo la cuenta: te explico para qué sirve y cuándo usarla.",
+        subjectsTitle: "Materias",
+        subjects: ["Matemática", "Álgebra", "Estadística", "Economía", "Contabilidad", "Microeconomía", "Macroeconomía", "Inglés", "Excel", "Python", "SQL", "Inteligencia Artificial", "HTML", "Y más: consultame la tuya"],
+        levels: "Adaptadas a nivel primario, secundario y universitario.",
+        portfolioIntro: "¿Querés conocerme mejor?",
+        portfolioCta: "Ver mi portfolio profesional",
+      },
+      problem: {
+        eyebrow: "¿Te pasa?",
+        title: "Si te pasa esto, algo de antes quedó flojo.",
+        items: [
+          "Le dedicás horas y no avanzás.",
+          "Sabés las fórmulas de memoria, pero no por qué funcionan.",
+          "Un tema flojo hoy son tres el mes que viene.",
+          "Llegás al parcial rezando que tomen lo que practicaste.",
+        ],
+        closing: "Ahí arranco yo.",
+        benefitsTitle: "Beneficios incluidos",
+        benefits: [
+          "Temario organizacional en pasos",
+          "Asesoramiento personalizado P2P las 24 h",
+          "Videos explicativos personalizados (opcional)",
+          "20 clases de una hora cada una",
+          "Reembolso de no obtener resultados esperados",
+        ],
+        benefitsNote: "Pack de 20 clases. P2P: uno a uno, por WhatsApp.",
+      },
+      packs: {
+        eyebrow: "Packs",
+        title: "Elegí cuántas clases necesitás.",
+        common: "Todos los packs traen asesoramiento P2P 24 h, videos a pedido, temario semanal y reembolso.",
+        othersTitle: "Otras opciones",
+        descriptions: {
+          promotion: "20 clases de una hora.",
+          support: "15 clases de una hora.",
+          tec: "10 clases de una hora.",
+          black: "El plan completo: con una clase por semana.",
+          avanzado: "Asesoramiento y videos personalizados, sin clases.",
+          smart: "Una guía para organizar tu estudio, sin clases.",
+          clase: "Una clase virtual 1 a 1 de una hora.",
+        },
+        includes: {
+          black: [
+            "1 clase semanal de 1 hora",
+            "Temario organizacional en pasos",
+            "Asesoramiento personalizado P2P las 24 h",
+            "Videos explicativos personalizados",
+            "Reembolso de no obtener resultados esperados",
+            "22,3% de descuento en el próximo mes de suscripción",
+          ],
+          avanzado: ["Temario organizacional en pasos", "Asesoramiento semanal", "Videos explicativos personalizados", "16,1% de descuento en el próximo mes de suscripción"],
+          smart: ["Temario organizacional en pasos", "Asesoramiento semanal", "12,7% de descuento en el próximo mes de suscripción"],
+        },
+        featured: "Recomendado",
+        perMonth: "por mes",
+        perClass: "por clase",
+        before: "Antes",
+        newTab: "(se abre en otra pestaña)",
+        consult: "Consultar",
+        message: "Hola Matías, quiero consultar por: {pack} (clases particulares).",
+        store: "Ver en la tienda",
+        storeAll: "Ver tienda completa",
+      },
+      cart: {
+        add: "Agregar al carrito",
+        inCart: "En el carrito · Ver",
+        open: "Ver carrito",
+        title: "Carrito",
+        close: "Cerrar carrito",
+        steps: ["Carrito", "Pago", "Formulario"],
+        empty: "Tu carrito está vacío.",
+        emptyCta: "Ver packs",
+        remove: "Quitar",
+        less: "Una clase menos",
+        more: "Una clase más",
+        total: "Total",
+        monthNote: "Los packs y planes son mensuales: este pago es el primer mes.",
+        toPay: "Ir a pagar",
+        payTitle: "Pagá con Mercado Pago",
+        payIntro: "Transferí exactamente el total a Matías Rodrigo Bellido. Después volvé a esta página y tocá «Ya pagué».",
+        payButton: "Pagar con Mercado Pago",
+        qrLabel: "O escaneá el QR con la app de Mercado Pago",
+        aliasLabel: "Alias",
+        cvuLabel: "CVU",
+        nameLabel: "Titular",
+        copy: "Copiar",
+        copied: "Copiado",
+        paid: "Ya pagué",
+        back: "Volver al carrito",
+        doneTitle: "¡Gracias por tu compra!",
+        doneDesc: "Último paso: el formulario con tus datos. Con eso armo tu temario en unos 2 días.",
+        formButton: "Completar el formulario",
+        formPending: "Mandame el comprobante por WhatsApp y te paso el formulario.",
+        receipt: "Enviar comprobante por WhatsApp",
+        receiptMessage: "Hola Matías, ya pagué por Mercado Pago. Compré: {items}. Total: {total}.{extras} Te mando el comprobante.",
+        extrasCode: " Código de descuento: {code}.",
+        finish: "Terminar",
+        units: { month: "por mes", class: "por clase" },
+        emptyShort: "Vacío",
+        codeTitle: "Código de descuento",
+        codePlaceholder: "Escribilo acá",
+        codeApply: "Aplicar",
+        codeInvalid: "Ese código no es válido. Revisalo y probá de nuevo.",
+        codeApplied: "Código aplicado",
+        codeRemove: "Quitar",
+        codeNote: "Vale solo para el primer mes de packs y planes.",
+        subtotal: "Subtotal",
+        discount: "Descuento",
+        discountChip: "Primer mes con descuento",
+        originalPrice: "Precio original",
+        finalPrice: "Precio con descuento",
+      },
+      start: {
+        eyebrow: "Cómo arrancar",
+        title: "Tres pasos y arrancamos.",
+        stepLabel: "Paso",
+        steps: [
+          { title: "Me escribís", desc: "Por WhatsApp, con la materia y lo que no entendés. Si querés, antes hacemos una llamada gratis.", when: "Cuando quieras" },
+          { title: "Completás el formulario", desc: "Me pasás tus datos y en unos 2 días te mando el temario: qué vemos y en qué orden.", when: "En unos 2 días" },
+          { title: "Tenés tu primera clase", desc: "Elegimos día y horario. Se agenda con al menos 48 horas de aviso.", when: "Con 48 h de aviso" },
+        ],
+        cta: "Quiero arrancar",
+      },
+      study: {
+        title: "Material gratis para la UBA",
+        intro: "Resúmenes, palacio de la memoria y práctica de Macroeconomía y Análisis Estadístico II. Sin registrarte.",
+        toggleOpen: "Ver material",
+        toggleClose: "Ocultar",
+        topicsTitle: "Temas",
+        open: "Abrir palacio",
+        soon: "Próximamente",
+        newTab: "(se abre en otra pestaña)",
+        note: "Material propio, no oficial de la UBA.",
+        items: [
+          {
+            id: "macro",
+            subject: "Macroeconomía (262) · FCE-UBA",
+            title: "Palacio Macroeconómico",
+            part: "Segunda parte de la materia",
+            topics: [
+              "Mercados mundiales de bienes y crédito",
+              "Balanza de pagos y cuenta corriente",
+              "Ahorro, inversión y déficits gemelos",
+              "Términos del intercambio",
+              "Tipo de cambio nominal y real",
+              "Paridad del poder adquisitivo",
+              "Paridad de tasas de interés",
+              "IS en economía abierta y curva J",
+              "Modelo Mundell-Fleming",
+              "Tipo de cambio fijo y flexible",
+              "Crisis cambiarias y elección del régimen",
+            ],
+          },
+          {
+            id: "stats",
+            subject: "Análisis Estadístico II · FCE-UBA",
+            title: "Palacio de Análisis Estadístico",
+            part: "Primera parte de la materia",
+            topics: [
+              "Estimadores: sesgo, ECM, eficiencia y consistencia",
+              "Suficiencia y robustez",
+              "Máxima verosimilitud y método de los momentos",
+              "Información de Fisher y cota de Cramér-Rao",
+              "Función generatriz de momentos",
+              "Distribuciones en el muestreo: normal, χ², t y F",
+              "Intervalos de confianza y tamaño de muestra",
+              "Test de hipótesis, p-valor y potencia",
+            ],
+          },
+        ],
+      },
+      faq: {
+        eyebrow: "Preguntas",
+        title: "Preguntas frecuentes",
+        groups: [
+          {
+            title: "Las clases",
+            items: [
+              { q: "¿Cómo empiezo?", a: "Escribime por WhatsApp. Completás un formulario y en unos 2 días tenés tu temario." },
+              { q: "¿Cómo son las clases?", a: "Virtuales, 1 a 1 y de una hora. Se agendan con al menos 48 h de aviso. Días y horarios, por WhatsApp." },
+              { q: "¿Las clases las das vos?", a: "Algunas sí, y muchas las da un profe de mi equipo, elegido según tu materia. Todos trabajan con el mismo método y yo coordino." },
+              { q: "¿Cómo funciona el asesoramiento P2P 24 h?", a: "Te trabás con algo y me escribís por WhatsApp a cualquier hora. Si hace falta, te mando un video." },
+              { q: "¿Con qué materias me ayudás?", a: "Matemática, Álgebra, Estadística, Economía, Contabilidad, Microeconomía, Macroeconomía, Inglés, Excel, Python, SQL, Inteligencia Artificial y HTML, entre otras. Adaptadas a nivel primario, secundario y universitario. Si la tuya no está en la lista, escribime y te digo si puedo." },
+            ],
+          },
+          {
+            title: "Packs y compra",
+            items: [
+              { q: "¿Qué trae el pack de 20 clases?", a: "20 clases de una hora, asesoramiento P2P 24 h, videos a pedido, temario y reembolso de no obtener resultados esperados." },
+              { q: "¿Cómo funciona el reembolso?", a: "Viene en los packs de clases. Cómo se pide, consultalo por WhatsApp antes de comprar." },
+              { q: "¿Cómo compro y pago?", a: "Agregás el pack al carrito y pagás por Mercado Pago (link, QR o alias). Después me mandás el comprobante por WhatsApp." },
+            ],
+          },
+        ],
+      },
+      affiliates: {
+        eyebrow: "Afiliados",
+        title: "Recomendá las clases: te llevás 25% del pago inicial y 20% residual.",
+        cta: "Quiero ser afiliado",
+        message: "Hola Matías, quiero sumarme al programa de afiliados de las clases.",
+      },
+      contact: {
+        title: "¿Arrancamos?",
+        desc: "Contame la materia y dónde te trabás. Te digo sin vueltas si te puedo ayudar.",
+        freeCall: "La primera llamada es gratis.",
+        cta: "Quiero arrancar",
+        emailLabel: "Escribir por email a rbellidomatias@gmail.com",
+        email: "rbellidomatias@gmail.com",
+        linkedin: "Conectá conmigo en LinkedIn",
+        linkedinLabel: "(se abre en otra pestaña)",
+        otherTitle: "También podés",
+        formQuestion: "¿Ya pagaste o tenés una consulta?",
+        formLink: "Completá el formulario",
+        formMissing: "Vista previa: falta pegar el link del formulario (EDU_FORM_URL). En el sitio publicado no se ve.",
+      },
+      footer: {
+        back: "Ir al portfolio profesional →",
+        rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
+        withdrawal: "Botón de arrepentimiento",
+        withdrawalMessage: "Hola Matías, quiero arrepentirme de mi compra de clases (botón de arrepentimiento). Mi nombre es: ",
+        notes: "No es un servicio oficial de la UBA. Menores de 18, con autorización de un adulto responsable.",
+      },
+    },
   },
 
   // ==========================================================================
@@ -1388,6 +1854,9 @@ export const translations: Record<Lang, Dict> = {
         messagePlaceholder: "Tell me how I can help...",
         submit: "Open in {provider}",
         hint: "{provider} opens with the subject and message ready: just hit Send.",
+        copyEmail: "Copy my email",
+        copied: "Email copied",
+        newTab: "(opens in a new tab)",
         opened: "Done: {provider} opened in a new tab.",
         subject: "Inquiry from your portfolio",
         greeting: "Hi Matías,",
@@ -1785,6 +2254,269 @@ export const translations: Record<Lang, Dict> = {
         rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
         withdrawal: "Cancel my purchase",
         withdrawalMessage: "Hi Matías, I want to cancel my purchase (botón de arrepentimiento). My name is: ",
+      },
+    },
+
+    // ─────────── /educativo LANDING (Bellido Asesoramientos Educativo) ───────────
+    educativo: {
+      whatsappMessage: "Hi Matías, I saw your tutoring page. I need help with this subject: ",
+      nav: {
+        links: [
+          { id: "metodo", label: "Method" },
+          { id: "sobre-mi", label: "About" },
+          { id: "packs", label: "Packs" },
+          { id: "preguntas", label: "FAQ" },
+        ],
+        sections: "Sections",
+        cta: "Message me",
+        menu: "Open menu",
+        close: "Close menu",
+        home: "Go to the top of the page",
+        lang: "Switch language to Spanish",
+        langOther: "Español",
+      },
+      hero: {
+        kicker: "Private tutoring · Online, 1-on-1",
+        tagline: "Studying hard and the subject still doesn't click?",
+        who: "I find where you got stuck, we fix that foundation and you catch up.",
+        cta: "I want to start",
+        ctaSecondary: "See packs",
+        photoAlt: "Matías Bellido",
+      },
+      method: {
+        eyebrow: "Method",
+        title: "Three steps, always in this order.",
+        stepLabel: "Step",
+        steps: [
+          { title: "I find what doesn't click", desc: "I work out the exact topic or concept where you get lost. That's where the problem is." },
+          { title: "We fix what's missing", desc: "We go over the basics that were left shaky. With that base, what you're studying now makes sense." },
+          { title: "We keep moving", desc: "We move on to what's next in the course, so you stop chasing it." },
+        ],
+      },
+      about: {
+        eyebrow: "About me",
+        title: "Matías, 21. I study Actuarial Science at UBA.",
+        text: "I've been tutoring since 2023 and I share the classes with other tutors on my team: I teach some myself and others are taught by a tutor assigned to your subject, always with the same method. I make sure everything runs right. I work with statistics, data and programming in my own projects, so I don't just explain the math: I explain what it's for and when to use it.",
+        subjectsTitle: "Subjects",
+        subjects: ["Mathematics", "Algebra", "Statistics", "Economics", "Accounting", "Microeconomics", "Macroeconomics", "English", "Excel", "Python", "SQL", "Artificial Intelligence", "HTML", "And more: ask about yours"],
+        levels: "Adapted to primary, secondary and university levels.",
+        portfolioIntro: "Want to get to know me better?",
+        portfolioCta: "See my professional portfolio",
+      },
+      problem: {
+        eyebrow: "Sound familiar?",
+        title: "If this happens to you, something earlier was left shaky.",
+        items: [
+          "You put in hours and don't move forward.",
+          "You know the formulas by heart, but not why they work.",
+          "One shaky topic today is three next month.",
+          "You walk into the exam hoping they ask what you practiced.",
+        ],
+        closing: "That's where I start.",
+        benefitsTitle: "Included benefits",
+        benefits: [
+          "Step-by-step study syllabus",
+          "Personalized 1-on-1 (P2P) support, 24 h",
+          "Personalized explanatory videos (optional)",
+          "20 one-hour classes",
+          "Refund if the expected results aren't achieved",
+        ],
+        benefitsNote: "20-class pack. P2P: one-on-one, on WhatsApp.",
+      },
+      packs: {
+        eyebrow: "Packs",
+        title: "Choose how many classes you need.",
+        common: "Every pack includes P2P support 24 h, videos on request, a weekly syllabus and a refund.",
+        othersTitle: "Other options",
+        descriptions: {
+          promotion: "20 one-hour classes.",
+          support: "15 one-hour classes.",
+          tec: "10 one-hour classes.",
+          black: "The full plan: with one class per week.",
+          avanzado: "Personalized support and videos, no classes.",
+          smart: "A guide to organize your studying, no classes.",
+          clase: "One online 1-on-1 class, one hour long.",
+        },
+        includes: {
+          black: [
+            "1 one-hour class per week",
+            "Step-by-step study syllabus",
+            "Personalized P2P support, 24 h",
+            "Personalized explanatory videos",
+            "Refund if the expected results aren't achieved",
+            "22.3% off the next month of your subscription",
+          ],
+          avanzado: ["Step-by-step study syllabus", "Weekly support", "Personalized explanatory videos", "16.1% off the next month of your subscription"],
+          smart: ["Step-by-step study syllabus", "Weekly support", "12.7% off the next month of your subscription"],
+        },
+        featured: "Recommended",
+        perMonth: "per month",
+        perClass: "per class",
+        before: "Before",
+        newTab: "(opens in a new tab)",
+        consult: "Ask",
+        message: "Hi Matías, I'd like to ask about: {pack} (private classes).",
+        store: "See it in the store",
+        storeAll: "See the full store",
+      },
+      cart: {
+        add: "Add to cart",
+        inCart: "In the cart · View",
+        open: "See cart",
+        title: "Cart",
+        close: "Close cart",
+        steps: ["Cart", "Payment", "Form"],
+        empty: "Your cart is empty.",
+        emptyCta: "See packs",
+        remove: "Remove",
+        less: "One class less",
+        more: "One more class",
+        total: "Total",
+        monthNote: "Packs and plans are monthly: this payment is the first month.",
+        toPay: "Go to payment",
+        payTitle: "Pay with Mercado Pago",
+        payIntro: "Transfer exactly the total to Matías Rodrigo Bellido. Then come back to this page and tap “I've paid”.",
+        payButton: "Pay with Mercado Pago",
+        qrLabel: "Or scan the QR code with the Mercado Pago app",
+        aliasLabel: "Alias",
+        cvuLabel: "CVU",
+        nameLabel: "Account holder",
+        copy: "Copy",
+        copied: "Copied",
+        paid: "I've paid",
+        back: "Back to cart",
+        doneTitle: "Thanks for your purchase!",
+        doneDesc: "Last step: the form with your details. With it I put together your syllabus in about 2 days.",
+        formButton: "Fill in the form",
+        formPending: "Send me the receipt on WhatsApp and I'll send you the form.",
+        receipt: "Send receipt on WhatsApp",
+        receiptMessage: "Hi Matías, I've paid with Mercado Pago. I bought: {items}. Total: {total}.{extras} Sending you the receipt.",
+        extrasCode: " Discount code: {code}.",
+        finish: "Finish",
+        units: { month: "per month", class: "per class" },
+        emptyShort: "Empty",
+        codeTitle: "Discount code",
+        codePlaceholder: "Type it here",
+        codeApply: "Apply",
+        codeInvalid: "That code isn't valid. Check it and try again.",
+        codeApplied: "Code applied",
+        codeRemove: "Remove",
+        codeNote: "Only valid for the first month of packs and plans.",
+        subtotal: "Subtotal",
+        discount: "Discount",
+        discountChip: "First month discounted",
+        originalPrice: "Original price",
+        finalPrice: "Discounted price",
+      },
+      start: {
+        eyebrow: "How to start",
+        title: "Three steps and we start.",
+        stepLabel: "Step",
+        steps: [
+          { title: "You message me", desc: "On WhatsApp, with the subject and what you don't understand. If you want, we start with a free call.", when: "Whenever you want" },
+          { title: "You fill in the form", desc: "You send me your details and in about 2 days I send you the syllabus: what we cover and in what order.", when: "In about 2 days" },
+          { title: "You have your first class", desc: "We pick a day and time. Classes are booked at least 48 hours ahead.", when: "With 48 h notice" },
+        ],
+        cta: "I want to start",
+      },
+      study: {
+        title: "Free study material for UBA",
+        intro: "Summaries, a memory palace and practice for Macroeconomics and Statistical Analysis II. No sign-up. In Spanish.",
+        toggleOpen: "See material",
+        toggleClose: "Hide",
+        topicsTitle: "Topics",
+        open: "Open the palace",
+        soon: "Coming soon",
+        newTab: "(opens in a new tab)",
+        note: "My own material, not official UBA material.",
+        items: [
+          {
+            id: "macro",
+            subject: "Macroeconomics (262) · FCE-UBA",
+            title: "Palacio Macroeconómico",
+            part: "Second part of the course",
+            topics: [
+              "World markets for goods and credit",
+              "Balance of payments and current account",
+              "Saving, investment and twin deficits",
+              "Terms of trade",
+              "Nominal and real exchange rate",
+              "Purchasing power parity",
+              "Interest rate parity",
+              "Open-economy IS and the J-curve",
+              "Mundell-Fleming model",
+              "Fixed and flexible exchange rates",
+              "Currency crises and choice of regime",
+            ],
+          },
+          {
+            id: "stats",
+            subject: "Statistical Analysis II · FCE-UBA",
+            title: "Palacio de Análisis Estadístico",
+            part: "First part of the course",
+            topics: [
+              "Estimators: bias, MSE, efficiency and consistency",
+              "Sufficiency and robustness",
+              "Maximum likelihood and method of moments",
+              "Fisher information and the Cramér-Rao bound",
+              "Moment generating function",
+              "Sampling distributions: normal, χ², t and F",
+              "Confidence intervals and sample size",
+              "Hypothesis tests, p-value and power",
+            ],
+          },
+        ],
+      },
+      faq: {
+        eyebrow: "FAQ",
+        title: "Frequently asked questions",
+        groups: [
+          {
+            title: "The classes",
+            items: [
+              { q: "How do I get started?", a: "Message me on WhatsApp. You fill in a form and in about 2 days you get your syllabus." },
+              { q: "What are the classes like?", a: "Online, 1-on-1 and one hour long. Booked with at least 48 h notice. Days and times, on WhatsApp." },
+              { q: "Do you teach the classes yourself?", a: "Some, yes, and many are taught by a tutor on my team, chosen for your subject. They all use the same method and I coordinate." },
+              { q: "How does the 24-hour P2P support work?", a: "You get stuck and message me on WhatsApp at any time. If needed, I send you a video." },
+              { q: "Which subjects can you help with?", a: "Mathematics, Algebra, Statistics, Economics, Accounting, Microeconomics, Macroeconomics, English, Excel, Python, SQL, Artificial Intelligence and HTML, among others. Adapted to primary, secondary and university levels. If yours isn't on the list, message me and I'll tell you if I can." },
+            ],
+          },
+          {
+            title: "Packs and buying",
+            items: [
+              { q: "What does the 20-class pack include?", a: "20 one-hour classes, P2P support 24 h, videos on request, a syllabus and a refund if the expected results aren't achieved." },
+              { q: "How does the refund work?", a: "It comes with the class packs. Ask me on WhatsApp how to request it before buying." },
+              { q: "How do I buy and pay?", a: "Add the pack to the cart and pay with Mercado Pago (link, QR or alias). Then send me the receipt on WhatsApp." },
+            ],
+          },
+        ],
+      },
+      affiliates: {
+        eyebrow: "Affiliates",
+        title: "Recommend the classes: you get 25% of the initial payment and 20% residual.",
+        cta: "I want to be an affiliate",
+        message: "Hi Matías, I'd like to join the tutoring affiliate program.",
+      },
+      contact: {
+        title: "Shall we start?",
+        desc: "Tell me the subject and where you get stuck. I'll tell you straight whether I can help.",
+        freeCall: "The first call is free.",
+        cta: "I want to start",
+        emailLabel: "Email rbellidomatias@gmail.com",
+        email: "rbellidomatias@gmail.com",
+        linkedin: "Connect with me on LinkedIn",
+        linkedinLabel: "(opens in a new tab)",
+        otherTitle: "You can also",
+        formQuestion: "Already paid or have a question?",
+        formLink: "Fill in the form",
+        formMissing: "Preview: the form link is missing (EDU_FORM_URL). It's hidden on the live site.",
+      },
+      footer: {
+        back: "Go to my professional portfolio →",
+        rights: "© 2026 Matías Rodrigo Bellido · Bellido Asesoramientos",
+        withdrawal: "Cancel my purchase",
+        withdrawalMessage: "Hi Matías, I want to cancel my classes purchase (botón de arrepentimiento). My name is: ",
+        notes: "Not an official UBA service. Under 18: with permission from a parent or guardian.",
       },
     },
   },
