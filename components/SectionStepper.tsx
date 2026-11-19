@@ -3,36 +3,17 @@
 import { useEffect, useRef } from "react";
 import { useModal } from "@/context/ModalContext";
 
-/* Navegación con las flechas y con un clic en el fondo. Pedido de Matías
-   (2026-11-10): a propósito NO se anuncia en ningún lado de la página (no hay
-   texto, ícono ni pista); es para quien lo descubre.
+/* Navegación con las flechas (↓ → avanzan, ↑ ← retroceden) y con un clic de
+   mouse en el fondo vacío. A propósito no se anuncia en la página.
 
-   Para "leer todo a la perfección" no salta de sección en sección sino de
-   parada en parada:
-   - paradas mayores: cada sección (main section[id], el footer de contacto)
-     y cada SUBSECCIÓN marcada con data-step (ej. "Operaciones de Negocio",
-     "Educación"). La primera subsección de una sección no se marca: cae justo
-     debajo del título;
-   - paradas de fila (data-step-row: cada tarjeta, grupo o ítem): solo se usan
-     cuando la parada mayor siguiente no entra en la pantalla, para no
-     saltear contenido que todavía no se vio (ej. las 3 filas de tarjetas de
-     Soluciones Digitales en escritorio);
-   - si tampoco hay filas, baja una pantalla dejando un poco de la anterior.
-   La regla: el destino nunca deja sin mostrar lo que estaba debajo de lo que
-   se veía (salvo un margen chico, `slack`, para no frenar por 20 px de borde).
+   mode="subsections" (portfolio): paradas en cada sección y en cada
+   subsección con data-step; si la siguiente no entra en la pantalla, usa las
+   filas (data-step-row) para no saltear nada, y si no hay filas baja una
+   pantalla. mode="sections" (/fitness): de sección completa en sección completa.
 
-   - ↓ o → avanzan; ↑ o ← retroceden. Un clic con MOUSE en el fondo (espacio
-     vacío: no un texto, una tarjeta, una imagen ni un control) avanza. En el
-     celular un toque no hace nada: ahí se toca el fondo sin querer.
-   - No interfiere: foco en un control (link, botón, campo, carrusel con
-     tabindex…), modal abierto, teclas modificadoras o texto seleccionado →
-     las flechas y el clic hacen lo de siempre. "Reducir movimiento": salto
-     instantáneo.
-
-   Dónde va:
-   - app/page.tsx (el portfolio): mode="subsections" (lo de arriba).
-   - FitnessLanding (/fitness): mode="sections", de sección completa en
-     sección completa (pedido de Matías), sin paradas intermedias. */
+   No interfiere con un control enfocado, un modal abierto, teclas
+   modificadoras ni texto seleccionado. En el celular un toque no hace nada.
+   Con "reducir movimiento", el salto es instantáneo. */
 
 /* Lo que NO es fondo: controles, tarjetas (portfolio y /fitness), imágenes,
    listas y formularios */
@@ -59,10 +40,10 @@ export default function SectionStepper({ mode = "subsections" }: { mode?: "subse
   const { isModalOpen } = useModal();
   const modalFlag = useRef(isModalOpen);
   modalFlag.current = isModalOpen;
-  // Los modales del portfolio avisan por el contexto; los de /fitness (carrito, visor) son role=dialog
-  const modalOpen = { get current() { return modalFlag.current || !!document.querySelector("[role=dialog][aria-modal=true]"); } };
 
   useEffect(() => {
+    // Los modales del portfolio avisan por el contexto; los de /fitness (carrito, visor) son role=dialog
+    const modalOpen = () => modalFlag.current || !!document.querySelector("[role=dialog][aria-modal=true]");
     let lockUntil = 0;
     let lastPointer = "mouse";
     /* Hacia dónde se está yendo. Un salto largo tarda más de 1 s: si se vuelve
@@ -132,7 +113,7 @@ export default function SectionStepper({ mode = "subsections" }: { mode?: "subse
     };
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || modalOpen.current) return;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || modalOpen()) return;
       const dir = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : 0;
       if (!dir) return;
       const active = document.activeElement;
@@ -145,7 +126,7 @@ export default function SectionStepper({ mode = "subsections" }: { mode?: "subse
     };
 
     const onClick = (e: MouseEvent) => {
-      if (e.button !== 0 || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || modalOpen.current) return;
+      if (e.button !== 0 || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || modalOpen()) return;
       if (lastPointer !== "mouse") return;
       const t = e.target instanceof Element ? e.target : null;
       if (!t || !t.closest("main section, main footer") || t.closest(NOT_BACKGROUND) || hasOwnText(t)) return;
@@ -161,7 +142,7 @@ export default function SectionStepper({ mode = "subsections" }: { mode?: "subse
       window.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("click", onClick);
     };
-  }, []);
+  }, [mode]);
 
   return null;
 }

@@ -33,7 +33,7 @@ import weightlifter from "@/public/fitness/emojis/weightlifter.png";
    pausa, carrito) y los ✓ de las listas siguen con lucide.
    Para sumar uno: bajá el PNG de 160 px a public/fitness/emojis/ (receta
    "receta-emojis-de-apple" en el vault) e importalo acá. */
-export const EMOJI = {
+const EMOJI = {
   apple, // 🍎
   barChart, // 📊
   biceps, // 💪

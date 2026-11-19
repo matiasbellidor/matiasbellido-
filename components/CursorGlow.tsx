@@ -2,9 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-/* Resplandor sutil que sigue al cursor, en todo el sitio (va en app/layout.tsx).
-   Pedido de Matías (2026-11-10): solo en computadora, discreto, que no tape
-   nada y que no afecte el rendimiento. El aspecto, la capa y cuándo se ve
+/* Resplandor sutil que sigue al cursor, en todo el sitio (va en app/layout.tsx):
+   solo en computadora, sin tapar nada. El aspecto, la capa y cuándo se ve
    están en globals.css (.cursor-glow); acá solo se mueve.
 
    - Misma condición que el CSS: mouse (hover + pointer fino), 1024 px o más

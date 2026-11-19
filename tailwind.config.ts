@@ -10,44 +10,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#000000",
-        /* Apuntan a variables que viran con el tema:
-           dark = cyan/azul (igual que antes), light = verde bosque.
-           Formato rgb(var / <alpha>) para que funcionen los
-           modificadores de opacidad (text-cyan/30, bg-electric/10). */
+        /* Variables que cambian con el tema (dark: cyan/azul, light: verde).
+           rgb(var / <alpha>) para que funcionen text-cyan/30, bg-electric/10… */
         electric: "rgb(var(--accent-electric) / <alpha-value>)",
         cyan: "rgb(var(--accent-cyan) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        /* Títulos: Inter, igual que hasta ahora (apuntaba a --font-jakarta,
-           que no existía, y por eso ya heredaban Inter del body) */
         display: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       boxShadow: {
         glow: "0 0 24px rgb(var(--accent-cyan) / 0.35)",
         "glow-lg": "0 0 60px rgb(var(--accent-electric) / 0.45)",
       },
-      backdropBlur: {
-        xs: "2px",
-      },
-      animation: {
-        "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        shimmer: "shimmer 3s linear infinite",
-      },
-      keyframes: {
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-      },
     },
   },
   plugins: [
-    /* can-hover: solo en equipos con mouse de verdad. En el celular un toque
-       deja el :hover "pegado" (zoom de la imagen, brillo) y esas transiciones
-       sobre las tarjetas se sentían como si el scroll se trabara. Uso:
-       can-hover:hover:shadow-glow, can-hover:group-hover:scale-105 */
+    /* can-hover: solo con mouse. En el celular un toque deja el :hover
+       pegado (zoom, brillo). Uso: can-hover:hover:shadow-glow */
     plugin(({ addVariant }) => {
       addVariant("can-hover", "@media (hover: hover) and (pointer: fine)");
     }),

@@ -8,15 +8,7 @@ import { Briefcase, GraduationCap, Award, X, Languages, ChevronLeft, ChevronRigh
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
 
-// ============================================================================
-// LOGOS - mismo orden que los items en LanguageContext
-// [0] Tutor Académico → asesoramientoslogo
-// [1] Personal Trainer → asesoramientoslogo
-// [2] Customer Experience → arcosdorados
-// [3] Business Development → SOMECLUB
-// [4] Consultor Comercial → fiat
-// [5] Asistente Investigación → fundacionapolo
-// ============================================================================
+// Logos en el mismo orden que experience.items y experience.education (LanguageContext)
 const experienceLogos = [
   "/projects/Imagenes/asesoramientoslogo.webp",
   "/projects/Imagenes/asesoramientoslogo.webp",
@@ -31,7 +23,6 @@ const educationLogos = [
   "/projects/Imagenes/STJ.png",
 ];
 
-
 export default function Experience() {
   const { t, lang, setLang } = useLanguage();
   const { setModalOpen: setGlobalModalOpen } = useModal();
@@ -39,10 +30,9 @@ export default function Experience() {
   const carouselRef = useRef<HTMLDivElement>(null);
   /** La fila del carrusel ya entró (o está por entrar): aparecen todas sus tarjetas */
   const rowShown = useInView(carouselRef, { once: true, margin: "0px 0px 15% 0px" });
-  /* Qué tarjetas se ven COMPLETAS + si el scroll está en algún extremo.
-     Se mide lo que realmente está en pantalla (no scrollLeft / ancho):
-     así el indicador llega a 6/6 aunque las últimas tarjetas nunca
-     puedan llegar al borde izquierdo (pasa en desktop y tablets). */
+  /* Qué tarjetas se ven enteras y si el scroll está en un extremo. Se mide lo
+     que está en pantalla (no scrollLeft): así el indicador llega al final
+     aunque las últimas tarjetas nunca toquen el borde izquierdo. */
   const [view, setView] = useState({ first: 0, last: 0, atStart: true, atEnd: false });
 
   useEffect(() => {
@@ -63,8 +53,7 @@ export default function Experience() {
     return () => { document.body.style.overflow = ""; };
   }, [expandedIdx]);
 
-  // Sincroniza el indicador con el scroll (dedo, trackpad, flechas o puntos).
-  // Throttle con rAF + ResizeObserver para recalcular al cambiar el ancho.
+  // Indicador sincronizado con el scroll: como mucho un cálculo por cuadro, y otro al cambiar el ancho
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
@@ -114,11 +103,9 @@ export default function Experience() {
     };
   }, []);
 
-  // DESKTOP: evita que el carrusel atrape la rueda del mouse.
-  // Cuando el gesto es mayormente vertical, lo bloqueamos en el carrusel
-  // y movemos la página manualmente. CLAVE: desactivamos temporalmente el
-  // `scroll-behavior: smooth` del <html> durante el reenvío, porque ese
-  // smooth peleaba con cada evento de rueda y causaba la traba.
+  /* Escritorio: la rueda vertical sobre el carrusel mueve la página. Sin el
+     scroll-behavior: smooth del <html> durante el reenvío: peleaba con cada
+     evento de la rueda y trababa el scroll. */
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
@@ -184,20 +171,11 @@ export default function Experience() {
           </div>
         </div>
 
-        {/* Scroll container:
-            - DESKTOP: el handler de wheel (arriba) reenvía el gesto
-              vertical a la página, así no te quedás atrapado.
-            - MOBILE: touch-action "pan-x pan-y" permite AMBOS ejes; el
-              navegador decide por la dirección del gesto: swipe horizontal
-              mueve las tarjetas, swipe vertical baja la página. (pan-x solo
-              dejaba el gesto vertical en tierra de nadie y se trababa.)
-            - snap-proximity (no mandatory) → el snap no "agarra" el gesto.
-            - overflow-y-hidden + pb-6 -mb-4: las tarjetas que todavía no
-              entraron (y: 20) hacían que la fila scrolleara 12 px en vertical
-              y el gesto vertical del dedo se quedaba en la fila. Así no hay
-              nada que scrollear en vertical y el espacio de abajo sigue en 8 px.
-            - scroll-pl-* = mismo valor que px-*: el snap alinea cada tarjeta
-              con el margen de la sección (antes quedaba corrida en desktop). */}
+        {/* touch-action pan-x pan-y: el navegador decide por la dirección del gesto
+            (con pan-x solo, el gesto vertical se trababa). overflow-y-hidden +
+            pb-6 -mb-4: la fila no scrollea en vertical mientras las tarjetas
+            entran con y: 20. scroll-pl-* = px-*: el snap alinea cada tarjeta
+            con el margen de la sección. */}
         <div ref={carouselRef}
           className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-6 -mb-4 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:-mx-16 md:px-16 md:scroll-pl-16"
           style={{
@@ -209,17 +187,14 @@ export default function Experience() {
               key={item.role + item.company}
               data-card
               initial={{ opacity: 0, y: 20 }}
-              /* Entrada a tiempo (pedido de Matías, 2026-11-10): todas las
-                 tarjetas aparecen cuando la FILA entra (un poco antes, 15 %
-                 abajo). Con whileInView por tarjeta, las de la derecha (fuera
-                 del carrusel, recortadas) recién se animaban al deslizar.
-                 Demora tope de 0,15 s, no una que crezca con cada tarjeta. */
+              /* Entran cuando entra la FILA: con whileInView por tarjeta, las de
+                 la derecha (recortadas por el carrusel) recién se animaban al
+                 deslizar. Demora tope de 0,15 s. */
               animate={rowShown ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.45, delay: Math.min(i, 3) * 0.05 }}
               className="snap-start shrink-0 w-[80vw] max-w-[400px] sm:w-[400px] md:w-[440px] md:max-w-none"
             >
               <div className="glass rounded-xl p-6 h-full flex flex-col hover:shadow-glow transition-all">
-                {/* Header con logo - SIN fondo blanco, transparente para PNGs */}
                 <div className="flex items-start gap-4 mb-4">
                   <div className="shrink-0 relative w-14 h-14 rounded-xl overflow-hidden">
                     <Image
@@ -256,10 +231,10 @@ export default function Experience() {
               key={i}
               onClick={() => scrollToCard(i)}
               aria-label={`Go to experience ${i + 1}`}
-              // min 24×24 px de zona táctil (WCAG 2.5.8): el punto apagado solo medía 20 px de ancho
+              // Zona táctil mínima de 24×24 px (WCAG 2.5.8)
               className="touch-manipulation p-1.5 group inline-flex min-h-6 min-w-6 items-center justify-center"
             >
-              {/* w-8 en mobile: con las 6 llenas la fila entra en 335px (con w-10 medía 352) */}
+              {/* w-8 en mobile: con las 6 llenas, la fila entra en 335 px */}
               <div
                 className={`h-2 rounded-full transition-all duration-300 ${
                   i <= view.last
@@ -291,16 +266,10 @@ export default function Experience() {
         )}
       </div>
 
-      {/* EDUCACIÓN + FORMACIÓN
-          PROBLEMA 1 (alineación de base en desktop):
-          - El grid con lg:items-stretch iguala la ALTURA de ambas columnas.
-          - Dentro de cada columna, el contenedor de tarjetas es flex-1 y la
-            ÚLTIMA tarjeta crece (flex-grow / last:flex-grow) para absorber el
-            espacio sobrante. Así, la columna más corta se estira hasta tocar la
-            misma línea base que la más larga, eliminando el hueco inferior. */}
+      {/* Educación y Formación: las dos columnas terminan en la misma línea
+          (lg:items-stretch, y la última tarjeta de cada una crece con flex-grow) */}
       <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 lg:items-stretch">
-        {/* ──────── COLUMNA IZQUIERDA · Educación ──────── */}
-        {/* data-step / data-step-row: paradas de la navegación con flechas (SectionStepper) */}
+        {/* Educación. data-step / data-step-row: paradas de la navegación con flechas (SectionStepper) */}
         <div data-step="" className="flex flex-col h-full">
           <div className="flex items-start gap-3 mb-8">
             <GraduationCap className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
@@ -313,17 +282,12 @@ export default function Experience() {
                 data-step-row=""
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                /* Cada tarjeta entra sola al bajar: sin demora acumulada (antes
-                   la 5.ª esperaba 0,4 s) y arrancando un poco antes de entrar */
+                // Entra sola al bajar, un poco antes de llegar y sin demora acumulada
                 viewport={{ once: true, margin: "0px 0px 15% 0px" }}
                 transition={{ duration: 0.45 }}
                 onClick={() => setExpandedIdx(i)}
                 className="glass rounded-2xl p-5 sm:p-7 md:p-9 hover:shadow-glow transition-all cursor-pointer group touch-manipulation flex flex-col last:flex-grow"
               >
-                {/* HEADER: logo + (fechas / título / subtítulo) en una fila.
-                    PROBLEMA 2: el header se mantiene compacto al lado del logo
-                    tanto en mobile como en desktop (el texto del título es corto
-                    y fluye al costado del logo sin dejar espacio negro). */}
                 <div className="flex items-start gap-4 sm:gap-5 md:gap-6">
                   <div className="shrink-0 relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden">
                     <Image src={educationLogos[i]} alt={item.institution} fill sizes="96px" className="object-contain" />
@@ -335,9 +299,7 @@ export default function Experience() {
                   </div>
                 </div>
 
-                {/* BODY: descripción + bullets debajo del header, a ancho completo
-                    (w-full). En mobile esto elimina la columna delgada y el hueco
-                    negro debajo del logo; en desktop queda igual de prolijo. */}
+                {/* Descripción a ancho completo, debajo del logo (sin columna angosta en mobile) */}
                 <div className="w-full mt-5 md:mt-6">
                   <p className="text-sm md:text-base text-fg-soft leading-relaxed">{item.desc}</p>
                   {item.descBullets && (
@@ -357,7 +319,7 @@ export default function Experience() {
           </div>
         </div>
 
-        {/* ──────── COLUMNA DERECHA · Formación Complementaria ──────── */}
+        {/* Formación Complementaria */}
         <div data-step="" className="flex flex-col h-full">
           <div className="flex items-start gap-3 mb-8">
             <Award className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />

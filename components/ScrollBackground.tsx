@@ -2,30 +2,14 @@
 
 import { useEffect, useRef } from "react";
 
-/* ═════════════════════════════════════════════════════════════
-   SCROLL BACKGROUND — versión robusta (listener manual)
-
-   Por qué esta versión y no useScroll:
-   useScroll() de Framer Motion mide el scroll del window. Si en
-   tu layout el que scrollea es un contenedor interno (o si hay
-   cualquier duda), scrollYProgress se queda en 0 y el color no
-   cambia. Esta versión calcula el progreso a mano a partir de
-   document.scrollingElement, que refleja el scroll real de la
-   página sin importar la estructura — es a prueba de balas.
-
-   Recorrido (Opción B — cierre en Charcoal Black):
-   DARK:   Midnight Blue -> Deep Indigo -> Charcoal Black
-   LIGHT:  Blanco puro   -> Ice Blue    -> Pearl Grey
-
-   Performance:
-   - Listener de scroll passive + throttle con requestAnimationFrame.
-   - Escribe backgroundColor directo al DOM via ref: cero re-renders.
-   - MutationObserver repinta al togglear dark/light.
-   - El recorrido máximo (alto del documento − alto de la ventana) se
-     guarda y se recalcula solo cuando cambia el tamaño (ResizeObserver).
-     Leer scrollHeight en cada cuadro obligaba al navegador a recalcular
-     el layout: ~19 ms por cuadro en un celular (medido 2026-11-13).
-   ═════════════════════════════════════════════════════════════ */
+/* Color de fondo interpolado con el scroll:
+   dark:  Midnight Blue → Deep Indigo → Charcoal Black
+   light: blanco → Ice Blue → Pearl Grey
+   El progreso sale de document.scrollingElement (no de useScroll, que se
+   queda en 0 si scrollea un contenedor interno). Listener passive + rAF, el
+   color se escribe directo en el DOM (sin re-renders), un MutationObserver
+   repinta al cambiar de tema y el recorrido máximo se mide solo cuando
+   cambia el tamaño (leer scrollHeight en cada cuadro forzaba un layout). */
 
 type RGB = [number, number, number];
 

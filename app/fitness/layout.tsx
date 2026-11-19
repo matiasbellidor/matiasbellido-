@@ -3,8 +3,8 @@ import { preload } from "react-dom";
 import "./fitness.css";
 
 /* Tipografía de marca, solo para "BELLIDO" (header, hero y pie): Cinzel,
-   capitales romanas estilo Trajan, como el logo de Bellido Asesoramientos
-   del portfolio (public/projects/Imagenes/asesoramientos.png). Debajo va
+   capitales romanas estilo Trajan, como el logo de Bellido Asesoramientos.
+   Debajo va
    "ASESORAMIENTOS" en Inter espaciada, igual que en el logo, así la página
    sigue con dos familias. El texto corrido sigue en Inter (layout raíz).
    Se declara en fitness.css (@font-face "Bellido Cinzel", archivos en

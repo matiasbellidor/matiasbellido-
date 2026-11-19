@@ -25,7 +25,7 @@ import { useAnimationFrame, useInView, useReducedMotion } from "framer-motion";
    giran en sentido horario (brazo "R" = el de la izquierda de la pantalla).
    ═════════════════════════════════════════════════════════════ */
 
-export type AsesoramientoVariant = "fitness" | "educativo";
+type AsesoramientoVariant = "fitness" | "educativo";
 
 const LINE = "#EAF4FF";
 const ACCENT = "#22D3EE";

@@ -1,4 +1,4 @@
-// Genera las copias "-hd" de las fotos de Matías en public/fitness/ (portada y quién soy):
+// Genera las copias "-hd" de las fotos de public/fitness/ (portada y quién soy):
 // nitidez suave, un poco más de contraste y color, JPEG 92 % con color completo (4:4:4).
 // El original nunca se toca. Se regenera solo lo que cambió (original más nuevo que su -hd)
 // y se borran las -hd que quedaron sin original.

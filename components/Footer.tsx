@@ -11,8 +11,7 @@ import ContactForm from "@/components/ContactForm";
 /* El mismo ícono del Header (y del favicon) cierra la página */
 import logo from "@/app/icon.png";
 /* Logos importados (no "/logos/…" como texto): el link lleva una huella del
-   contenido, así un logo nuevo con el mismo nombre se ve al toque (next/image
-   guarda 30 días cada link) */
+   contenido, así un logo nuevo con el mismo nombre se ve al toque */
 import linkedinLogo from "@/public/logos/linkedin.png";
 import githubLogo from "@/public/logos/github.png";
 import whatsappLogo from "@/public/logos/whatsapp.png";
@@ -25,11 +24,8 @@ const MAILTO_URL = `mailto:${EMAIL}`;
 const MAPS_URL =
   "https://www.google.com/maps/place/Buenos+Aires/@-34.615796,-58.5156997,12z/data=!3m1!4b1!4m6!3m5!1s0x95bcca3b4ef90cbd:0xa0b3812e88e88e87!8m2!3d-34.6036739!4d-58.3821215!16zL20vMDFseTVt";
 
-/* Único lugar del sitio con las redes (el Hero ya no las repite).
-   Regla de Matías: los botones que llevan a una app usan SIEMPRE el logo
-   PNG de esa app (public/logos: el logo en su color sobre un círculo blanco,
-   como en Vibear y /fitness), no un ícono genérico. Cómo se generan: skill
-   bellido-fitness, scripts/icon-png.cjs y scripts/appstore-logo.py. */
+/* Único lugar del sitio con las redes. Cada botón usa el logo PNG de su app
+   (public/logos), no un ícono genérico. */
 const SOCIAL_LINKS = [
   { label: "LinkedIn", href: "https://www.linkedin.com/in/matiasbellido", logo: linkedinLogo },
   { label: "GitHub", href: "https://github.com/matiasbellidor", logo: githubLogo },

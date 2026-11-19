@@ -9,10 +9,8 @@ import { Emoji } from "./emoji";
 import { translations, useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, Reveal, type FitnessAssets } from "./shared";
 import logo from "@/app/icon.png";
-/* Logos de las instituciones que dieron los títulos (pedido de Matías), en el
-   formato de public/logos: 144x144, círculo blanco. IFBB Academy: el emblema
-   de su diploma original, limpio del marco; ISSA: el logo oficial (avatar
-   del canal de YouTube de ISSA, 1424 px). Importados: link con huella. */
+/* Logos de las instituciones (144x144, círculo blanco). Importados: el link
+   lleva una huella del contenido. */
 import ifbbLogo from "@/public/logos/ifbb-academy.png";
 import issaLogo from "@/public/logos/issa.png";
 
@@ -60,7 +58,7 @@ function matchCertificates(certs: string[][], files: Certificate[]): (Certificat
     const [issuer] = names[0].split(" — ");
     const entity = words(issuer)[0];
     const title = Array.from(new Set(names.flatMap((n) => words(n.split(" — ").slice(1).join(" "))))).filter((w) => !STOPWORDS.has(w));
-    // El diploma de nutrición se llama "Planificación de Dietas" (pedido de Matías, 2026-11-11)
+    // El diploma de nutrición se llama "Planificación de Dietas"
     if (title.includes("nutricion")) title.push("planificacion", "dietas", "diet", "planning");
     files.forEach((file, fi) => {
       const fileWords = new Set(words(file.name));
@@ -83,11 +81,10 @@ function matchCertificates(certs: string[][], files: Certificate[]): (Certificat
 /* Quién soy + certificaciones. Las certificaciones son la señal de
    autoridad de la sección: chips sobrios con la entidad arriba y el
    título abajo, textuales (t.fitness.about.certs, "Entidad — Título").
-   Todas se pueden abrir (pedido de Matías, 2026-11-10): una imagen se ve
-   en un visor encima de la página (no se sale de la landing); un PDF se
-   abre en otra pestaña. Si todavía no hay archivo en
-   public/fitness/Certificados, el visor muestra "ERROR 404" (también pedido
-   de Matías) hasta que lo suba: entonces sale la imagen, sin tocar código. */
+   Todas se pueden abrir: una imagen se ve en un visor encima de la página
+   (no se sale de la landing); un PDF se abre en otra pestaña. Si todavía no
+   hay archivo en public/fitness/Certificados, el visor muestra "ERROR 404"
+   hasta que se suba: entonces sale la imagen, sin tocar código. */
 export default function FitnessAbout({ photo, certificates }: { photo: string | null; certificates: Certificate[] }) {
   const { t } = useLanguage();
   const a = t.fitness.about;
@@ -98,12 +95,10 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
     certificates,
   );
 
-  /* Precarga (Matías: "que tarde lo menos posible en cargar"): cuando la
-     sección está a 800 px de entrar, se piden en segundo plano las MISMAS
-     imágenes que va a mostrar el visor (mismo sizes, quality y ancho → el
-     mismo link de next/image). Al tocar una certificación ya está en caché;
-     antes recién se pedía al abrirla y la primera vez el servidor además
-     tenía que optimizarla. */
+  /* Precarga: cuando la sección está a 800 px de entrar, se piden en segundo
+     plano las MISMAS imágenes que va a mostrar el visor (mismo sizes, quality
+     y ancho → el mismo link de next/image). Al tocar una certificación ya
+     está en caché. */
   const sectionRef = useRef<HTMLDivElement>(null);
   const [warm, setWarm] = useState(false);
   useEffect(() => {
@@ -166,9 +161,8 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
             ))}
           </Reveal>
 
-          {/* data-step: parada extra de la navegación con flechas (SectionStepper):
-              antes de pasar a Resultados, baja hasta que se vean los certificados
-              (pedido de Matías). No cambia el diseño. */}
+          {/* data-step: parada extra de la navegación con flechas (SectionStepper),
+              para que se vean los certificados antes de pasar a Resultados */}
           <div data-step="">
           <h3 className="mt-12 text-sm font-semibold uppercase tracking-[0.2em] text-fg-muted">{a.certsTitle}</h3>
           <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -233,8 +227,7 @@ export default function FitnessAbout({ photo, certificates }: { photo: string | 
   );
 }
 
-/* Certificado que todavía no se subió (pedido de Matías: "Error 404 con un UX
-   más cool y creativo que siga la identidad de marca"). Un diploma en blanco:
+/* Certificado que todavía no se subió. Un diploma en blanco:
    doble marco punteado como el de un diploma, un "404" cuyo 0 es un disco de
    pesas que gira despacio (solo transform; quieto con "reducir movimiento"), el
    texto y, como sello, el logo de Bellido todavía sin firmar. Colores de la

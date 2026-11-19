@@ -174,7 +174,7 @@ type FitnessDict = {
     certClose: string;
     /** Va antes del nombre en el texto alternativo de la imagen */
     certAlt: string;
-    /** El visor de una certificación que todavía no tiene archivo (pedido de Matías): "Error 404", título y bajada */
+    /** El visor de una certificación que todavía no tiene archivo: "Error 404", título y bajada */
     certMissing: string;
     certMissingTitle: string;
     certMissingDesc: string;
@@ -551,6 +551,7 @@ export const translations: Record<Lang, Dict> = {
             "Gestión Agile - Santander Open Academy",
             "Negociación - Santander Open Academy",
             "Storytelling - Santander Open Academy",
+            "Taller de debate y argumentación jurídica - Facultad de Derecho (UBA)",
           ],
         },
       ],
@@ -563,9 +564,8 @@ export const translations: Record<Lang, Dict> = {
       digitalSubtitle: "Soluciones Digitales & IA",
       businessSubtitle: "Operaciones de Negocio",
 
-      // Hecho en HackaTwin (hackathon onchain de Twin Finance, Buenos Aires, 7/11/2026).
-      // Texto sacado del README del repo Goat-Builders/agrocow (auditado en el commit 6a30a74):
-      // es un prototipo sin métricas de precisión; no agregar cifras ni promesas que el código no cumple.
+      // Fuente: README de Goat-Builders/agrocow. Es un prototipo sin métricas de
+      // precisión: no agregar cifras ni promesas que el código no cumple.
       agrocow: {
         date: "Nov 2026",
         category: "Hackathon onchain · Twin Finance",
@@ -575,7 +575,6 @@ export const translations: Record<Lang, Dict> = {
         tags: ["Computer Vision", "Pipeline de datos", "Estrategia de producto", "Prototipado"],
       },
 
-      // En pausa (pedido de Matías, 2026-11-10): va al final de la categoría
       symbiosis: {
         date: "Abr 2026",
         category: "Flagship · En pausa",
@@ -739,12 +738,12 @@ export const translations: Record<Lang, Dict> = {
         eyebrow: "Quién soy",
         title: "Empecé ayudando a otros a dar sus primeros pasos en el gimnasio.",
         paragraphs: [
-          // Texto de Matías (2026-11-06), con tildes y erratas corregidas
+          // Texto de Matías
           "Soy Matías Bellido. En 2021 empecé a entrenar y me obsesioné con ganar músculo, verme bien y ser más fuerte. Entrené día tras día. Un año después, ya viendo resultados, iba al gimnasio y veía a chicos que recién arrancaban y me recordaban a mí cuando recién empezaba: con ganas, pero sin saber por dónde empezar.",
           "El fitness me apasiona: llevar una buena alimentación y seguir rutinas en base a un objetivo. Eso me llevó a darles una mano: los ayudaba con sus primeras rutinas y a entender qué hacían y para qué.",
           "Con el tiempo decidí especializarme en musculación, fuerza y distintos métodos de entrenamiento, para ayudar a personas a alcanzar su objetivo.",
           "Hoy, junto a Bellido Asesoramientos, lidero un equipo que me ayuda a seguir de cerca a cada persona, en modalidad virtual o presencial.",
-          // Dato de Matías (2026-11-10); redacción más profesional a pedido suyo
+          // Dato de Matías
           "Al día de hoy, más de 30 personas alcanzaron sus objetivos físicos con mi asesoramiento personalizado.",
         ],
         photoAlt: "Matías Bellido",
@@ -822,7 +821,7 @@ export const translations: Record<Lang, Dict> = {
         after: "Después",
         clientLabel: "Cliente",
         pending: "Foto pendiente",
-        // Tiempo del cambio de cada cliente (dato de Matías, 2026-11-06). Vacío = no se muestra.
+        // Tiempo del cambio de cada cliente. Vacío = no se muestra.
         captions: ["16 semanas", "22 semanas", "12 semanas", "28 semanas"],
         disclaimer: "Fotos publicadas con autorización de cada persona. Los resultados dependen del punto de partida, la constancia y el tiempo de cada uno.",
         hint: "Arrastrá la barra para comparar el antes y el después.",
@@ -995,7 +994,7 @@ export const translations: Record<Lang, Dict> = {
         title: "Material para entender lo que hacés.",
         intro: "Guías para seguir aprendiendo por tu cuenta, entre sesión y sesión.",
         unit: "pago único",
-        // De mayor a menor precio (pedido de Matías)
+        // De mayor a menor precio
         items: [
           { id: "anatomia", title: "Anatomía muscular", price: 24700, items: ["Biomecánica y tips de entrenamiento fundamentados por la ciencia para mejorar tus resultados"] },
           {
@@ -1007,8 +1006,7 @@ export const translations: Record<Lang, Dict> = {
           { id: "recetario", title: "Recetario", price: 15800, items: ["Más de 10 recetas saludables que te ayudan a ahorrar tiempo en la cocina"] },
         ],
       },
-      // Carrito: nombres y botón según la decisión de Matías ("Carrito", "🛒 Agregar al carrito").
-      // El 🛒 lo pone AddToCartButton como imagen de Apple (cart.tsx): acá va solo el texto.
+      // El 🛒 lo pone AddToCartButton como imagen (cart.tsx): acá va solo el texto.
       cart: {
         add: "Agregar al carrito",
         inCart: "En el carrito · Ver",
@@ -1267,6 +1265,7 @@ export const translations: Record<Lang, Dict> = {
             "Agile Management - Santander Open Academy",
             "Negotiation - Santander Open Academy",
             "Storytelling - Santander Open Academy",
+            "Debate and Legal Argumentation Workshop - Faculty of Law (UBA)",
           ],
         },
       ],
@@ -1523,7 +1522,7 @@ export const translations: Record<Lang, Dict> = {
         after: "After",
         clientLabel: "Client",
         pending: "Photo coming soon",
-        // How long each client's change took (from Matías, 2026-11-06). Empty = hidden.
+        // How long each client's change took. Empty = hidden.
         captions: ["16 weeks", "22 weeks", "12 weeks", "28 weeks"],
         disclaimer: "Photos published with each person's permission. Results depend on each person's starting point, consistency and time.",
         hint: "Drag the bar to compare before and after.",

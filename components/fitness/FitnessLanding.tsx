@@ -20,9 +20,11 @@ import FitnessCart from "./FitnessCart";
 import SectionStepper from "@/components/SectionStepper";
 import { CartProvider } from "./cart";
 import type { FitnessAssets } from "./shared";
+import profilePhoto from "@/public/projects/Imagenes/profile.webp";
 
-/* Foto del Hero del portfolio: respaldo mientras falten las de /fitness */
-const PROFILE_PHOTO = "/projects/Imagenes/profile.webp";
+/* Foto del Hero del portfolio, respaldo mientras falten las de /fitness.
+   Importada: el link cambia si cambia la foto (sin versión vieja en caché). */
+const PROFILE_PHOTO = profilePhoto.src;
 
 /* Landing de /fitness (Bellido Asesoramientos), 100 % entrenamiento.
    Orden: propuesta de valor (hero, para quién, quién soy), resultados

@@ -12,6 +12,8 @@ import {
 import { Sparkles, ArrowDown, MapPin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Magnetic, { useHasFinePointer } from "@/components/Magnetic";
+// Importada: el link lleva una huella del contenido (next/image no sirve una versión vieja)
+import profilePhoto from "@/public/projects/Imagenes/profile.webp";
 
 /* Inclinación máxima de la foto en grados */
 const TILT_MAX = 9;
@@ -101,7 +103,7 @@ export default function Hero() {
               className="relative aspect-[4/5] rounded-2xl overflow-hidden glass shadow-glow-lg will-change-transform"
             >
               <Image
-                src="/projects/Imagenes/profile.webp"
+                src={profilePhoto}
                 alt="Matías Bellido"
                 fill
                 priority

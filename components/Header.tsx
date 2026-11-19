@@ -51,12 +51,10 @@ export default function Header() {
     }
   };
 
-  // Scroll spy: la sección activa es la que tiene el CENTRO más cerca del
-  // centro de la pantalla. Como mucho un cálculo por cuadro (rAF).
-  // Rendimiento (2026-11-13): el centro de cada sección y el alto de la
-  // página se miden una vez y se vuelven a medir solo cuando algo cambia de
-  // tamaño (ResizeObserver). Antes se medía todo en cada cuadro del scroll,
-  // y cada medición obligaba al navegador a recalcular el layout.
+  // Scroll spy: la sección activa es la que tiene el centro más cerca del
+  // centro de la pantalla. Las posiciones se miden una vez y de nuevo solo
+  // cuando algo cambia de tamaño (ResizeObserver), no en cada cuadro del
+  // scroll (cada medición forzaba un layout).
   useEffect(() => {
     let ticking = false;
     let centers: { id: string; center: number }[] = [];

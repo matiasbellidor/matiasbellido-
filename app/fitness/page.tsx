@@ -53,15 +53,14 @@ function filesIn(folder: string): string[] {
 const mtime = (folder: string, file: string) => fs.statSync(path.join(PUBLIC_DIR, folder, file)).mtimeMs;
 
 /* `?v=` = fecha del archivo. next/image guarda cada foto optimizada 30 días
-   (minimumCacheTTL en next.config.js) con el link como clave: si Matías
-   reemplaza una foto con el MISMO nombre, sin esto se seguía viendo la vieja
-   (pasó con el cliente 4, 2026-11-06). Con la fecha en el link, una foto
-   nueva es un link nuevo y se procesa de nuevo. */
+   (minimumCacheTTL en next.config.js) con el link como clave: si se
+   reemplaza una foto con el MISMO nombre, sin esto se seguiría viendo la
+   vieja. Con la fecha en el link, una foto nueva es un link nuevo. */
 const url = (folder: string, file: string) =>
   `/${folder}/${encodeURIComponent(file)}?v=${Math.round(mtime(folder, file) / 1000).toString(36)}`;
 
 /* Devuelve el nombre del archivo. La copia "-hd" se usa solo si es más
-   nueva que su original: si Matías reemplaza la foto y nadie corrió
+   nueva que su original: si se reemplaza la foto y nadie corrió
    scripts/fitness-photos.mjs, se ve la foto nueva (sin mejorar) y no la
    -hd vieja. */
 function findOne(folder: string, pattern: RegExp): string | null {

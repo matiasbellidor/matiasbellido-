@@ -4,120 +4,96 @@ import { useState, useEffect, useRef } from "react";
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useAnimation, useInView, useReducedMotion, type MotionProps } from "framer-motion";
-import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, Newspaper, ArrowRight, ArrowUpRight, Rocket, ChevronDown } from "lucide-react";
-/* Logos importados (no "/logos/…" como texto): el link lleva una huella del
-   contenido y next/image no sirve uno viejo de su caché de 30 días */
+import { Lock, X, Mail, Languages, Code2, Briefcase, ExternalLink, FileText, Crown, ArrowRight, ArrowUpRight, Rocket, ChevronDown } from "lucide-react";
+/* Imágenes importadas (no la ruta como texto): el link lleva una huella del
+   contenido y next/image nunca sirve una versión vieja de su caché */
 import githubLogo from "@/public/logos/github.png";
 import agrocowLogo from "@/public/logos/agrocow.png";
 import nexstockLogo from "@/public/logos/nexstock.png";
-/* Ícono actual de PowerPoint en la App Store (la presentación de NexStock se
-   hizo en PowerPoint para Microsoft 365, según los metadatos del PDF) */
 import powerpointLogo from "@/public/logos/powerpoint.png";
+import agrocowCover from "@/public/projects/Imagenes/agrocow-cover.webp";
+import ziraCover from "@/public/projects/Imagenes/zira-cover.webp";
+import oneiricCover from "@/public/projects/Imagenes/OneiricAi.png";
+import nexstockCover from "@/public/projects/Imagenes/NexStock.webp";
+import nutriopsCover from "@/public/projects/Imagenes/solver.png";
+import budgentsCover from "@/public/projects/Imagenes/agents.webp";
+import symbiosisCover from "@/public/projects/Imagenes/symbiosis-blur.webp";
+import asesoramientosCover from "@/public/projects/Imagenes/bellido_asesoramientos_vf.png";
+import importsCover from "@/public/projects/Imagenes/Imports.webp";
 import Section from "./Section";
 import AsesoramientoAnimation from "./AsesoramientoAnimation";
 import { useHasFinePointer } from "./Magnetic";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
 
-// ============================================================================
-// PROPOSAL/RESUMEN LINKS — completá manualmente las URLs faltantes
-// ============================================================================
 const BUDGENTS_PROPOSAL_URL = "/projects/Imagenes/Budgents.pdf";
 const NUTRIOPS_PROPOSAL_URL = "/projects/Imagenes/NutriOps.pdf";
 const ONEIRIC_PROPOSAL_URL = "/projects/Imagenes/OneiricAi.pdf";
 const IMPORTS_PROPOSAL_URL = "/projects/Imagenes/Importaciones.pdf";
-// Fitness ya no abre el PDF: lleva a la landing propia (app/fitness)
+const ZIRA_GITHUB_URL = "https://github.com/felipebridge/aleph-hackathon";
 const ASESORAMIENTOS_FITNESS_PAGE = "/fitness";
 const ASESORAMIENTOS_EDUCATION_URL = "/projects/Imagenes/Bellido-Asesoramientos-Educativo.pdf";
+const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
+const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.pdf";
+const AGROCOW_GITHUB_URL = "https://github.com/Goat-Builders/agrocow";
+const AGROCOW_LANDING_URL = "https://agrocow.vercel.app/#1";
 
-// Tarjetas del modal "Mis Asesoramientos": las dos con la misma forma, centradas
+// Tarjetas del modal "Mis Asesoramientos"
 const SERVICE_CARD =
   "group flex flex-col overflow-hidden rounded-2xl border border-cyan/30 bg-cyan/[0.05] text-center transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-cyan/70 hover:shadow-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan";
 const SERVICE_CTA =
   "mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-electric px-5 py-2 sm:py-2.5 text-sm font-semibold text-white transition-shadow group-hover:shadow-glow";
 
-// NexStock (BootCamp ITBA) — el botón "Propuesta" abre un modal con estos dos archivos
-const NEXSTOCK_PROPOSAL_PDF = "/projects/Imagenes/Propuesta - NexStock.pdf";
-const NEXSTOCK_PRESENTATION_PPT = "/projects/Imagenes/Presentacion - NexStock.pdf";
-
-// ZIRA — repo del hackathon. El botón "Propuesta" de la card abre este link
-// directamente (mismo mecanismo que usan las demás cards, sin componente
-// especial). Si más adelante querés sumar también un link de review/post,
-// completá ZIRA_REVIEW_URL.
-const ZIRA_GITHUB_URL = "https://github.com/felipebridge/aleph-hackathon";
-const ZIRA_REVIEW_URL = ""; // TODO: pegar la URL del post/review
-
-// AgroCow — hecho en HackaTwin (hackathon onchain de Twin Finance, Buenos
-// Aires, 2026-11-07). Su botón "Propuesta" abre dos opciones (ver
-// proposalOptions): la landing del pitch y el repo.
-const AGROCOW_GITHUB_URL = "https://github.com/Goat-Builders/agrocow";
-const AGROCOW_LANDING_URL = "https://agrocow.vercel.app/#1";
-
-type ProjectLinks = { github?: string; review?: string };
 type ProjectMeta = {
   id: string;
-  image: string;
+  image: StaticImageData;
   proposalUrl: string;
+  /** Color medido del borde de la imagen (promedio del 2 % de cada lado; un
+      degradé si cambia de arriba a abajo): rellena las bandas de
+      object-contain y de la vista ampliada. Se vuelve a medir si cambia la imagen. */
   imageBg?: string;
   comingSoon?: boolean;
-  links?: ProjectLinks;
 };
 
-/* Opciones del modal que abre "Propuesta" en los proyectos que tienen más de
-   un material (NexStock: dos PDF; AgroCow: landing y repo). Un logo PNG si
-   la opción lleva a una app o a un sitio con marca (regla de Matías); si no,
-   un ícono. */
+/** Opción del modal de "Propuesta" en los proyectos con más de un material */
 type ProposalOption = { href: string; label: string; sub: string; logo?: StaticImageData; Icon?: typeof FileText };
 
-// ============================================================================
-// DOS CATEGORÍAS — "Soluciones Digitales & IA" y "Operaciones de Negocio".
-// Todas son cards ESTÁNDAR (mismo componente, tamaño y aspect-ratio). Para
-// agregar un proyecto nuevo, solo hay que sumar un objeto al array
-// correspondiente + su entrada en LanguageContext.tsx — el grid de esa
-// categoría se reacomoda solo. El orden del array es el orden de la página.
-// ============================================================================
+// El orden de cada arreglo es el de la página (sus textos están en LanguageContext)
 const digitalProjectsMeta: ProjectMeta[] = [
-  /* imageBg = el color del borde de cada imagen (promedio del 2 % de cada lado,
-     medido con Pillow el 2026-11-06), así las bandas que quedan alrededor
-     (tarjetas con object-contain, la vista ampliada, el halo del desenfoque)
-     se funden con la imagen. Si el borde cambia de arriba a abajo, va un
-     degradé con esos dos colores. Si cambiás una imagen, volvé a medirlo. */
-  // AgroCow va donde estaba Symbiosis (pedido de Matías, 2026-11-10). Portada:
-  // logo oficial sobre un cuadro real de la landing con las detecciones del modelo.
-  { id: "agrocow", image: "/projects/Imagenes/agrocow-cover.webp", proposalUrl: "", imageBg: "#17201d" },
-  { id: "zira", image: "/projects/Imagenes/zira-cover.webp", proposalUrl: ZIRA_GITHUB_URL, links: { github: "", review: ZIRA_REVIEW_URL }, imageBg: "#020203" },
-  { id: "oneiric", image: "/projects/Imagenes/OneiricAi.png", proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05091a" },
-  // De más reciente a más antiguo: NexStock (May 2026) antes que NutriOps (Dic 2025) (pedido de Matías, 2026-11-10)
-  { id: "nexstock", image: "/projects/Imagenes/NexStock.webp", proposalUrl: "", imageBg: "#f6f8f8" },
-  { id: "nutriops", image: "/projects/Imagenes/solver.png", proposalUrl: NUTRIOPS_PROPOSAL_URL, imageBg: "#edebe9" },
-  { id: "budgents", image: "/projects/Imagenes/agents.webp", proposalUrl: BUDGENTS_PROPOSAL_URL, imageBg: "linear-gradient(#212327, #0d0e12)" },
-  // Symbiosis AI: en pausa, al final de la categoría (pedido de Matías,
-  // 2026-11-10). Mismo diseño de siempre; el ribbon dice "En pausa". La
-  // imagen viene YA desenfocada (symbiosis-blur.webp, 800 px, 4,5 KB): antes
-  // era symbiosis.webp (1728 px, 391 KB) con blur de CSS, que tardaba en
-  // bajar y era caro de pintar (Matías: "a veces tarda muchísimo en aparecer").
-  { id: "symbiosis", image: "/projects/Imagenes/symbiosis-blur.webp", proposalUrl: "", comingSoon: true, imageBg: "linear-gradient(#161b20, #020305)" },
+  { id: "agrocow", image: agrocowCover, proposalUrl: "", imageBg: "#17201d" },
+  { id: "zira", image: ziraCover, proposalUrl: ZIRA_GITHUB_URL, imageBg: "#020203" },
+  { id: "oneiric", image: oneiricCover, proposalUrl: ONEIRIC_PROPOSAL_URL, imageBg: "#05091a" },
+  { id: "nexstock", image: nexstockCover, proposalUrl: "", imageBg: "#f6f8f8" },
+  { id: "nutriops", image: nutriopsCover, proposalUrl: NUTRIOPS_PROPOSAL_URL, imageBg: "#edebe9" },
+  { id: "budgents", image: budgentsCover, proposalUrl: BUDGENTS_PROPOSAL_URL, imageBg: "linear-gradient(#212327, #0d0e12)" },
+  // Desenfocada desde el archivo: un blur de CSS había que repintarlo en cada cuadro de la entrada
+  { id: "symbiosis", image: symbiosisCover, proposalUrl: "", comingSoon: true, imageBg: "linear-gradient(#161b20, #020305)" },
 ];
 
-/* Soluciones Digitales: cuántas tarjetas se ven antes de "Ver más proyectos",
-   y la fila (carrusel en el celular, grilla desde md) que comparten las
-   primeras y las que se despliegan */
+const businessProjectsMeta: ProjectMeta[] = [
+  { id: "asesoramientos", image: asesoramientosCover, proposalUrl: "" },
+  { id: "imports", image: importsCover, proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#272a2c" },
+];
+
+// Logos con fondo propio: van enteros (object-contain) sobre su imageBg
+const containedImageIds = ["imports", "nexstock", "oneiric"];
+
+// Soluciones Digitales muestra estas primeras; el resto, con "Ver más proyectos"
 const INITIAL_DIGITAL = 6;
-const DIGITAL_ROW =
-  "flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-8 -mb-6 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3";
 const EXPAND_EASE = [0.22, 1, 0.36, 1] as const;
 
-// Bellido Asesoramientos va primero (pedido de Matías, 2026-11-06)
-const businessProjectsMeta: ProjectMeta[] = [
-  { id: "asesoramientos", image: "/projects/Imagenes/bellido_asesoramientos_vf.png", proposalUrl: "" },
-  { id: "imports", image: "/projects/Imagenes/Imports.webp", proposalUrl: IMPORTS_PROPOSAL_URL, imageBg: "#272a2c" },
-];
-
-// Proyectos cuya imagen es un mockup/logo con fondo propio → object-contain.
-// Si zira-cover.png es una captura de pantalla full-bleed, dejalo cover
-// (no lo agregues acá). Si en cambio es un logo/mockup con fondo, sumá
-// "zira" a este array.
-const containedImageIds = ["imports", "nexstock", "oneiric"];
+/* Filas de tarjetas: carrusel en el celular, grilla desde md.
+   overflow-y-hidden + pb-8 -mb-6: la fila nunca scrollea en vertical (si no,
+   mientras las tarjetas entran con y: 24 el gesto del dedo se quedaba en la
+   fila). scroll-pl-* = px-*: el snap alinea cada tarjeta con el margen. */
+const CARD_ROW =
+  "flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-8 -mb-6 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible";
+const DIGITAL_ROW = `${CARD_ROW} lg:grid-cols-3`;
+const CARD_CELL = "snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink";
+/* Ancho real de la imagen de cada fila (sección max-w-7xl con px-16 desde md,
+   gap de 24 px), para que el navegador baje una versión que no tenga que estirar */
+const DIGITAL_SIZES = "(max-width: 639px) 80vw, (max-width: 767px) 420px, (max-width: 1023px) calc(50vw - 75px), (max-width: 1407px) calc(33.4vw - 58px), 411px";
+const BUSINESS_SIZES = "(max-width: 639px) 80vw, (max-width: 767px) 420px, (max-width: 1407px) calc(50vw - 75px), 628px";
 
 function RichDescription({ text }: { text: string }) {
   return (
@@ -140,8 +116,8 @@ function RichDescription({ text }: { text: string }) {
   );
 }
 
-/* onOptionsClick: el proyecto tiene varias opciones (NexStock, AgroCow) y
-   "Propuesta" abre el modal para elegir; si no, abre su link directo. */
+/* Con onOptionsClick, "Propuesta" abre el modal para elegir material; si no,
+   abre su link directo */
 function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onOptionsClick }: { projectId: string; url: string; lang: string; onAsesoramientosClick: () => void; onOptionsClick?: () => void }) {
   const label = lang === "es" ? "Propuesta" : "Proposal";
   const isAsesoramientos = projectId === "asesoramientos";
@@ -157,7 +133,6 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onOptions
 
   if (isAsesoramientos) return <AsesoramientosProposalButton label={label} onClick={handleClick} />;
 
-  // El resto de las propuestas: el estilo de siempre (translúcido, con borde) y link externo
   return (
     <button onClick={handleClick}
       className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-electric/20 backdrop-blur-sm text-cyan border border-cyan/40 text-xs can-hover:hover:bg-electric/40 transition-all touch-manipulation">
@@ -168,21 +143,15 @@ function ProposalButton({ projectId, url, lang, onAsesoramientosClick, onOptions
   );
 }
 
-/* Bellido Asesoramientos es la propuesta distinta (lleva a sus servicios y
-   a la landing de /fitness): Matías pidió que se note sí o sí, sin molestar.
-   Por eso es la única con relleno sólido del color de acción (texto blanco:
-   4,8:1 en oscuro y 7,1:1 en claro), sombra de color, el brillo que la
-   recorre y un halo que se expande y se desvanece cada ~4 s. El brillo y el
-   halo corren solo con el botón en pantalla y se apagan con "reducir
-   movimiento". Flecha en vez de link externo: abre un modal, no otra pestaña.
-   Va en su propio componente: solo este botón necesita saber si está en
-   pantalla (antes los 9 botones de Propuesta se observaban igual). */
+/* La única propuesta destacada: relleno sólido (texto blanco 4,8:1 en oscuro
+   y 7,1:1 en claro), brillo y halo cada ~4 s. Brillo y halo corren solo con el
+   botón en pantalla y nunca con "reducir movimiento". Flecha y no link
+   externo: abre un modal. */
 function AsesoramientosProposalButton({ label, onClick }: { label: string; onClick: (e: React.MouseEvent) => void }) {
   const ref = useRef<HTMLButtonElement>(null);
   const inView = useInView(ref);
   const reduced = !!useReducedMotion();
-  /* En el celular la tarjeta queda quieta al tocarla: sin escala de Framer
-     ni :hover pegado (pedido de Matías: el scroll se trababa sobre las tarjetas) */
+  // Escala solo con mouse: en el celular el toque la dejaba pegada
   const fine = useHasFinePointer();
   const shimmer = !reduced;
   return (
@@ -224,20 +193,16 @@ export default function Projects() {
   const { setModalOpen: setGlobalModalOpen } = useModal();
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
-  /** Proyecto cuyo modal de opciones de "Propuesta" está abierto (ver proposalOptions) */
+  /** Proyecto con el modal de opciones de "Propuesta" abierto */
   const [optionsFor, setOptionsFor] = useState<string | null>(null);
   const optionsCloseRef = useRef<HTMLButtonElement>(null);
   const [clicked, setClicked] = useState(false);
   const [email, setEmail] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const lockControls = useAnimation();
-  /* "Ver más proyectos" (pedido de Matías, 2026-11-10): en Soluciones Digitales
-     se ven los primeros INITIAL_DIGITAL y el resto se despliega abajo.
-     - showAllDigital: abierto o cerrado (lo que dice el botón y aria-expanded);
-     - renderRest: las tarjetas extra están montadas (se desmontan recién cuando
-       termina la animación de cierre, así se ven cerrarse);
-     - restSettled: terminó de abrirse → overflow visible (si quedara hidden,
-       recortaría el brillo de hover de la tarjeta). */
+  /* "Ver más proyectos": renderRest mantiene montadas las tarjetas extra hasta
+     que termina de cerrarse; restSettled deja el overflow visible cuando
+     terminó de abrirse (hidden recortaría el brillo de hover). */
   const [showAllDigital, setShowAllDigital] = useState(false);
   const [renderRest, setRenderRest] = useState(false);
   const [restSettled, setRestSettled] = useState(false);
@@ -251,13 +216,10 @@ export default function Projects() {
       setShowAllDigital(true);
     }
   };
-  /* Las imágenes de las tarjetas se piden cuando la sección se acerca (800 px
-     antes): con loading="lazy" solo, las del carrusel del celular que están a
-     la derecha recién se pedían al deslizar, y Symbiosis (la última) llegaba tarde.
-     Ojo: acá no va ningún estado que cambie MIENTRAS se scrollea (visibilidad de
-     una tarjeta o de una fila): re-dibujaría las 9 tarjetas justo cuando tienen
-     que animarse y la primera fila arrancaba 0,25–0,4 s tarde. Eso vive en cada
-     tarjeta (ProjectCard, LockPulse). */
+  /* Las imágenes se piden cuando la sección está a 800 px (con lazy solo, las
+     del carrusel a la derecha llegaban tarde). Acá no va estado que cambie al
+     scrollear: re-dibujaría todas las tarjetas mientras entran (eso vive en
+     ProjectCard y LockPulse). */
   const gridRef = useRef<HTMLDivElement>(null);
   const gridNear = useInView(gridRef, { once: true, margin: "800px 0px 800px 0px" });
 
@@ -276,8 +238,7 @@ export default function Projects() {
   const businessProjects = businessProjectsMeta.map((meta) => ({ ...meta, ...projectContentMap[meta.id] }));
   const allProjects = [...digitalProjects, ...businessProjects];
 
-  /* "Propuesta" con más de un material: el botón abre un modal para elegir.
-     AgroCow: la landing del pitch y el repo (pedido de Matías, 2026-11-10). */
+  // Proyectos con más de un material: "Propuesta" abre un modal para elegir
   const proposalOptions: Record<string, { title: string; options: ProposalOption[] }> = {
     agrocow: {
       title: "AgroCow",
@@ -344,10 +305,10 @@ export default function Projects() {
   const handleModalLangToggle = () => setLang(lang === "es" ? "en" : "es");
   const expandedProject = allProjects.find((p) => p.id === expandedId);
 
-  /* Una tarjeta de Soluciones Digitales con su envoltorio (el mismo para las
-     primeras 6 y para las que se despliegan con "Ver más proyectos") */
-  const renderDigitalCard = (project: (typeof digitalProjects)[number], i: number) => (
-    <div key={project.id} data-step-row="" className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
+  /* Celda de la fila (flex: todas las tarjetas de una fila quedan del mismo
+     alto). data-step-row: parada de la navegación con flechas (SectionStepper) */
+  const renderCard = (project: (typeof allProjects)[number], i: number, sizes: string) => (
+    <div key={project.id} data-step-row="" className={CARD_CELL}>
       <ProjectCard
         project={project}
         index={i}
@@ -358,48 +319,32 @@ export default function Projects() {
         lockControls={project.id === "symbiosis" ? lockControls : undefined}
         locked={project.id === "symbiosis" ? clicked : undefined}
         eager={gridNear}
+        sizes={sizes}
       />
     </div>
   );
 
+  const swipeHint = (
+    <p className="text-center text-xs text-fg-muted mt-3 md:hidden uppercase tracking-wider">
+      {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
+    </p>
+  );
+
   return (
     <Section id="projects" eyebrow={t.projects.eyebrow} title={t.projects.title}>
-      {/* CATEGORÍA: Soluciones Digitales & IA — AgroCow primero y Symbiosis
-          (en pausa) al final, todas como cards ESTÁNDAR (mismo componente/tamaño).
-          Grid responsive: mobile = carrusel horizontal (scroll-snap);
-          md+ = grid que wrappea en 2 columnas, lg: 3 columnas.
-          El wrapper de cada tarjeta es flex: la tarjeta se estira y todas
-          quedan del mismo alto (en el carrusel y en cada fila del grid).
-          Scroll en el celular (bug: el gesto vertical se trababa sobre las
-          tarjetas): las que están a la derecha no "entran" en pantalla y
-          quedaban con la entrada pendiente (y: 30), así que la fila podía
-          scrollear 22 px en vertical y el navegador le daba el gesto a la fila
-          en vez de a la página. overflow-y-hidden: la fila nunca scrollea en
-          vertical; pb-8 -mb-6: la fila tiene lugar para esos 30 px (no sobra
-          nada que scrollear) y el espacio de abajo sigue siendo 8 px. Los
-          efectos de hover/toque van con can-hover: (solo con mouse).
-          scroll-pl-* = mismo valor que px-*: el snap deja cada tarjeta
-          alineada con el margen de la sección (sin él quedaba pegada al
-          borde izquierdo de la pantalla). Ícono del título alineado a la
-          primera línea por si el texto baja a dos. */}
       <div ref={gridRef} className="mb-16">
         <div className="flex items-start gap-3 mb-8">
           <Code2 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
           <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.digitalSubtitle}</h3>
         </div>
         <div data-carousel-row="" className={DIGITAL_ROW}>
-          {digitalProjects.slice(0, INITIAL_DIGITAL).map((project, i) => renderDigitalCard(project, i))}
+          {digitalProjects.slice(0, INITIAL_DIGITAL).map((project, i) => renderCard(project, i, DIGITAL_SIZES))}
         </div>
-        <p className="text-center text-xs text-fg-muted mt-3 md:hidden uppercase tracking-wider">
-          {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
-        </p>
+        {swipeHint}
 
-        {/* "Ver más proyectos": el resto (hoy solo Symbiosis AI) se despliega ABAJO
-            de la fila, también en el celular (al final del carrusel, fuera de la
-            pantalla, no se vería aparecer). El contenedor existe siempre (alto 0
-            cerrado) para que aria-controls apunte a algo; las tarjetas se montan
-            al abrir y se desmontan al terminar de cerrar. Sin tarjetas extra, no
-            hay botón. Con "reducir movimiento", sin animación. */}
+        {/* El resto se despliega debajo de la fila, también en el celular (al
+            final del carrusel no se vería aparecer). El contenedor existe
+            siempre para que aria-controls apunte a algo. */}
         {digitalProjects.length > INITIAL_DIGITAL && (
           <>
             <motion.div
@@ -415,7 +360,7 @@ export default function Projects() {
             >
               {renderRest && (
                 <div data-carousel-row="" className={`${DIGITAL_ROW} pt-6`}>
-                  {digitalProjects.slice(INITIAL_DIGITAL).map((project, i) => renderDigitalCard(project, INITIAL_DIGITAL + i))}
+                  {digitalProjects.slice(INITIAL_DIGITAL).map((project, i) => renderCard(project, INITIAL_DIGITAL + i, DIGITAL_SIZES))}
                 </div>
               )}
             </motion.div>
@@ -428,7 +373,6 @@ export default function Projects() {
                 className="group inline-flex h-11 items-center gap-3 rounded-full glass pl-5 pr-2 text-sm font-semibold text-fg-soft transition-[color,box-shadow] duration-200 can-hover:hover:text-cyan can-hover:hover:shadow-glow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan touch-manipulation"
               >
                 {showAllDigital ? (lang === "es" ? "Ver menos proyectos" : "Show fewer projects") : lang === "es" ? "Ver más proyectos" : "Show more projects"}
-                {/* Flecha: rebota suave mientras está cerrado; al abrir gira y apunta arriba */}
                 <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-full bg-cyan/10 text-cyan">
                   <ChevronDown
                     className={`h-4 w-4 transition-transform duration-300 ${
@@ -442,30 +386,16 @@ export default function Projects() {
         )}
       </div>
 
-      {/* CATEGORÍA: Operaciones de Negocio. data-step / data-step-row: paradas de la
-          navegación con flechas (SectionStepper); no se ven ni cambian el diseño */}
+      {/* data-step: parada de la navegación con flechas (SectionStepper) */}
       <div data-step="">
         <div className="flex items-start gap-3 mb-8">
           <Briefcase className="w-5 h-5 shrink-0 mt-0.5 sm:mt-1 text-cyan" />
           <h3 className="font-display text-base sm:text-lg font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-fg">{t.projects.businessSubtitle}</h3>
         </div>
-        <div data-carousel-row="" className="flex gap-6 overflow-x-auto overflow-y-hidden snap-x snap-proximity no-scrollbar pb-8 -mb-6 -mx-5 px-5 scroll-pl-5 sm:-mx-6 sm:px-6 sm:scroll-pl-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible">
-          {businessProjects.map((project, i) => (
-            <div key={project.id} data-step-row="" className="snap-start shrink-0 flex w-[80vw] max-w-[420px] sm:w-[420px] md:w-auto md:max-w-none md:shrink">
-              <ProjectCard
-                project={project}
-                index={i}
-                onClick={() => setExpandedId(project.id)}
-                lang={lang}
-                onAsesoramientosClick={() => setCanvaModalOpen(true)}
-                eager={gridNear}
-              />
-            </div>
-          ))}
+        <div data-carousel-row="" className={CARD_ROW}>
+          {businessProjects.map((project, i) => renderCard(project, i, BUSINESS_SIZES))}
         </div>
-        <p className="text-center text-xs text-fg-muted mt-3 md:hidden uppercase tracking-wider">
-          {lang === "es" ? "← Deslizá para ver más →" : "← Swipe to see more →"}
-        </p>
+        {swipeHint}
       </div>
 
       <AnimatePresence>
@@ -480,13 +410,11 @@ export default function Projects() {
                     <Languages className="w-4 h-4 text-cyan" />
                     <span className="text-xs uppercase text-fg">{lang}</span>
                   </button>
-                  {/* Sin texto visible: el nombre va en aria-label (axe: button-name) */}
                   <button onClick={() => setExpandedId(null)} aria-label={lang === "es" ? "Cerrar" : "Close"} className="p-2.5 rounded-full glass hover:bg-cyan/20 transition-all touch-manipulation">
                     <X className="w-5 h-5 text-fg" aria-hidden="true" />
                   </button>
                 </div>
-                {/* Enfocable (axe: scrollable-region-focusable): sin links adentro, con
-                    teclado no se podía bajar por la descripción */}
+                {/* Enfocable: sin links adentro, es la única forma de bajar con el teclado */}
                 <div tabIndex={0} aria-label={expandedProject.title} className="overflow-y-auto focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-cyan">
 
                   <div className="relative w-full aspect-video max-h-[70vh] overflow-hidden flex items-center justify-center" style={{ background: expandedProject.imageBg ?? "#000000" }}>
@@ -517,7 +445,6 @@ export default function Projects() {
                         <div className="flex flex-wrap gap-3 pt-6 border-t border-cyan/20">
                           {expandedProject.tags.map((tag: string) => <span key={tag} className="text-xs px-4 py-2 rounded-full bg-electric/10 text-cyan border border-cyan/30">{tag}</span>)}
                         </div>
-                        <ProjectLinkButtons links={expandedProject.links} lang={lang} size="modal" />
                       </motion.div>
                     </AnimatePresence>
                   </div>
@@ -553,18 +480,11 @@ export default function Projects() {
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} transition={{ type: "spring", duration: 0.5 }} onClick={(e) => e.stopPropagation()}
               className="relative modal-surface rounded-2xl p-4 sm:p-8 max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-glow-lg">
               <button onClick={() => setCanvaModalOpen(false)} aria-label={lang === "es" ? "Cerrar" : "Close"} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"><X className="w-5 h-5 text-fg-soft" /></button>
-              {/* Opaco (modal-surface), no vidrio: sobre el fondo oscuro del overlay el vidrio
-                  quedaba gris en tema claro y el texto oscuro no se leía. px-10: no choca con la X */}
+              {/* modal-surface (opaco): el vidrio quedaba gris en tema claro y el texto no se leía. px-10: no choca con la X */}
               <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6 px-8 sm:px-10 text-cyan">{lang === "es" ? "Mis Asesoramientos" : "My Services"}</h3>
-              {/* Dos tarjetas iguales y centradas (lado a lado desde sm). Arriba, una
-                  franja oscura con la animación del mismo personaje en cada
-                  servicio (AsesoramientoAnimation); abajo, nombre, bajada y
-                  botón. Se levantan y brillan con el hover. En el celular van una
-                  abajo de la otra, más compactas: la franja (.service-band en
-                  globals.css) se achica para que entren las dos en la pantalla. */}
+              {/* En el celular la franja de la animación (.service-band) se achica para que entren las dos tarjetas */}
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-                {/* Navegación interna (misma pestaña). Cierra el modal al salir
-                    para que no quede el scroll trabado ni el Header oculto. */}
+                {/* Cierra el modal al navegar: si no, quedan el scroll trabado y el Header oculto */}
                 <Link href={ASESORAMIENTOS_FITNESS_PAGE} onClick={() => setCanvaModalOpen(false)} className={SERVICE_CARD}>
                   <div aria-hidden="true" className="service-band relative overflow-hidden bg-[#05070D] bg-[radial-gradient(circle_at_50%_55%,rgb(34_211_238/0.14),transparent_65%)]">
                     <AsesoramientoAnimation variant="fitness" className="absolute inset-0 h-full w-full" />
@@ -597,11 +517,7 @@ export default function Projects() {
         )}
       </AnimatePresence>
 
-      {/* Modal de "Propuesta" con varias opciones (NexStock, AgroCow). Mismo
-          diseño que tenía el de NexStock. Responsive: p-4 alrededor en el
-          celular y alto máximo de la pantalla con scroll interno (en un
-          celular acostado no queda nada afuera). Cada opción mide ≥ 60 px de
-          alto y se abre en otra pestaña. */}
+      {/* Modal de opciones de "Propuesta": alto máximo de la pantalla con scroll interno */}
       <AnimatePresence>
         {optionsProject && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOptionsFor(null)} className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm">
@@ -614,18 +530,11 @@ export default function Projects() {
               exit={{ scale: 0.9, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
               onClick={(e) => e.stopPropagation()}
-              // Opaco (modal-surface), no vidrio: sobre el overlay oscuro el vidrio quedaba
-              // gris en tema claro y el texto oscuro no se leía (igual que "Mis Asesoramientos")
               className="relative modal-surface rounded-2xl p-6 md:p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto shadow-glow-lg"
             >
               <button ref={optionsCloseRef} onClick={() => setOptionsFor(null)} aria-label={lang === "es" ? "Cerrar" : "Close"} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors touch-manipulation"><X className="w-5 h-5 text-fg-soft" aria-hidden="true" /></button>
               <h3 id="proposal-options-title" className="font-display text-2xl md:text-3xl font-bold text-center mb-2 px-8 text-cyan">{optionsProject.title}</h3>
               <p className="text-center text-fg-soft text-sm mb-6">{lang === "es" ? "Accedé a los materiales del proyecto:" : "Access the project materials:"}</p>
-              {/* Filas al estilo de las listas de iOS: logo de 44 px en su círculo
-                  blanco, título y bajada, y la flecha en un círculo a la derecha.
-                  Con mouse se levantan apenas; al tocar se achican (respuesta
-                  inmediata). Solo transform/colores; sin movimiento si el sistema
-                  pide reducirlo. */}
               <div className="space-y-3">
                 {optionsProject.options.map(({ href, label, sub, logo, Icon }) => (
                   <a key={href} href={href} target="_blank" rel="noopener noreferrer"
@@ -658,55 +567,10 @@ export default function Projects() {
   );
 }
 
-/* Links de un proyecto dentro de la tarjeta y del detalle (hoy solo los
-   pendientes de ZIRA: GitHub y review; vacíos = no se muestra nada). Para
-   varios materiales es mejor "Propuesta" con proposalOptions (NexStock,
-   AgroCow). Regla de Matías (2026-11-06): un botón que lleva a una app usa
-   el logo PNG de esa app en un círculo, en una pill simétrica (logo a la
-   izquierda, texto centrado y a la derecha un hueco del mismo ancho, que se
-   achica si no entra). Review no es una app: ícono genérico. Abren en otra
-   pestaña y no abren el detalle. Alto 36 px en la tarjeta, 44 en el detalle. */
-function ProjectLinkButtons({ links, lang, size }: { links?: ProjectLinks; lang: string; size: "card" | "modal" }) {
-  if (!links || !(links.github || links.review)) return null;
-  const big = size === "modal";
-  const pill = `flex flex-1 items-center rounded-full border border-cyan/30 bg-white/5 font-semibold text-fg-soft transition-colors can-hover:hover:border-cyan/60 can-hover:hover:bg-cyan/10 can-hover:hover:text-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan touch-manipulation ${
-    big ? "h-11 max-w-[16rem] px-[5px] text-sm" : "h-9 px-1 text-xs"
-  }`;
-  const circle = `${big ? "h-8 w-8" : "h-7 w-7"} shrink-0 rounded-full shadow-[0_1px_4px_rgb(0_0_0/0.25)]`;
-  const spacer = <span aria-hidden="true" className={`${big ? "w-8" : "w-7"} shrink`} />;
-  const newTab = <span className="sr-only">{lang === "es" ? " (se abre en otra pestaña)" : " (opens in a new tab)"}</span>;
-  const stop = (e: React.MouseEvent) => e.stopPropagation();
-  const items = [
-    links.github && { href: links.github, label: "GitHub", logo: githubLogo as StaticImageData | undefined, Icon: ExternalLink },
-    links.review && { href: links.review, label: "Review", logo: undefined, Icon: Newspaper },
-  ].filter(Boolean) as { href: string; label: string; logo?: StaticImageData; Icon: typeof ExternalLink }[];
-
-  return (
-    <div className={`flex flex-wrap gap-2 ${big ? "pt-6" : "pt-4"}`}>
-      {items.map(({ href, label, logo, Icon }) => (
-        <a key={label} href={href} target="_blank" rel="noopener noreferrer" onClick={stop} className={pill}>
-          {logo ? (
-            <Image src={logo} alt="" width={64} height={64} className={circle} />
-          ) : (
-            <span aria-hidden="true" className={`${circle} grid place-items-center bg-cyan/15 text-cyan shadow-none`}>
-              <Icon className={big ? "w-4 h-4" : "w-3.5 h-3.5"} />
-            </span>
-          )}
-          <span className="flex-1 whitespace-nowrap px-2 text-center">
-            {label}
-            {newTab}
-          </span>
-          {spacer}
-        </a>
-      ))}
-    </div>
-  );
-}
-
 type ProjectCardProps = {
   project: {
     id: string;
-    image: string;
+    image: StaticImageData;
     date: string;
     category: string;
     title: string;
@@ -719,34 +583,27 @@ type ProjectCardProps = {
     comingSoon?: boolean;
     comingSoonLabel?: string;
     clickHint?: string;
-    links?: ProjectLinks;
   };
   index: number;
   onClick: () => void;
   lang: string;
   onAsesoramientosClick: () => void;
-  /** El proyecto tiene varias opciones de "Propuesta" (abre el modal para elegir) */
+  /** "Propuesta" abre el modal para elegir material */
   onOptionsClick?: () => void;
-  /** Solo lo usa Symbiosis: controla la animación del ícono de candado del ribbon. */
+  /** Solo Symbiosis: animación del candado del ribbon */
   lockControls?: ReturnType<typeof useAnimation>;
-  /** Solo lo usa Symbiosis: activa el flash rojo mientras se "desbloquea". */
+  /** Solo Symbiosis: flash rojo mientras se "desbloquea" */
   locked?: boolean;
   /** La sección ya está cerca: la imagen se pide ya (si no, lazy) */
   eager?: boolean;
+  /** Atributo sizes de la imagen: el ancho real de la tarjeta en su fila */
+  sizes: string;
 };
 
-/* Entrada de las tarjetas, pensada para que lleguen a tiempo (Matías:
-   "Symbiosis a veces tarda muchísimo en aparecer"). Antes: demora de
-   0,2 s + 0,1 s por posición (la 7.ª esperaba 0,8 s) y arrancaba recién con la
-   tarjeta 50 px adentro de la pantalla. Ahora:
-   - arranca un poco ANTES de entrar (15 % de la pantalla de margen abajo);
-   - la demora depende de la columna (0, 0,06 o 0,12 s), no de la posición;
-   - en el carrusel del celular, las tarjetas aparecen todas apenas la FILA
-     entra: el carrusel recorta las de los costados y el navegador las ve
-     ocultas hasta que deslizás (un rootMargin horizontal no lo arregla);
-   - 0,4 s y solo opacity/transform (compositor, sin repintar);
-   - cada tarjeta maneja su propia visibilidad: ningún estado del componente
-     padre cambia mientras se scrollea (re-dibujaría las 9 justo al animarse). */
+/* Entrada de las tarjetas: arranca un poco antes de entrar (15 % abajo), con
+   demora por columna y no por posición, y solo opacity/transform. En el
+   carrusel del celular entran todas cuando entra la FILA: el carrusel recorta
+   las de los costados y el IntersectionObserver las ve ocultas. */
 const CARD_VIEWPORT = { once: true, margin: "0px 0px 15% 0px" } as const;
 
 /* ¿La grilla es el carrusel del celular (menos de md)? */
@@ -785,11 +642,9 @@ function useRowShown(cardRef: React.RefObject<HTMLElement>, active: boolean) {
   return shown;
 }
 
-/* Candado del ribbon de Symbiosis. El latido es una animación infinita en JS:
-   corre solo mientras el candado está en pantalla y nunca con "reducir
-   movimiento". Vive en su propio componente para que entrar y salir de
-   pantalla re-dibuje solo este ícono. El sacudón del clic lo maneja
-   handleLockClick con los mismos controles. */
+/* Candado del ribbon de Symbiosis: late solo en pantalla y nunca con "reducir
+   movimiento". Componente propio para que entrar y salir de pantalla
+   re-dibuje solo el ícono. El sacudón del clic usa los mismos controles. */
 function LockPulse({ controls, locked }: { controls: ReturnType<typeof useAnimation>; locked?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref);
@@ -809,7 +664,7 @@ function LockPulse({ controls, locked }: { controls: ReturnType<typeof useAnimat
   );
 }
 
-function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onOptionsClick, lockControls, locked, eager }: ProjectCardProps) {
+function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onOptionsClick, lockControls, locked, eager, sizes }: ProjectCardProps) {
   const cardRef = useRef<HTMLElement>(null);
   const isCarousel = useIsCarousel();
   const rowShown = useRowShown(cardRef, isCarousel);
@@ -826,8 +681,6 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onO
       className="relative glass rounded-2xl overflow-hidden flex flex-col group flex-1 w-full cursor-pointer can-hover:hover:shadow-glow transition-shadow touch-manipulation">
       <ProposalButton projectId={project.id} url={project.proposalUrl} lang={lang} onAsesoramientosClick={onAsesoramientosClick} onOptionsClick={onOptionsClick} />
 
-      {/* Ribbon "Coming Soon" — solo para Symbiosis. El candado hereda la
-          animación de shake/pulse de handleLockClick vía lockControls. */}
       {project.comingSoon && (
         <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm text-cyan border border-cyan/40 text-xs">
           {lockControls && <LockPulse controls={lockControls} locked={locked} />}
@@ -839,16 +692,10 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onO
         className="relative aspect-[16/9] overflow-hidden flex items-center justify-center"
         style={{ background: project.imageBg ?? "#000000" }}
       >
-        {/* sizes = ancho real de la tarjeta: carrusel 80vw, 2 columnas en md, 3 en lg */}
-        {/* Symbiosis (en pausa): su imagen viene desenfocada desde el archivo
-            (symbiosis-blur.webp, equivalente a los 6 px de blur que Matías
-            pidió); sin filtro de CSS, que había que repintar en cada cuadro de
-            la entrada. El ribbon y el degradé quedan nítidos por encima. */}
-        <Image src={project.image} alt={project.title} fill quality={80} loading={eager ? "eager" : "lazy"} sizes="(max-width: 767px) 80vw, (max-width: 1023px) 50vw, 33vw"
+        {/* quality 90: con menos, el AVIF (Next lo codifica a quality − 15) ablanda el texto de los logos */}
+        <Image src={project.image} alt={project.title} fill quality={90} loading={eager ? "eager" : "lazy"} sizes={sizes}
           className={`${containedImage ? "object-contain" : "object-cover"} transition-transform duration-700 can-hover:group-hover:scale-105`} />
-        {/* El degradé oscuro solo va sobre las imágenes que llenan el recuadro
-            (cover). Sobre las que van enteras (contain) con su color de fondo
-            se vería como una sombra gris fea. */}
+        {/* Degradé solo sobre las imágenes cover: sobre las contain se vería como una sombra gris */}
         {!containedImage && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         )}
@@ -862,24 +709,18 @@ function ProjectCard({ project, index, onClick, lang, onAsesoramientosClick, onO
             <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan">{project.role}</span>
           </div>
         )}
-        {/* Insignia (ej. la hackathon de AgroCow): mismo estilo que el rol, otro ícono */}
         {project.badge && (
           <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-gradient-to-r from-cyan/15 to-electric/10 border border-cyan/30 mb-3">
             <Rocket className="w-3 h-3 text-cyan" strokeWidth={2} aria-hidden="true" />
             <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan">{project.badge}</span>
           </div>
         )}
-        {/* La descripción ocupa siempre 3 líneas (sin flex-1: si se estiraba con
-            la fila, seguía mostrando texto debajo de los "…"). El espacio que
-            sobra en una fila más alta va arriba de los tags (mt-auto), así los
-            tags y los botones quedan alineados abajo en toda la fila. */}
+        {/* Sin flex-1: estirada con la fila mostraba texto debajo de los "…".
+            mt-auto en los tags los alinea abajo en toda la fila */}
         <p className="text-sm text-fg-soft leading-relaxed mb-4 line-clamp-3">{project.desc}</p>
         <div className="mt-auto flex flex-wrap gap-2 pt-3 border-t border-white/5">
           {project.tags.map((tag) => <span key={tag} className="text-[10px] px-2.5 py-1 rounded-full bg-electric/10 text-cyan border border-cyan/20">{tag}</span>)}
         </div>
-
-        {/* Botones del proyecto (GitHub, landing, review): solo si los tiene (ej. AgroCow) */}
-        <ProjectLinkButtons links={project.links} lang={lang} size="card" />
 
         <p className="text-[10px] uppercase tracking-wider text-cyan/70 mt-3">{project.clickHint ?? (lang === "es" ? "Click para leer más →" : "Click to read more →")}</p>
       </div>

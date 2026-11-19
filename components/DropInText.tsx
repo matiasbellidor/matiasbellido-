@@ -3,22 +3,10 @@
 import { Fragment, useEffect, useRef } from "react";
 import { useInView, useReducedMotion } from "framer-motion";
 
-/* ═════════════════════════════════════════════════════════════
-   DROP-IN TEXT — cada letra cae a su lugar al entrar en pantalla.
-
-   Rendimiento (medido 2026-11-13, build de producción, celular con
-   CPU 4× más lenta): antes cada letra tenía una animación CSS con
-   animation-delay. Con ~330 letras eso hacía 330 capas de composición
-   a la vez (una animación con delay y fill "both" está activa también
-   mientras espera) y ~700 eventos animationstart/animationend que React
-   procesaba uno por uno. La página pasaba de 74 a 347 capas.
-
-   Ahora un solo requestAnimationFrame larga cada letra cuando le toca
-   (cada STAGGER_MS) con la Web Animations API, que no dispara eventos
-   en el DOM. Al mismo tiempo se animan ~25 letras, no 330, y al
-   terminar cada animación desaparece (no queda nada en el compositor).
-   Se ve igual: misma caída, misma curva, mismo escalonado.
-   ═════════════════════════════════════════════════════════════ */
+/* Cada letra cae a su lugar al entrar en pantalla. Un solo
+   requestAnimationFrame lanza cada letra cuando le toca (cada STAGGER_MS) con
+   la Web Animations API: no dispara eventos en el DOM y se animan ~25 letras a
+   la vez (con una animación CSS con delay por letra eran ~330 capas). */
 
 const STAGGER_MS = 12;
 const DURATION_MS = 300;

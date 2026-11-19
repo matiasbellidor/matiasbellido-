@@ -38,11 +38,8 @@ export default function FitnessHeader() {
   const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 30, mass: 0.3 });
 
   // Sección activa: la última cuyo borde de arriba ya pasó el 35 % de la pantalla.
-  // Rendimiento (2026-11-13): el borde de arriba de cada sección se mide una vez
-  // y otra vez solo cuando algo cambia de tamaño (ResizeObserver); en cada cuadro
-  // del scroll solo se compara con window.scrollY. Antes se medían todas las
-  // secciones en cada cuadro y eso obligaba a recalcular el layout (~13 ms por
-  // cuadro en un celular).
+  // Los bordes se miden una vez y de nuevo solo cuando algo cambia de tamaño
+  // (ResizeObserver); en cada cuadro del scroll solo se compara con scrollY.
   useEffect(() => {
     const order = nav.links.flatMap((link) => (SECTIONS_BY_LINK[link.id] ?? [link.id]).map((section) => ({ section, link: link.id })));
     let tops: { top: number; link: string }[] = [];

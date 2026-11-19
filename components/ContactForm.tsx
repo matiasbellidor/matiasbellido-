@@ -3,25 +3,15 @@
 import { useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/context/LanguageContext";
-/* Importados (no "/logos/…" como texto): Next les pone una huella del
-   contenido en el link, así un logo nuevo con el mismo nombre se ve al toque
-   (next/image guarda 30 días cada link; pasó con el cambio de Outlook) */
+/* Importados (no "/logos/…" como texto): el link lleva una huella del
+   contenido, así un logo nuevo con el mismo nombre se ve al toque */
 import gmailLogo from "@/public/logos/gmail.png";
 import outlookLogo from "@/public/logos/outlook.png";
 
-/* ═════════════════════════════════════════════════════════════
-   CONTACT FORM — arma el email y lo abre en Gmail u Outlook
-   Mismo patrón que el modal de Symbiosis (Projects.tsx): no hay
-   backend, solo se construye la URL de "redactar" del proveedor
-   elegido con destinatario, asunto y cuerpo ya cargados. La
-   persona solo tiene que tocar "Enviar" en su cuenta.
-   ═════════════════════════════════════════════════════════════ */
+/* Formulario de contacto sin backend: arma la URL de "redactar" de Gmail u
+   Outlook con destinatario, asunto y cuerpo, y la persona solo toca "Enviar". */
 
-/* Cada proveedor con el logo PNG de su app (public/logos; regla de Matías:
-   siempre el logo de la app, no un ícono genérico de sobre). Son los íconos
-   ACTUALES de la App Store (Matías rechazó el glifo viejo de Outlook), en el
-   mismo círculo blanco que los demás: ver scripts/appstore-logo.py en la
-   skill bellido-fitness. */
+/* Cada proveedor con el logo actual de su app (el ícono de la App Store) */
 const PROVIDERS = {
   gmail: {
     label: "Gmail",

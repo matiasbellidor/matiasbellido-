@@ -12,8 +12,8 @@ import { Reveal, SectionHeading, type FitnessAssets } from "./shared";
    La barra se mueve sola (centro → derecha → izquierda → centro, con una
    pausa) mientras el comparador está en pantalla. Mientras la persona la
    sostiene con el dedo o el mouse, la barra sigue al puntero; al soltarla
-   vuelve suave al recorrido desde donde quedó (pedido de Matías: que nunca
-   se quede quieta para siempre). Con el teclado (flechas) queda donde la
+   vuelve suave al recorrido desde donde quedó (nunca queda quieta para
+   siempre). Con el teclado (flechas) queda donde la
    dejan hasta que el foco sale de la manija.
    Rendimiento: todo se mueve con transform (la foto de "antes" se recorta
    con dos traslaciones opuestas), así que no se repinta la foto. El
@@ -35,10 +35,8 @@ const SWEEP_MS = 6500;
 /* Al soltar la barra, vuelve al recorrido en hasta 0,7 s (proporcional a la distancia) */
 const GLIDE_MS = 700;
 
-/* Encuadre de las fotos de cada cliente. Matías no quiere ninguna cara y
-   quiere ver el torso. Como el repo es público, las caras se cortan en el
-   ARCHIVO (los originales de Matías no se suben): 1 y 3 ya vienen cortadas;
-   2 y 4 se cortaron el 2026-11-06 (originales respaldados fuera del repo).
+/* Encuadre de las fotos de cada cliente: sin cara, con el torso. Como el repo
+   es público, las caras se cortan en el ARCHIVO (los originales no se suben).
    Todas se muestran con la foto entera salvo las de FRAMING, que fijan qué
    franja se ve, de arriba (`start`, 0–1) a abajo (`end`) de la foto YA
    cortada, por separado para el antes y el después: así se alinean dos fotos
@@ -51,7 +49,7 @@ const GLIDE_MS = 700;
    horizontal; por defecto 50, el centro). Cliente 1: en el "antes" el
    torso está a la izquierda de la foto (línea media al 35 % del ancho) y
    con el centro quedaba corrido, con el marco del espejo a la derecha;
-   con x = 0 queda centrado como el "después" (pedido de Matías). Sin
+   con x = 0 queda centrado como el "después". Sin
    zoom: las dos fotos ya tienen la misma escala y agrandar una exageraría
    el cambio. */
 const PRE_CROPPED_CLIENTS = new Set([1, 2, 3]);
@@ -118,7 +116,7 @@ export default function FitnessResults({ clients }: { clients: FitnessAssets["cl
    derecha a izquierda en loop. La lista está dos veces, así que -50 % cae
    donde empezó; cada "copia" se repite hasta pasar los 1800 px para que
    nunca quede un hueco. Con el mouse encima NO se frena: sigue más lento
-   (HOVER_RATE, como el .marquee de Vibear; pedido de Matías), con
+   (HOVER_RATE), con
    updatePlaybackRate, que cambia la velocidad sin saltar de posición. Se
    frena (pausa) mientras un dedo o el mouse aprietan una tarjeta (para
    arrastrar la barra sin que se corra; al soltar sigue en el acto), con el
@@ -132,8 +130,8 @@ export default function FitnessResults({ clients }: { clients: FitnessAssets["cl
    foco. Las animaciones están en fitness.css. */
 const CARD_PX = 364; // 340 de tarjeta + 24 de separación (desde md)
 const MIN_COPY_PX = 1800;
-const SPEED_PX_S = 55; // antes 35; Matías lo pidió más rápido (2026-11-06)
-/* Con el mouse encima va al 40 % de la velocidad (Vibear usa 0,3) */
+const SPEED_PX_S = 55;
+/* Con el mouse encima va al 40 % de la velocidad */
 const HOVER_RATE = 0.4;
 /* Un foco que llega hasta 800 ms después de tocar o hacer clic vino del puntero, no del teclado */
 const POINTER_FOCUS_MS = 800;
@@ -174,7 +172,7 @@ function ResultsCarousel({ clients }: { clients: FitnessAssets["clients"] }) {
     lastPointer.current = performance.now();
     setHolding(true);
   };
-  // Al soltar sigue en el acto (pedido de Matías: que nunca quede frenado)
+  // Al soltar sigue en el acto: nunca queda frenado
   const onPointerUp = () => setHolding(false);
 
   const renderSet = (copy: number) =>
@@ -349,13 +347,9 @@ function BeforeAfter({
   /* Recorrido automático: con el carrusel en pantalla, sin "reducir
      movimiento" y mientras nadie la sostiene ni la maneja con el teclado. Al
      (re)empezar se desliza desde donde está la barra hasta su punto del
-     recorrido y sigue desde ahí: nunca salta.
-     Rendimiento (2026-11-13): antes un requestAnimationFrame por comparador
-     escribía --pos en cada cuadro; con 16 comparadores (el carrusel repite la
-     lista) y un IntersectionObserver para cada uno, el hilo principal quedaba
-     ocupado ~95 % del tiempo con la página quieta frente a Resultados (celular
-     emulado). Ahora el recorrido son animaciones de transform de la Web
-     Animations API: corren en el compositor y el hilo principal queda libre. */
+     recorrido y sigue desde ahí: nunca salta. Son animaciones de transform de
+     la Web Animations API: corren en el compositor, así 16 comparadores no
+     ocupan el hilo principal con la página quieta. */
   useEffect(() => {
     if (held || keyboard || reduced || !active) return;
     const layers = [clipRef.current, innerRef.current, barRef.current];

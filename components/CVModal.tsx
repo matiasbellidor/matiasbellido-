@@ -6,13 +6,9 @@ import { Download, X } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useModal } from "@/context/ModalContext";
 
-/* ═════════════════════════════════════════════════════════════
-   CV MODAL — vista previa + descarga, dentro de la misma página
-   El PDF va en /public con este nombre exacto. El atributo
-   `download` fuerza el nombre del archivo guardado, optimizado
-   para búsquedas de recruiters de Data Analytics.
-   ═════════════════════════════════════════════════════════════ */
-export const CV_PATH = "/Matias_Bellido_Data_Analytics_CV.pdf";
+/* Vista previa y descarga del CV en la misma página. El PDF va en /public con
+   este nombre; `download` fija el nombre del archivo guardado. */
+const CV_PATH = "/Matias_Bellido_Data_Analytics_CV.pdf";
 const CV_FILENAME = "Matias_Bellido_Data_Analytics_CV.pdf";
 
 export default function CVModal({ open, onClose }: { open: boolean; onClose: () => void }) {

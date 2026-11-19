@@ -18,7 +18,7 @@
    Cinzel © Natanael Gama, SIL Open Font License 1.1. Fuente variable: un
    archivo cubre del 400 al 900. Se sirve desde public/fitness/fonts con un
    nombre FIJO: con next/font el nombre lleva un hash, y si el .next del dev
-   se desincroniza (pasó el 2026-11-06), el HTML y el CSS quedan con hashes
+   se desincroniza, el HTML y el CSS quedan con hashes
    distintos y "BELLIDO" sale en otra fuente. Así no depende de eso.
    El archivo latin se precarga en app/fitness/layout.tsx. */
 @font-face {

@@ -6,7 +6,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { EASE, FitnessSection, SectionHeading } from "./shared";
 
 /* Asimilación del deportista (PDF): los tres primeros meses como una línea
-   de tiempo. El período de prueba se sacó a pedido de Matías (2026-11-06). */
+   de tiempo */
 export default function FitnessAssimilation() {
   const { t } = useLanguage();
   const a = t.fitness.assimilation;

@@ -1,24 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // !! ADVERTENCIA !!
-    // Esto permite que el build termine exitosamente aunque
-    // tu proyecto tenga errores de TypeScript.
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Esto ignora los errores de ESLint durante el build.
-    ignoreDuringBuilds: true,
-  },
+  // El build no corre tsc ni ESLint: `npx tsc --noEmit` se corre a mano
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   images: {
-    // next/image sirve AVIF (más liviano) y cae a WebP si el navegador no lo soporta.
     formats: ["image/avif", "image/webp"],
-    // Breakpoints acotados a los tamaños reales del layout → menos variantes, caché más eficiente.
-    // 512: escalón intermedio para la foto del Hero y las tarjetas (antes saltaban de 414 a 640).
+    // Acotados a los anchos reales del layout: menos variantes por imagen.
+    // 512: escalón intermedio para la foto del Hero y las tarjetas.
     deviceSizes: [360, 414, 512, 640, 768, 1024, 1280, 1920],
     imageSizes: [56, 96, 112, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
